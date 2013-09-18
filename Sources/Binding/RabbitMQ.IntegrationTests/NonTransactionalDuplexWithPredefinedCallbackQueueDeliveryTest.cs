@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ServiceModel;
+using System.ServiceModel.Description;
 using FakeItEasy;
 using FluentAssertions;
-
 using MessageBus.Binding.RabbitMQ;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.IntegrationTests.ContractsAndServices;
@@ -10,8 +10,10 @@ using RabbitMQ.IntegrationTests.ContractsAndServices;
 namespace RabbitMQ.IntegrationTests
 {
     [TestClass]
-    public class NonTransactionalOneWayDeliveryTest : OneWayDeliveryTestBase
+    public class NonTransactionalDuplexWithPredefinedCallbackQueueDeliveryTest : DuplexDeliveryTestBase
     {
+        Data _replyData;
+
         /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
         ///  \_/   \_______________/ \_______/ \__/ \_________/ \_____________/ \______________/
@@ -33,27 +35,39 @@ namespace RabbitMQ.IntegrationTests
         [TestInitialize]
         public void TestInitialize()
         {
-            _host = new ServiceHost(new OneWayService(_processorFake, _errorProcessorFake));
+            _replyData = new Data
+                {
+                    Id = 2,
+                    Name = "Reply"
+                };
 
-            const string serviceAddress = "amqp://localhost/myQueue?routingKey=OneWayService";
+            _host = new ServiceHost(new DuplexService(_processorFake, _replyData));
 
-            _host.AddServiceEndpoint(typeof(IOneWayService), new RabbitMQBinding
+            const string serviceAddress = "amqp://localhost/myDuplexQueue?routingKey=DuplexService";
+
+            ServiceEndpoint endpoint = _host.AddServiceEndpoint(typeof (IDuplexService), new RabbitMQBinding
                 {
                     AutoBindExchange = "amq.direct", // If not null, queue will be automatically binded to the exchange using provided routingKey (if any)
                     ExactlyOnce = false, // Non-transactional consumption,
-                    OneWayOnly = true, // Use False only if calback communication required
+                    OneWayOnly = false, // Use False only if calback communication required
                     //TTL = 1000, // Message time to leave in miliseconds
                     //PersistentDelivery = true // If true, every message will be written to disk on rabbitMQ broker side before dispatching to the destination(s)
                 }, serviceAddress);
 
+            // Required behaviour for duplex comunication
+            endpoint.Behaviors.Add(new ReplyToBehavior());
+
             _host.Open();
 
 
-            const string clientAddress = "amqp://localhost/amq.direct?routingKey=OneWayService";
+            const string clientAddress = "amqp://localhost/amq.direct?routingKey=DuplexService";
 
-            _channelFactory = new ChannelFactory<IOneWayService>(new RabbitMQBinding
+            _channelFactory = new DuplexChannelFactory<IDuplexService>(new InstanceContext(_callbackFake), new RabbitMQBinding
                 {
-                    OneWayOnly = true
+                    OneWayOnly = false,
+                    AutoBindExchange = "amq.direct",
+                    ReplyToExchange = new Uri("amqp://localhost/amq.direct?routingKey=DuplexCallbackService"),
+                    ReplyToQueue = "myCallBackQueue?routingKey=DuplexCallbackService"
                 }, clientAddress);
 
             _channelFactory.Open();
@@ -61,9 +75,9 @@ namespace RabbitMQ.IntegrationTests
 
 
         [TestMethod]
-        public void TestNonTransactionalOneWayDelivery()
+        public void TestNonTransactionalDuplexWithPredefinedCallbackQueueDelivery()
         {
-            IOneWayService channel = _channelFactory.CreateChannel();
+            IDuplexService channel = _channelFactory.CreateChannel();
 
             Data data = new Data
                 {
@@ -72,17 +86,24 @@ namespace RabbitMQ.IntegrationTests
                 };
 
             A.CallTo(_errorProcessorFake).DoesNothing();
-            A.CallTo(() => _processorFake.Say(A<Data>.Ignored)).Invokes(() => _ev.Set());
+            A.CallTo(() => _callbackFake.Say(A<Data>.Ignored)).Invokes(() => _ev.Set());
 
             channel.Say(data);
 
             bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
 
-            Assert.IsTrue(wait, "Service were not being invoked");
+            Assert.IsTrue(wait, "Callback were not being invoked");
 
             A.CallTo(() => _processorFake.Say(A<Data>._)).WhenArgumentsMatch(collection =>
                 {
                     data.ShouldBeEquivalentTo(collection[0]);
+
+                    return true;
+                }).MustHaveHappened(Repeated.Like(i => i == 1));
+            
+            A.CallTo(() => _callbackFake.Say(A<Data>._)).WhenArgumentsMatch(collection =>
+                {
+                    _replyData.ShouldBeEquivalentTo(collection[0]);
 
                     return true;
                 }).MustHaveHappened(Repeated.Like(i => i == 1));

@@ -2,7 +2,6 @@
 using System.ServiceModel;
 using FakeItEasy;
 using FluentAssertions;
-
 using MessageBus.Binding.RabbitMQ;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.IntegrationTests.ContractsAndServices;
@@ -10,7 +9,7 @@ using RabbitMQ.IntegrationTests.ContractsAndServices;
 namespace RabbitMQ.IntegrationTests
 {
     [TestClass]
-    public class NonTransactionalOneWayDeliveryTest : OneWayDeliveryTestBase
+    public class TransactionalOneWayConsumptionTest : OneWayDeliveryTestBase
     {
         /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
@@ -33,6 +32,8 @@ namespace RabbitMQ.IntegrationTests
         [TestInitialize]
         public void TestInitialize()
         {
+            _processorFake = A.Fake<IOneWayService>();
+
             _host = new ServiceHost(new OneWayService(_processorFake, _errorProcessorFake));
 
             const string serviceAddress = "amqp://localhost/myQueue?routingKey=OneWayService";
@@ -40,7 +41,7 @@ namespace RabbitMQ.IntegrationTests
             _host.AddServiceEndpoint(typeof(IOneWayService), new RabbitMQBinding
                 {
                     AutoBindExchange = "amq.direct", // If not null, queue will be automatically binded to the exchange using provided routingKey (if any)
-                    ExactlyOnce = false, // Non-transactional consumption,
+                    ExactlyOnce = true, // Transactional consumption,
                     OneWayOnly = true, // Use False only if calback communication required
                     //TTL = 1000, // Message time to leave in miliseconds
                     //PersistentDelivery = true // If true, every message will be written to disk on rabbitMQ broker side before dispatching to the destination(s)
@@ -61,7 +62,7 @@ namespace RabbitMQ.IntegrationTests
 
 
         [TestMethod]
-        public void TestNonTransactionalOneWayDelivery()
+        public void TestTransactionalOneWayConsumption()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 
@@ -71,7 +72,7 @@ namespace RabbitMQ.IntegrationTests
                     Name = "Rabbit"
                 };
 
-            A.CallTo(_errorProcessorFake).DoesNothing();
+            A.CallTo(() => _errorProcessorFake.Say(A<Data>._)).Throws(() => new Exception("Error while processing data")).Once();
             A.CallTo(() => _processorFake.Say(A<Data>.Ignored)).Invokes(() => _ev.Set());
 
             channel.Say(data);
@@ -85,7 +86,7 @@ namespace RabbitMQ.IntegrationTests
                     data.ShouldBeEquivalentTo(collection[0]);
 
                     return true;
-                }).MustHaveHappened(Repeated.Like(i => i == 1));
+                }).MustHaveHappened();
         }
     }
 }
