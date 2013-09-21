@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
+using System.Transactions;
 using FakeItEasy;
 using FluentAssertions;
 using MessageBus.Binding.RabbitMQ;
@@ -9,7 +10,7 @@ using RabbitMQ.IntegrationTests.ContractsAndServices;
 namespace RabbitMQ.IntegrationTests
 {
     [TestClass]
-    public class TransactionalOneWayConsumptionTest : OneWayDeliveryTestBase
+    public class TransactionalOneWayTest : OneWayDeliveryTestBase
     {
         /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
@@ -62,7 +63,7 @@ namespace RabbitMQ.IntegrationTests
 
 
         [TestMethod]
-        public void TestTransactionalOneWayConsumption()
+        public void TestTransactionalConsumption()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 
@@ -87,6 +88,56 @@ namespace RabbitMQ.IntegrationTests
 
                     return true;
                 }).MustHaveHappened();
+        }
+        
+        [TestMethod]
+        public void TestTransactionalDispatching()
+        {
+            IOneWayService channel = _channelFactory.CreateChannel();
+
+            Data data = new Data
+                {
+                    Id = 1,
+                    Name = "Rabbit"
+                };
+
+            A.CallTo(() => _errorProcessorFake.Say(A<Data>._)).DoesNothing();
+            A.CallTo(() => _processorFake.Say(A<Data>.Ignored)).Invokes(() => _ev.Set());
+
+            using (TransactionScope transaction = new TransactionScope(TransactionScopeOption.RequiresNew))
+            {
+                channel.Say(data);
+
+                channel.Say(data);
+
+                // Do not call transaction complete
+            }
+            
+
+            bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
+
+            Assert.IsFalse(wait, "Service should not be invoked");
+
+            A.CallTo(() => _processorFake.Say(A<Data>._)).MustNotHaveHappened();
+
+            using (TransactionScope transaction = new TransactionScope(TransactionScopeOption.RequiresNew))
+            {
+                channel.Say(data);
+
+                // No complete the transaction
+                transaction.Complete();
+            }
+
+            wait = _ev.Wait(TimeSpan.FromSeconds(10));
+
+            Assert.IsTrue(wait, "Service were not being invoked");
+
+            A.CallTo(() => _processorFake.Say(A<Data>._)).WhenArgumentsMatch(collection =>
+            {
+                data.ShouldBeEquivalentTo(collection[0]);
+
+                return true;
+            }).MustHaveHappened();
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
-
+using System.Transactions;
 using RabbitMQ.Client;
 
 namespace MessageBus.Binding.RabbitMQ
@@ -62,6 +62,13 @@ namespace MessageBus.Binding.RabbitMQ
                 }
 
                 RabbitMQUri uri = new RabbitMQUri(RemoteAddress.Uri);
+                
+                if (Transaction.Current != null)
+                {
+                    _model.TxSelect();
+
+                    Transaction.Current.EnlistVolatile(new TransactionalDispatchingEnslistment(_model), EnlistmentOptions.None);
+                }
 
                 _model.BasicPublish(uri.Endpoint,
                                      uri.RoutingKey,
@@ -103,12 +110,13 @@ namespace MessageBus.Binding.RabbitMQ
         {
             if (State != CommunicationState.Created && State != CommunicationState.Closed)
                 throw new InvalidOperationException(string.Format("Cannot open the channel from the {0} state.", State));
-
+            
             OnOpening();
 #if VERBOSE
             DebugHelper.Start();
 #endif
             _model = ConnectionManager.Instance.OpenModel(new RabbitMQUri(RemoteAddress.Uri), _bindingElement.BrokerProtocol, timeout);
+            
 #if VERBOSE
             DebugHelper.Stop(" ## Out.Open {{Time={0}ms}}.");
 #endif
@@ -118,6 +126,46 @@ namespace MessageBus.Binding.RabbitMQ
         private long GetUnixTime(DateTime dateTime)
         {
             return Convert.ToInt64((dateTime.Subtract(new DateTime(1970, 1, 1, 0, 0, 0))).TotalSeconds);
+        }
+    }
+
+    internal class TransactionalDispatchingEnslistment : IEnlistmentNotification
+    {
+        private readonly IModel _model;
+
+        public TransactionalDispatchingEnslistment(IModel model)
+        {
+            _model = model;
+        }
+
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            preparingEnlistment.Prepared();
+        }
+
+        public void Commit(Enlistment enlistment)
+        {
+            if (_model.IsOpen)
+            {
+                _model.TxCommit();
+            }
+
+            enlistment.Done();
+        }
+
+        public void Rollback(Enlistment enlistment)
+        {
+            if (_model.IsOpen)
+            {
+                _model.TxRollback();
+            }
+
+            enlistment.Done();
+        }
+
+        public void InDoubt(Enlistment enlistment)
+        {
+            enlistment.Done();
         }
     }
 }

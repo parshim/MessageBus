@@ -27,8 +27,11 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
         {
             BasicDeliverEventArgs message = base.Dequeue();
 
-            Transaction.Current.EnlistVolatile(new TransactionalQueueConsumerEnslistment(message.DeliveryTag, Model), EnlistmentOptions.None);
-            
+            if (message != null && Transaction.Current != null)
+            {
+                Transaction.Current.EnlistVolatile(new TransactionalQueueConsumerEnslistment(message.DeliveryTag, Model), EnlistmentOptions.None);
+            }
+
             return message;
         }
 
