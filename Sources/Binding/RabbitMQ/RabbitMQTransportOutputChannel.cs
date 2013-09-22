@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Transactions;
@@ -12,9 +13,12 @@ namespace MessageBus.Binding.RabbitMQ
         private readonly RabbitMQTransportBindingElement _bindingElement;
         private readonly MessageEncoder _encoder;
         private IModel _model;
+        private bool _transactional;
 
-        public RabbitMQTransportOutputChannel(BindingContext context, EndpointAddress address)
-            : base(context, address)
+        private readonly List<string> _transactionIdentifiers = new List<string>();
+
+        public RabbitMQTransportOutputChannel(BindingContext context, EndpointAddress address, Uri via)
+            : base(context, address, via)
         {
             MessageEncodingBindingElement encoderElement = context.Binding.Elements.Find<MessageEncodingBindingElement>();
             if (encoderElement != null) {
@@ -24,10 +28,57 @@ namespace MessageBus.Binding.RabbitMQ
             _bindingElement = context.Binding.Elements.Find<RabbitMQTransportBindingElement>();
         }
 
+        public override void Open(TimeSpan timeout)
+        {
+            if (State != CommunicationState.Created && State != CommunicationState.Closed)
+                throw new InvalidOperationException(string.Format("Cannot open the channel from the {0} state.", State));
+            
+            OnOpening();
+#if VERBOSE
+            DebugHelper.Start();
+#endif
+            _model = ConnectionManager.Instance.OpenModel(new RabbitMQUri(RemoteAddress.Uri), _bindingElement.BrokerProtocol, timeout);
+
+            if (Transaction.Current != null)
+            {
+                _model.TxSelect();
+
+                _transactional = true;
+            }
+
+#if VERBOSE
+            DebugHelper.Stop(" ## Out.Open {{Time={0}ms}}.");
+#endif
+            OnOpened();
+        }
+        
+        public override void Close(TimeSpan timeout)
+        {
+            if (State == CommunicationState.Closed || State == CommunicationState.Closing)
+                return; // Ignore the call, we're already closing.
+
+            OnClosing();
+
+#if VERBOSE
+            DebugHelper.Start();
+#endif
+
+            if (_model != null)
+            {
+                ConnectionManager.Instance.CloseModel(_model, timeout);
+                _model = null;
+            }
+
+#if VERBOSE
+            DebugHelper.Stop(" ## Out.Close {{Time={0}ms}}.");
+#endif
+            OnClosed();
+        }
+
         public override void Send(Message message, TimeSpan timeout)
         {
             if (State == CommunicationState.Opened && !message.IsFault)
-            {       
+            {
 #if VERBOSE
                 DebugHelper.Start();
 #endif
@@ -62,12 +113,24 @@ namespace MessageBus.Binding.RabbitMQ
                 }
 
                 RabbitMQUri uri = new RabbitMQUri(RemoteAddress.Uri);
-                
-                if (Transaction.Current != null)
-                {
-                    _model.TxSelect();
 
-                    Transaction.Current.EnlistVolatile(new TransactionalDispatchingEnslistment(_model), EnlistmentOptions.None);
+                if (_transactional)
+                {
+                    Transaction current = Transaction.Current;
+
+                    if (current == null)
+                    {
+                        throw new FaultException("Channel used inside transaction scope can not be used without transaction thereafter. Reopen client channel.");
+                    }
+
+                    if (!_transactionIdentifiers.Contains(current.TransactionInformation.LocalIdentifier))
+                    {
+                        current.EnlistVolatile(new TransactionalDispatchingEnslistment(_model), EnlistmentOptions.None);
+
+                        current.TransactionCompleted += CurrentOnTransactionCompleted;
+
+                        _transactionIdentifiers.Add(current.TransactionInformation.LocalIdentifier);
+                    }
                 }
 
                 _model.BasicPublish(uri.Endpoint,
@@ -83,44 +146,11 @@ namespace MessageBus.Binding.RabbitMQ
             }
         }
 
-        public override void Close(TimeSpan timeout)
+        private void CurrentOnTransactionCompleted(object sender, TransactionEventArgs transactionEventArgs)
         {
-            if (State == CommunicationState.Closed || State == CommunicationState.Closing)
-                return; // Ignore the call, we're already closing.
+            transactionEventArgs.Transaction.TransactionCompleted -= CurrentOnTransactionCompleted;
 
-            OnClosing();
-
-#if VERBOSE
-            DebugHelper.Start();
-#endif
-
-            if (_model != null)
-            {
-                ConnectionManager.Instance.CloseModel(_model, timeout);
-                _model = null;
-            }
-
-#if VERBOSE
-            DebugHelper.Stop(" ## Out.Close {{Time={0}ms}}.");
-#endif
-            OnClosed();
-        }
-
-        public override void Open(TimeSpan timeout)
-        {
-            if (State != CommunicationState.Created && State != CommunicationState.Closed)
-                throw new InvalidOperationException(string.Format("Cannot open the channel from the {0} state.", State));
-            
-            OnOpening();
-#if VERBOSE
-            DebugHelper.Start();
-#endif
-            _model = ConnectionManager.Instance.OpenModel(new RabbitMQUri(RemoteAddress.Uri), _bindingElement.BrokerProtocol, timeout);
-            
-#if VERBOSE
-            DebugHelper.Stop(" ## Out.Open {{Time={0}ms}}.");
-#endif
-            OnOpened();
+            _transactionIdentifiers.Remove(transactionEventArgs.Transaction.TransactionInformation.LocalIdentifier);
         }
 
         private long GetUnixTime(DateTime dateTime)

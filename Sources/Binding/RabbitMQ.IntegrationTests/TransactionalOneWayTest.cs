@@ -91,7 +91,37 @@ namespace RabbitMQ.IntegrationTests
         }
         
         [TestMethod]
-        public void TestTransactionalDispatching()
+        public void Test_TransactionalDispatching_MessagesRollbacked()
+        {
+            IOneWayService channel = _channelFactory.CreateChannel();
+
+            Data data = new Data
+                {
+                    Id = 1,
+                    Name = "Rabbit"
+                };
+
+            A.CallTo(() => _errorProcessorFake.Say(A<Data>._)).DoesNothing();
+            A.CallTo(() => _processorFake.Say(A<Data>.Ignored)).Invokes(() => _ev.Set());
+
+            using (new TransactionScope(TransactionScopeOption.RequiresNew))
+            {
+                channel.Say(data);
+
+                channel.Say(data);
+
+                // Do not call transaction complete
+            }
+            
+            bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
+
+            Assert.IsFalse(wait, "Service should not be invoked");
+
+            A.CallTo(() => _processorFake.Say(A<Data>._)).MustNotHaveHappened();
+        }
+        
+        [TestMethod]
+        public void Test_TransactionalDispatching_MessagesCommited()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 
@@ -108,27 +138,11 @@ namespace RabbitMQ.IntegrationTests
             {
                 channel.Say(data);
 
-                channel.Say(data);
-
-                // Do not call transaction complete
-            }
-            
-
-            bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
-
-            Assert.IsFalse(wait, "Service should not be invoked");
-
-            A.CallTo(() => _processorFake.Say(A<Data>._)).MustNotHaveHappened();
-
-            using (TransactionScope transaction = new TransactionScope(TransactionScopeOption.RequiresNew))
-            {
-                channel.Say(data);
-
-                // No complete the transaction
+                // Complete the transaction
                 transaction.Complete();
             }
 
-            wait = _ev.Wait(TimeSpan.FromSeconds(10));
+            bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
 
             Assert.IsTrue(wait, "Service were not being invoked");
 
@@ -138,6 +152,38 @@ namespace RabbitMQ.IntegrationTests
 
                 return true;
             }).MustHaveHappened();
+        }
+        
+        [TestMethod, ExpectedException(typeof(FaultException))]
+        public void Test_TransactionalDispatching_ExceptionIfTransactionalChannelUsedOutOfTheTransactionScope()
+        {
+            IOneWayService channel = _channelFactory.CreateChannel();
+
+            Data data = new Data
+                {
+                    Id = 1,
+                    Name = "Rabbit"
+                };
+
+            A.CallTo(() => _errorProcessorFake.Say(A<Data>._)).DoesNothing();
+            A.CallTo(() => _processorFake.Say(A<Data>.Ignored)).Invokes(() => _ev.Set());
+
+            using (TransactionScope transaction = new TransactionScope(TransactionScopeOption.RequiresNew))
+            {
+                channel.Say(data);
+
+                // Complete the transaction
+                transaction.Complete();
+            }
+
+            bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
+
+            Assert.IsTrue(wait, "Service were not being invoked");
+
+            // Same channel instance can't be used outsode transaction scope
+            channel.Say(new Data());
+
+            Assert.Fail("Same channel instance can't be used outsode transaction scope");
         }
     }
 }

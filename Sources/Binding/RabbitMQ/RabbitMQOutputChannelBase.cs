@@ -8,15 +8,16 @@ namespace MessageBus.Binding.RabbitMQ
     {
         private readonly SendOperation _sendMethod;
         private readonly EndpointAddress _address;
+        private readonly Uri _via;
 
-        protected RabbitMQOutputChannelBase(BindingContext context, EndpointAddress address)
+        protected RabbitMQOutputChannelBase(BindingContext context, EndpointAddress address, Uri via)
             : base(context)
         {
             _address = address;
+            _via = via;
             _sendMethod = Send;
         }
-
-
+        
         #region Async Methods
 
         public IAsyncResult BeginSend(Message message, TimeSpan timeout, AsyncCallback callback, object state)
@@ -50,7 +51,7 @@ namespace MessageBus.Binding.RabbitMQ
 
         public Uri Via
         {
-            get { throw new NotImplementedException(); }
+            get { return _via; }
         }
     }
 }

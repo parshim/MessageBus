@@ -21,7 +21,7 @@ namespace MessageBus.Binding.RabbitMQ
 
             if (typeof (T) == typeof (IOutputChannel))
             {    
-                channel = new RabbitMQTransportOutputChannel(_context, address);
+                channel = new RabbitMQTransportOutputChannel(_context, address, via);
             }
             else
             {
