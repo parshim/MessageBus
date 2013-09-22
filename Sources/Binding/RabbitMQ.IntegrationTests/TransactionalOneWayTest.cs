@@ -16,7 +16,7 @@ namespace RabbitMQ.IntegrationTests
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
         ///  \_/   \_______________/ \_______/ \__/ \_________/ \_____________/ \______________/
         ///   |           |              |       |       |            |                 |                
-        ///   |           |        node hostname |       |            |         Specifies routing key value, may be empty
+        ///   |           |      broker hostname |       |            |         Specifies routing key value, may be empty
         ///   |           |                      |       |            |
         ///   |           |                      |  virtual host, should be absent if rabbit MQ not in cluster mode  
         ///   |           |                      |                    | 
