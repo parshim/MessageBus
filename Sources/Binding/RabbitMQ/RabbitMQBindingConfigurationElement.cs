@@ -43,6 +43,11 @@ namespace MessageBus.Binding.RabbitMQ
                 MaxMessageSize = rabbind.MaxMessageSize;
                 ExactlyOnce = rabbind.ExactlyOnce;
                 TTL = rabbind.TTL;
+                ReplyToExchange = rabbind.ReplyToQueue;
+                AutoBindExchange = rabbind.AutoBindExchange;
+                PersistentDelivery = rabbind.PersistentDelivery;
+                OneWayOnly = rabbind.OneWayOnly;
+                ReplyToQueue = rabbind.ReplyToQueue;
             }
         }
 
@@ -74,7 +79,7 @@ namespace MessageBus.Binding.RabbitMQ
         /// <summary>
         /// Enables transactional message delivery
         /// </summary>
-        [ConfigurationProperty("exactlyOnce")]
+        [ConfigurationProperty("exactlyOnce", DefaultValue = false)]
         public bool ExactlyOnce
         {
             get { return ((bool)base["exactlyOnce"]); }
@@ -84,7 +89,7 @@ namespace MessageBus.Binding.RabbitMQ
         /// <summary>
         /// Defines messages delivery mode
         /// </summary>
-        [ConfigurationProperty("persistentDelivery")]
+        [ConfigurationProperty("persistentDelivery", DefaultValue = false)]
         public bool PersistentDelivery
         {
             get { return ((bool)base["persistentDelivery"]); }
