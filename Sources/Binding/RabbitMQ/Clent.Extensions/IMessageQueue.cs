@@ -94,5 +94,17 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
         ///shutdown. Otherwise it will contain null. See
         ///ShutdownEventArgs.</summary>
         ShutdownEventArgs ShutdownReason { get; }
+
+        /// <summary>
+        /// Ensure that message with suplied delivery tag will not be redelivered
+        /// </summary>
+        /// <param name="deliveryTag"></param>
+        void DropMessage(ulong deliveryTag);
+
+        /// <summary>
+        /// Message is accepted for processing
+        /// </summary>
+        /// <param name="deliveryTag"></param>
+        void AcceptMessage(ulong deliveryTag);
     }
 }

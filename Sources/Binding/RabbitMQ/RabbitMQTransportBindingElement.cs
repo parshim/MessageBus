@@ -30,6 +30,8 @@ namespace MessageBus.Binding.RabbitMQ
             ReplyToQueue = other.ReplyToQueue;
             ReplyToExchange = other.ReplyToExchange;
             OneWayOnly = other.OneWayOnly;
+            ApplicationId = other.ApplicationId;
+            IgnoreSelfPublished = other.IgnoreSelfPublished;
         }
         
         public override IChannelFactory<TChannel> BuildChannelFactory<TChannel>(BindingContext context)
@@ -39,8 +41,6 @@ namespace MessageBus.Binding.RabbitMQ
 
         public override IChannelListener<TChannel> BuildChannelListener<TChannel>(BindingContext context)
         {
-            bool autoDelete = false;
-
             string bindToExchange = AutoBindExchange;
 
             if (context.ListenUriBaseAddress == null)
@@ -53,18 +53,12 @@ namespace MessageBus.Binding.RabbitMQ
                 RabbitMQUri uri = new RabbitMQUri(ReplyToExchange);
 
                 context.ListenUriMode = ListenUriMode.Explicit;
-                
+
+                context.ListenUriRelativeAddress = ReplyToQueue;
+
                 if (ReplyToQueue == null)
                 {
-                    autoDelete = true;
-
                     bindToExchange = uri.Endpoint;
-
-                    context.ListenUriRelativeAddress = Guid.NewGuid().ToString();
-                }
-                else
-                {
-                    context.ListenUriRelativeAddress = ReplyToQueue;
                 }
 
                 if (uri.Port.HasValue)
@@ -79,7 +73,7 @@ namespace MessageBus.Binding.RabbitMQ
 
             Uri listenUri = new Uri(context.ListenUriBaseAddress, context.ListenUriRelativeAddress ?? "");
             
-            return new RabbitMQTransportChannelListener<TChannel>(context, listenUri, autoDelete, bindToExchange);
+            return new RabbitMQTransportChannelListener<TChannel>(context, listenUri, bindToExchange);
         }
 
         public override bool CanBuildChannelFactory<TChannel>(BindingContext context)
@@ -180,5 +174,21 @@ namespace MessageBus.Binding.RabbitMQ
         /// Defines if one way or duplex comunication is required over this binding
         /// </summary>
         public bool OneWayOnly { get; set; }
+        
+        /// <summary>
+        /// Application identificator. If not blanked will attached to the published messages. 
+        /// </summary>
+        /// <remarks>
+        /// If IgnoreSelfPublished is True messages with same application id will be dropped. 
+        /// </remarks>
+        /// <remarks>
+        /// If not blanked application id will be used as queue name if queue name is not supplied by listener address or ReplyToQueue
+        /// </remarks>
+        public string ApplicationId { get; set; }
+
+        /// <summary>
+        /// Defines if messages published with same application id will be ignored
+        /// </summary>
+        public bool IgnoreSelfPublished { get; set; }
     }
 }

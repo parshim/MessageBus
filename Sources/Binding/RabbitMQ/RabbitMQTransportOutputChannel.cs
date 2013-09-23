@@ -90,6 +90,8 @@ namespace MessageBus.Binding.RabbitMQ
                 basicProperties.Timestamp = new AmqpTimestamp(GetUnixTime(DateTime.Now));
                 basicProperties.ContentType = "SOAP";
                 basicProperties.DeliveryMode = _bindingElement.PersistentDelivery ? (byte)2 : (byte)1;
+                basicProperties.AppId = _bindingElement.ApplicationId ?? "";
+
                 if (!string.IsNullOrEmpty(_bindingElement.TTL))
                 {
                     basicProperties.Expiration = _bindingElement.TTL;

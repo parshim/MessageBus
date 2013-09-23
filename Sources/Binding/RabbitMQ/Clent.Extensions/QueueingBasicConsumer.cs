@@ -20,6 +20,16 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
             : base(model, queue)
         {
         }
+
+        public override void DropMessage(ulong deliveryTag)
+        {
+            
+        }
+
+        public override void AcceptMessage(ulong deliveryTag)
+        {
+            
+        }
     }
     
 }

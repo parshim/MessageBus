@@ -48,6 +48,8 @@ namespace MessageBus.Binding.RabbitMQ
                 PersistentDelivery = rabbind.PersistentDelivery;
                 OneWayOnly = rabbind.OneWayOnly;
                 ReplyToQueue = rabbind.ReplyToQueue;
+                ApplicationId = rabbind.ApplicationId;
+                IgnoreSelfPublished = rabbind.IgnoreSelfPublished;
             }
         }
 
@@ -74,6 +76,8 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.ReplyToExchange = ReplyToExchange == null ? null : new Uri(ReplyToExchange);
             rabbind.ReplyToQueue = ReplyToQueue;
             rabbind.TTL = TTL;
+            rabbind.IgnoreSelfPublished = IgnoreSelfPublished;
+            rabbind.ApplicationId = ApplicationId;
         }
 
         /// <summary>
@@ -104,6 +108,32 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get { return ((bool)base["oneWayOnly"]); }
             set { base["oneWayOnly"] = value; }
+        }
+        
+        /// <summary>
+        /// Defines if messages published with same application id will be ignored
+        /// </summary>
+        [ConfigurationProperty("ignoreSelfPublished", DefaultValue = true)]
+        public bool IgnoreSelfPublished
+        {
+            get { return ((bool)base["ignoreSelfPublished"]); }
+            set { base["ignoreSelfPublished"] = value; }
+        }
+
+        /// <summary>
+        /// Application identificator. If not blanked will attached to the published messages. 
+        /// </summary>
+        /// <remarks>
+        /// If IgnoreSelfPublished is True messages with same application id will be dropped. 
+        /// </remarks>
+        /// <remarks>
+        /// If not blanked application id will be used as queue name if queue name is not supplied by listener address or ReplyToQueue
+        /// </remarks>
+        [ConfigurationProperty("applicationId", DefaultValue = null)]
+        public string ApplicationId
+        {
+            get { return ((string)base["applicationId"]); }
+            set { base["applicationId"] = value; }
         }
 
         /// <summary>

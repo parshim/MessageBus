@@ -15,7 +15,6 @@ namespace MessageBus.Binding.RabbitMQ
 {
     internal sealed class RabbitMQTransportInputChannel : RabbitMQInputChannelBase
     {
-        private readonly bool _autoDelete;
         private readonly string _bindToExchange;
         private readonly RabbitMQTransportBindingElement _bindingElement;
         private readonly MessageEncoder _encoder;
@@ -23,9 +22,8 @@ namespace MessageBus.Binding.RabbitMQ
         private IModel _model;
         private IMessageQueue _messageQueue;
         
-        public RabbitMQTransportInputChannel(BindingContext context, EndpointAddress address, bool autoDelete, string bindToExchange) : base(context, address)
+        public RabbitMQTransportInputChannel(BindingContext context, EndpointAddress address, string bindToExchange) : base(context, address)
         {
-            _autoDelete = autoDelete;
             _bindToExchange = bindToExchange;
             _bindingElement = context.Binding.Elements.Find<RabbitMQTransportBindingElement>();
             TextMessageEncodingBindingElement encoderElem = context.BindingParameters.Find<TextMessageEncodingBindingElement>();
@@ -48,6 +46,17 @@ namespace MessageBus.Binding.RabbitMQ
 #if VERBOSE
                 DebugHelper.Start();
 #endif
+                string messageAppId = result.BasicProperties.AppId;
+                
+                if (_bindingElement.IgnoreSelfPublished && MatchApplicationId(messageAppId))
+                {
+                    _messageQueue.DropMessage(result.DeliveryTag);
+
+                    return null;
+                }
+
+                _messageQueue.AcceptMessage(result.DeliveryTag);
+
                 Message message = _encoder.ReadMessage(new MemoryStream(result.Body), (int)_bindingElement.MaxReceivedMessageSize);
                 message.Headers.To = LocalAddress.Uri;
 #if VERBOSE
@@ -66,6 +75,13 @@ namespace MessageBus.Binding.RabbitMQ
                 Close();
                 return null;
             }
+        }
+
+        private bool MatchApplicationId(string messageAppId)
+        {
+            return !string.IsNullOrEmpty(messageAppId) && 
+                   !string.IsNullOrEmpty(_bindingElement.ApplicationId) &&
+                   messageAppId.Equals(_bindingElement.ApplicationId);
         }
 
         public override bool TryReceive(TimeSpan timeout, out Message message)
@@ -129,7 +145,16 @@ namespace MessageBus.Binding.RabbitMQ
             }
 
             //Create a queue for messages destined to this service, bind it to the service URI routing key
-            queue = _model.QueueDeclare(queue, true, false, _autoDelete, args);
+            bool autoDelete = false;
+
+            if (queue == null)
+            {
+                queue = Guid.NewGuid().ToString();
+                
+                autoDelete = true;
+            }
+            
+            queue = _model.QueueDeclare(queue, true, false, autoDelete, args);
 
             if (!string.IsNullOrEmpty(_bindToExchange))
             {

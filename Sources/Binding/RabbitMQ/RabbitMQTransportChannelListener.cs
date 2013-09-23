@@ -6,14 +6,12 @@ namespace MessageBus.Binding.RabbitMQ
 {
     internal sealed class RabbitMQTransportChannelListener<T> : RabbitMQChannelListenerBase<T> where T : class, IChannel
     {
-        private readonly bool _autoDelete;
         private readonly string _bindToExchange;
         private IChannel _channel;
         
-        internal RabbitMQTransportChannelListener(BindingContext context, Uri listenUri, bool autoDelete, string bindToExchange)
+        internal RabbitMQTransportChannelListener(BindingContext context, Uri listenUri, string bindToExchange)
             : base(context, listenUri)
         {
-            _autoDelete = autoDelete;
             _bindToExchange = bindToExchange;
             _channel = null;
         }
@@ -27,7 +25,7 @@ namespace MessageBus.Binding.RabbitMQ
 
             if (typeof (T) == typeof (IInputChannel))
             {
-                _channel = new RabbitMQTransportInputChannel(Context, new EndpointAddress(Uri.ToString()), _autoDelete, _bindToExchange);
+                _channel = new RabbitMQTransportInputChannel(Context, new EndpointAddress(Uri.ToString()), _bindToExchange);
             }
             else
             {

@@ -68,24 +68,28 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
             _queue.Enqueue(e);
         }
 
-        public virtual bool WaitForMessage(TimeSpan timeout)
+        public bool WaitForMessage(TimeSpan timeout)
         {
             return _queue.WaitForMessage(timeout);
         }
 
-        public virtual bool Dequeue(TimeSpan timeout, out BasicDeliverEventArgs message)
+        public bool Dequeue(TimeSpan timeout, out BasicDeliverEventArgs message)
         {
             return _queue.Dequeue(timeout, out message);
         }
 
-        public virtual BasicDeliverEventArgs DequeueNoWait()
+        public BasicDeliverEventArgs DequeueNoWait()
         {
             return _queue.DequeueNoWait(null);
         }
 
-        public virtual BasicDeliverEventArgs Dequeue()
+        public BasicDeliverEventArgs Dequeue()
         {
             return _queue.Dequeue();
         }
+
+        public abstract void DropMessage(ulong deliveryTag);
+
+        public abstract void AcceptMessage(ulong deliveryTag);
     }
 }

@@ -22,41 +22,18 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
             : base(model, queue)
         {
         }
-
-        public override BasicDeliverEventArgs Dequeue()
+        
+        public override void DropMessage(ulong deliveryTag)
         {
-            BasicDeliverEventArgs message = base.Dequeue();
-
-            if (message != null && Transaction.Current != null)
-            {
-                Transaction.Current.EnlistVolatile(new TransactionalQueueConsumerEnslistment(message.DeliveryTag, Model), EnlistmentOptions.None);
-            }
-
-            return message;
+            Model.BasicAck(deliveryTag, false);
         }
 
-        public override bool Dequeue(TimeSpan timeout, out BasicDeliverEventArgs message)
+        public override void AcceptMessage(ulong deliveryTag)
         {
-            bool dequeue = base.Dequeue(timeout, out message);
-
-            if (dequeue && Transaction.Current != null)
+            if (Transaction.Current != null)
             {
-                Transaction.Current.EnlistVolatile(new TransactionalQueueConsumerEnslistment(message.DeliveryTag, Model), EnlistmentOptions.None);
+                Transaction.Current.EnlistVolatile(new TransactionalQueueConsumerEnslistment(deliveryTag, Model), EnlistmentOptions.None);
             }
-
-            return dequeue;
-        }
-
-        public override BasicDeliverEventArgs DequeueNoWait()
-        {
-            BasicDeliverEventArgs message = base.DequeueNoWait();
-
-            if (message != null && Transaction.Current != null)
-            {
-                Transaction.Current.EnlistVolatile(new TransactionalQueueConsumerEnslistment(message.DeliveryTag, Model), EnlistmentOptions.None);
-            }
-
-            return message;
         }
     }
 
