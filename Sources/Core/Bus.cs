@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading;
@@ -28,6 +26,7 @@ namespace MessageBus.Core
         
         private Thread _receiver;
         private bool _receive;
+        private ManualResetEvent _accepting = new ManualResetEvent(false);
 
         private readonly ConcurrentDictionary<Type, IReceiver> _receivers = new ConcurrentDictionary<Type, IReceiver>();  
 
@@ -42,6 +41,14 @@ namespace MessageBus.Core
             _listener.Open();
 
             _listener.BeginAcceptChannel(ChennelAccepted, null);
+        }
+
+        public WaitHandle AcceptHandle
+        {
+            get
+            {
+                return _accepting;
+            }
         }
 
         private void ChennelAccepted(IAsyncResult ar)
@@ -79,6 +86,8 @@ namespace MessageBus.Core
             IInputChannel channel = (IInputChannel) o;
 
             channel.Open();
+
+            _accepting.Set();
             
             try
             {
@@ -117,6 +126,8 @@ namespace MessageBus.Core
             finally
             {
                 channel.Close();
+
+                _accepting.Reset();
             }
         }
 

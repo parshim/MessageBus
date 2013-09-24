@@ -26,7 +26,7 @@ namespace Core.IntegrationTest
         [TestMethod]
         public void Test_Send_Recieve()
         {
-            using (IBus entityA = new Bus(), entityB = new Bus())
+            using (Bus entityA = new Bus(), entityB = new Bus())
             {
                 Data messageA = new Data
                     {
@@ -48,6 +48,10 @@ namespace Core.IntegrationTest
                 
                 entityB.Register<OK>(data => ev2.Set());
 
+                bool listenerReady = entityA.AcceptHandle.WaitOne(TimeSpan.FromSeconds(20)) && entityB.AcceptHandle.WaitOne(TimeSpan.FromSeconds(20));
+
+                listenerReady.Should().BeTrue("Listener not received");
+
                 using (IPublisher publisher = entityB.CreatePublisher())
                 {
                     publisher.Send(messageA);
@@ -62,7 +66,7 @@ namespace Core.IntegrationTest
                     publisher.Send(new OK());
                 }
 
-                bool waitOne = ev1.WaitOne(TimeSpan.FromSeconds(10)) && ev2.WaitOne(TimeSpan.FromSeconds(10));
+                bool waitOne = ev1.WaitOne(TimeSpan.FromSeconds(20)) && ev2.WaitOne(TimeSpan.FromSeconds(20));
 
                 waitOne.Should().BeTrue("Message not received");
 
