@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading;
@@ -26,7 +27,7 @@ namespace MessageBus.Core
         
         private Thread _receiver;
         private bool _receive;
-        private ManualResetEvent _accepting = new ManualResetEvent(false);
+        private readonly ManualResetEvent _accepting = new ManualResetEvent(false);
 
         private readonly ConcurrentDictionary<Type, IReceiver> _receivers = new ConcurrentDictionary<Type, IReceiver>();  
 
@@ -148,7 +149,34 @@ namespace MessageBus.Core
 
         public bool Register<TData>(Action<TData> callback)
         {
-            return _receivers.TryAdd(typeof (TData), new Receiver<TData>(callback));
+            return _receivers.TryAdd(typeof (TData), new Receiver<TData>(o => callback((TData)o)));
+        }
+        
+        public bool Register(Type dataType, Action<object> callback)
+        {
+            Type receiverType = typeof (Receiver<>).MakeGenericType(dataType);
+
+            IReceiver receiver = (IReceiver)Activator.CreateInstance(receiverType, callback);
+
+            return _receivers.TryAdd(dataType, receiver);
+        }
+
+        public bool RegisterHierarchy<TData>(Action<TData> callback)
+        {
+            Type baseType = typeof (TData);
+
+            var types = from type in baseType.Assembly.GetTypes()
+                        where type != baseType && baseType.IsAssignableFrom(type)
+                        select type;
+
+            bool atLeastOne = false;
+
+            foreach (Type type in types)
+            {
+                atLeastOne = Register(type, o => callback((TData)o)) || atLeastOne;
+            }
+
+            return atLeastOne;
         }
 
     }

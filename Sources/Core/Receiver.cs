@@ -7,10 +7,10 @@ namespace MessageBus.Core
 {
     public class Receiver<T> : IReceiver
     {
-        private readonly Action<T> _callback;
+        private readonly Action<object> _callback;
         private readonly DataContractSerializer _serializer;
         
-        public Receiver(Action<T> callback)
+        public Receiver(Action<object> callback)
         {
             _callback = callback;
             _serializer = new DataContractSerializer(typeof(T));
@@ -31,7 +31,7 @@ namespace MessageBus.Core
                     return null;
                 }
 
-                return new Processor<T>(_callback, body);
+                return new Processor<object>(_callback, body);
             }
         }
     }

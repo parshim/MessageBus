@@ -28,23 +28,23 @@ namespace Core.IntegrationTest
         {
             using (Bus entityA = new Bus(), entityB = new Bus())
             {
-                Data messageA = new Data
+                Data messageA = new Person
                     {
                         Id = 5
                     };
                 
-                Data messageB = new Data
+                Data messageB = new Car
                     {
-                        Id = 25
+                        Number = "39847239847"
                     };
 
                 List<Data> received = new List<Data>();
 
                 ManualResetEvent ev1 = new ManualResetEvent(false), ev2 = new ManualResetEvent(false);
 
-                entityA.Register<Data>(received.Add);
+                entityA.RegisterHierarchy<Data>(received.Add);
 
-                entityA.Register<OK>(data => ev1.Set());
+                entityA.Register(typeof(OK), data => ev1.Set());
                 
                 entityB.Register<OK>(data => ev2.Set());
 
@@ -78,10 +78,16 @@ namespace Core.IntegrationTest
     [DataContract]
     public class Data
     {
+        
+    }
+
+    [DataContract]
+    public class Person : Data
+    {
         [DataMember]
         public int Id { get; set; }
 
-        protected bool Equals(Data other)
+        protected bool Equals(Person other)
         {
             return Id == other.Id;
         }
@@ -91,12 +97,37 @@ namespace Core.IntegrationTest
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Data) obj);
+            return Equals((Person)obj);
         }
 
         public override int GetHashCode()
         {
             return Id;
+        }
+    }
+    
+    [DataContract]
+    public class Car : Data
+    {
+        [DataMember]
+        public string Number { get; set; }
+
+        protected bool Equals(Car other)
+        {
+            return string.Equals(Number, other.Number);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Car) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Number != null ? Number.GetHashCode() : 0);
         }
     }
 
