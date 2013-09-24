@@ -6,11 +6,11 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{816915E1-F1AB-4A58-A5A3-CB7F65A3D994}</ProjectGuid>
+    <ProjectGuid>{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RabbitMQ.UnitTests</RootNamespace>
-    <AssemblyName>RabbitMQ.UnitTests</AssemblyName>
+    <RootNamespace>Core.IntegrationTest</RootNamespace>
+    <AssemblyName>Core.IntegrationTest</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -33,17 +33,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FakeItEasy">
+      <HintPath>..\packages\FakeItEasy.1.13.1\lib\net40\FakeItEasy.dll</HintPath>
+    </Reference>
     <Reference Include="FluentAssertions">
-      <HintPath>..\..\packages\FluentAssertions.2.1.0.0\lib\net40\FluentAssertions.dll</HintPath>
+      <HintPath>..\packages\FluentAssertions.2.1.0.0\lib\net40\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -54,12 +55,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RabbitMQBindingConfigurationElementTest.cs" />
+    <Compile Include="BusTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RabbitMQ\RabbitMQ.csproj">
-      <Project>{F4B205B9-ABFC-4382-BB46-4130E54ED99D}</Project>
-      <Name>RabbitMQ</Name>
+    <ProjectReference Include="..\Core.API\Core.API.csproj">
+      <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>
+      <Name>Core.API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{DF6D2F13-9759-40A1-9C75-3B43A31C1745}</Project>
+      <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

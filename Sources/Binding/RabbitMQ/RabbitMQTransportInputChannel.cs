@@ -149,7 +149,16 @@ namespace MessageBus.Binding.RabbitMQ
 
             if (queue == null)
             {
-                queue = Guid.NewGuid().ToString();
+                string applicationId = _bindingElement.ApplicationId;
+
+                if (string.IsNullOrEmpty(applicationId))
+                {
+                    queue = Guid.NewGuid().ToString();
+                }
+                else
+                {
+                    queue = applicationId;
+                }
                 
                 autoDelete = true;
             }

@@ -23,5 +23,7 @@ namespace RabbitMQ.UnitTests
             element.ApplicationId.Should().BeBlank();
             element.ProtocolVersion.Should().Be("DefaultProtocol");
         }
+
     }
+
 }
