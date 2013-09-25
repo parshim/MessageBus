@@ -50,10 +50,10 @@
     <Compile Include="API\IProcessor.cs" />
     <Compile Include="API\IContractHandler.cs" />
     <Compile Include="Bus.cs" />
-    <Compile Include="Processor.cs" />
+    <Compile Include="DataContract.cs" />
+    <Compile Include="DataContractKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
-    <Compile Include="ContractHandler.cs" />
     <Compile Include="Subscriber.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.ServiceModel.Channels;
 using System.Threading;
+using System.Xml;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -12,8 +13,8 @@ namespace MessageBus.Core
         private readonly IInputChannel _inputChannel;
         private readonly Thread _receiver;
         private bool _receive;
-        
-        private readonly ConcurrentDictionary<Type, IContractHandler> _receivers = new ConcurrentDictionary<Type, IContractHandler>();
+
+        private readonly ConcurrentDictionary<DataContractKey, DataContract> _registeredTypes = new ConcurrentDictionary<DataContractKey, DataContract>();
 
         public Subscriber(IInputChannel inputChannel)
         {
@@ -37,25 +38,45 @@ namespace MessageBus.Core
                 {
                     using (message)
                     {
-                        MessageBuffer messageBuffer = message.CreateBufferedCopy(50000);
+                        object body;
+                        DataContract dataContract;
 
-                        foreach (var receiver in _receivers.Values)
+                        using (XmlDictionaryReader bodyContents = message.GetReaderAtBodyContents())
                         {
-                            IProcessor processor = receiver.CreateProcessor(messageBuffer);
-
-                            if (processor != null)
+                            string name = bodyContents.Name;
+                            string ns = bodyContents.NamespaceURI;
+                            
+                            if (!_registeredTypes.TryGetValue(new DataContractKey(name, ns), out dataContract))
                             {
-                                try
-                                {
-                                    processor.Process();
-                                }
-                                catch (Exception)
-                                {
-                                    // TODO: log
-                                }
+                                // TODO: Log \ error callback
 
-                                break;
+                                continue;
                             }
+
+                            try
+                            {
+                                body = dataContract.Serializer.ReadObject(bodyContents);
+                            }
+                            catch (Exception)
+                            {
+                                // TODO: Log \ error callback
+
+                                continue;
+                            }
+                        }
+                        
+                        Action<object> callback = dataContract.Callback;
+                        
+                        try
+                        {
+                            // TODO: Dispatching thread
+                            callback(body);
+                        }
+                        catch (Exception)
+                        {
+                            // TODO: Log \ error callback
+
+                            continue;
                         }
                     }
                 }
@@ -64,16 +85,16 @@ namespace MessageBus.Core
 
         public bool Subscribe<TData>(Action<TData> callback)
         {
-            return _receivers.TryAdd(typeof(TData), new ContractHandler<TData>(o => callback((TData)o)));
+            DataContract dataContract = new DataContract(typeof(TData), o => callback((TData)o));
+
+            return _registeredTypes.TryAdd(dataContract.Key, dataContract);
         }
 
         public bool Subscribe(Type dataType, Action<object> callback)
         {
-            Type receiverType = typeof(ContractHandler<>).MakeGenericType(dataType);
+            DataContract dataContract = new DataContract(dataType, callback);
 
-            IContractHandler contractHandler = (IContractHandler)Activator.CreateInstance(receiverType, callback);
-
-            return _receivers.TryAdd(dataType, contractHandler);
+            return _registeredTypes.TryAdd(dataContract.Key, dataContract);
         }
 
         public bool SubscribeHierarchy<TData>(Action<TData> callback)

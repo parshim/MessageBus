@@ -1,4 +1,5 @@
-﻿using System.ServiceModel.Channels;
+﻿using System.Runtime.Serialization;
+using System.ServiceModel.Channels;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core

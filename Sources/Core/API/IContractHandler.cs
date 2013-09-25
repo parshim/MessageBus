@@ -1,9 +1,11 @@
-﻿using System.ServiceModel.Channels;
+﻿using System;
 
 namespace MessageBus.Core.API
 {
     public interface IContractHandler
     {
-        IProcessor CreateProcessor(MessageBuffer messageBuffer);
+        Type ContractType { get; }
+
+        IProcessor CreateProcessor(object data);
     }
 }
