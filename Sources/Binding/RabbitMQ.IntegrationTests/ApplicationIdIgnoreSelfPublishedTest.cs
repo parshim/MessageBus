@@ -62,7 +62,7 @@ namespace RabbitMQ.IntegrationTests
         }
 
         [TestMethod]
-        public void Test_MessageWithSameAppId_DropedWithIgnoreSet()
+        public void RabbitMQBinding_MessageWithSameAppId_DropedWithIgnoreSet()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 

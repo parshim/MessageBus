@@ -5,15 +5,28 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class Receiver<T> : IReceiver
+    public class ContractHandler<T> : IContractHandler
     {
         private readonly Action<object> _callback;
         private readonly DataContractSerializer _serializer;
         
-        public Receiver(Action<object> callback)
+        public ContractHandler(Action<object> callback)
         {
             _callback = callback;
             _serializer = new DataContractSerializer(typeof(T));
+        }
+
+        public string Name
+        {
+            get { return null; }
+        }
+
+        public string NameSpace
+        {
+            get
+            {
+                 return null;
+            }
         }
 
         public IProcessor CreateProcessor(MessageBuffer messageBuffer)

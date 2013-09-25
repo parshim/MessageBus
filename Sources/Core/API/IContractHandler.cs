@@ -2,7 +2,7 @@
 
 namespace MessageBus.Core.API
 {
-    public interface IReceiver
+    public interface IContractHandler
     {
         IProcessor CreateProcessor(MessageBuffer messageBuffer);
     }

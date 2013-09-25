@@ -24,9 +24,9 @@ namespace Core.IntegrationTest
         }
         
         [TestMethod]
-        public void Test_Send_Recieve()
+        public void Bus_Dialog_WithOrderedDelivery_AllSubscriptionTypes()
         {
-            using (Bus entityA = new Bus(), entityB = new Bus())
+            using (IBus entityA = new Bus(), entityB = new Bus())
             {
                 Data messageA = new Person
                     {
@@ -42,38 +42,40 @@ namespace Core.IntegrationTest
 
                 ManualResetEvent ev1 = new ManualResetEvent(false), ev2 = new ManualResetEvent(false);
 
-                entityA.RegisterHierarchy<Data>(received.Add);
-
-                entityA.Register(typeof(OK), data => ev1.Set());
-                
-                entityB.Register<OK>(data => ev2.Set());
-
-                bool listenerReady = entityA.AcceptHandle.WaitOne(TimeSpan.FromSeconds(20)) && entityB.AcceptHandle.WaitOne(TimeSpan.FromSeconds(20));
-
-                listenerReady.Should().BeTrue("Listener not received");
-
-                using (IPublisher publisher = entityB.CreatePublisher())
+                using (ISubscriber subscriberA = entityA.CreateSubscriber(), subscriberB = entityB.CreateSubscriber())
                 {
-                    publisher.Send(messageA);
+                    subscriberA.SubscribeHierarchy<Data>(received.Add);
 
-                    publisher.Send(messageB);
+                    subscriberA.Subscribe(typeof(OK), data => ev1.Set());
 
-                    publisher.Send(new OK());
+                    subscriberB.Subscribe<OK>(data => ev2.Set());
+
+                    using (IPublisher publisher = entityB.CreatePublisher())
+                    {
+                        publisher.Send(messageA);
+
+                        publisher.Send(messageB);
+
+                        publisher.Send(new OK());
+                    }
+
+                    using (IPublisher publisher = entityA.CreatePublisher())
+                    {
+                        publisher.Send(new OK());
+                    }
+
+                    bool waitOne = ev1.WaitOne(TimeSpan.FromSeconds(20)) && ev2.WaitOne(TimeSpan.FromSeconds(20));
+
+                    waitOne.Should().BeTrue("Message not received");
+
+                    received.Should().ContainInOrder(messageA, messageB);
                 }
-
-                using (IPublisher publisher = entityA.CreatePublisher())
-                {
-                    publisher.Send(new OK());
-                }
-
-                bool waitOne = ev1.WaitOne(TimeSpan.FromSeconds(20)) && ev2.WaitOne(TimeSpan.FromSeconds(20));
-
-                waitOne.Should().BeTrue("Message not received");
-
-                received.Should().ContainInOrder(messageA, messageB);
             }
         }
+
+        
     }
+
 
     [DataContract]
     public class Data
@@ -96,7 +98,7 @@ namespace Core.IntegrationTest
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Person)obj);
         }
 
@@ -121,7 +123,7 @@ namespace Core.IntegrationTest
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Car) obj);
         }
 

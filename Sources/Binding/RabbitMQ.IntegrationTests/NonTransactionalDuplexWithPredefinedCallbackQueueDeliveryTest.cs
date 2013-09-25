@@ -75,7 +75,7 @@ namespace RabbitMQ.IntegrationTests
 
 
         [TestMethod]
-        public void TestNonTransactionalDuplexWithPredefinedCallbackQueueDelivery()
+        public void RabbitMQBinding_NonTransactionalDuplexWithPredefinedCallbackQueueDelivery()
         {
             IDuplexService channel = _channelFactory.CreateChannel();
 

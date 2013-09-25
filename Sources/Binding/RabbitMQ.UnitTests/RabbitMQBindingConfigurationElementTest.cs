@@ -8,7 +8,7 @@ namespace RabbitMQ.UnitTests
     public class RabbitMQBindingConfigurationElementTest
     {
         [TestMethod]
-        public void Test_CreateInstance()
+        public void RabbitMQBindingConfigurationElement_CreateInstance()
         {
             RabbitMQBindingConfigurationElement element = new RabbitMQBindingConfigurationElement("Binding0");
             

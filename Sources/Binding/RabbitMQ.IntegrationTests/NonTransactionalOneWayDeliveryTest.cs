@@ -61,7 +61,7 @@ namespace RabbitMQ.IntegrationTests
 
 
         [TestMethod]
-        public void TestNonTransactionalOneWayDelivery()
+        public void RabbitMQBinding_NonTransactionalOneWayDelivery()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 

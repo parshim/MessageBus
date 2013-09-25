@@ -48,12 +48,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\IProcessor.cs" />
-    <Compile Include="API\IReceiver.cs" />
+    <Compile Include="API\IContractHandler.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="Processor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
-    <Compile Include="Receiver.cs" />
+    <Compile Include="ContractHandler.cs" />
+    <Compile Include="Subscriber.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Binding\RabbitMQ\RabbitMQ.csproj">

@@ -63,7 +63,7 @@ namespace RabbitMQ.IntegrationTests
 
 
         [TestMethod]
-        public void TestTransactionalConsumption()
+        public void RabbitMQBinding_TransactionalConsumption()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 
@@ -91,7 +91,7 @@ namespace RabbitMQ.IntegrationTests
         }
         
         [TestMethod]
-        public void Test_TransactionalDispatching_MessagesRollbacked()
+        public void RabbitMQBinding_TransactionalDispatching_MessagesRollbacked()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 
@@ -121,7 +121,7 @@ namespace RabbitMQ.IntegrationTests
         }
         
         [TestMethod]
-        public void Test_TransactionalDispatching_MessagesCommited()
+        public void RabbitMQBinding_TransactionalDispatching_MessagesCommited()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 
@@ -155,7 +155,7 @@ namespace RabbitMQ.IntegrationTests
         }
         
         [TestMethod, ExpectedException(typeof(FaultException))]
-        public void Test_TransactionalDispatching_ExceptionIfTransactionalChannelUsedOutOfTheTransactionScope()
+        public void RabbitMQBinding_TransactionalDispatching_ExceptionIfTransactionalChannelUsedOutOfTheTransactionScope()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 

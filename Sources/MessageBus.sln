@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.API", "Core.API\Core.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.IntegrationTests", "Core.IntegrationTest\Core.IntegrationTests.csproj", "{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{80E98378-020D-441C-98C0-5BFF508ADB47}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MessageBus.vsmdi
@@ -55,6 +57,10 @@ Global
 		{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80E98378-020D-441C-98C0-5BFF508ADB47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80E98378-020D-441C-98C0-5BFF508ADB47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80E98378-020D-441C-98C0-5BFF508ADB47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80E98378-020D-441C-98C0-5BFF508ADB47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
