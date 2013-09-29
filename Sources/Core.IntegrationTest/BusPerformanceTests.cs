@@ -13,7 +13,7 @@ namespace Core.IntegrationTest
         [TestMethod]
         public void Bus_SendReceive_1000Messages()
         {
-            using (IBus entityA = new Bus(), entityB = new Bus())
+            using (IBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
             {
                 Data messageA = new Person
                     {

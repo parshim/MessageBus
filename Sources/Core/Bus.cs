@@ -1,27 +1,20 @@
 ﻿using System;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
-using MessageBus.Binding.RabbitMQ;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class Bus : IBus
+    public abstract class Bus : IBus
     {
-        private readonly System.ServiceModel.Channels.Binding _binding = new RabbitMQBinding
-            {
-                ApplicationId = Guid.NewGuid().ToString(),
-                IgnoreSelfPublished = true,
-                AutoBindExchange = "amq.fanout",
-                OneWayOnly = true,
-                ExactlyOnce = false,
-                PersistentDelivery = false
-            };
+        private readonly System.ServiceModel.Channels.Binding _binding;
 
         private readonly IChannelFactory<IOutputChannel> _channelFactory;
-        
-        public Bus()
+
+        protected Bus(System.ServiceModel.Channels.Binding binding)
         {
+            _binding = binding;
+
             _channelFactory = _binding.BuildChannelFactory<IOutputChannel>();
 
             _channelFactory.Open();
