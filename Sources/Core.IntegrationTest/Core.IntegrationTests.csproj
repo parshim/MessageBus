@@ -55,8 +55,11 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusPerformanceTests.cs" />
+    <Compile Include="BusSubscribtionsTests.cs" />
+    <Compile Include="Data.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BusTests.cs" />
+    <Compile Include="BusFullCycleTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.API\Core.API.csproj">

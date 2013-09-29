@@ -10,15 +10,20 @@ namespace MessageBus.Core
 {
     public class Subscriber : ISubscriber
     {
+        private readonly IChannelListener<IInputChannel> _listener;
         private readonly IInputChannel _inputChannel;
         private readonly Thread _receiver;
         private bool _receive;
 
         private readonly ConcurrentDictionary<DataContractKey, DataContract> _registeredTypes = new ConcurrentDictionary<DataContractKey, DataContract>();
 
-        public Subscriber(IInputChannel inputChannel)
+        public Subscriber(IChannelListener<IInputChannel> listener)
         {
-            _inputChannel = inputChannel;
+            _listener = listener;
+
+            _listener.Open();
+
+            _inputChannel = _listener.AcceptChannel();
             
             _inputChannel.Open();
 
@@ -122,6 +127,8 @@ namespace MessageBus.Core
             _receiver.Join(TimeSpan.FromMilliseconds(200));
 
             _inputChannel.Close();
+
+            _listener.Close();
         }
     }
 }

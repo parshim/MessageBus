@@ -19,7 +19,6 @@ namespace MessageBus.Core
             };
 
         private readonly IChannelFactory<IOutputChannel> _channelFactory;
-        private readonly IChannelListener<IInputChannel> _listener;
         
         public Bus()
         {
@@ -27,15 +26,11 @@ namespace MessageBus.Core
 
             _channelFactory.Open();
 
-            _listener = _binding.BuildChannelListener<IInputChannel>(new Uri("amqp://localhost/"));
-
-            _listener.Open();
         }
 
         public void Dispose()
         {
             _channelFactory.Close();
-            _listener.Close();
         }
 
         public IPublisher CreatePublisher()
@@ -47,9 +42,9 @@ namespace MessageBus.Core
 
         public ISubscriber CreateSubscriber()
         {
-            IInputChannel inputChannel = _listener.AcceptChannel();
+            IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(new Uri("amqp://localhost/"));
 
-            return new Subscriber(inputChannel);
+            return new Subscriber(listener);
         }
     }
 }
