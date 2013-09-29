@@ -15,7 +15,7 @@ namespace MessageBus.Core
         private readonly Thread _receiver;
         private bool _receive;
 
-        private readonly ConcurrentDictionary<DataContractKey, DataContract> _registeredTypes = new ConcurrentDictionary<DataContractKey, DataContract>();
+        private readonly ConcurrentDictionary<DataContractKey, IDispatcher> _registeredTypes = new ConcurrentDictionary<DataContractKey, IDispatcher>();
 
         public Subscriber(IChannelListener<IInputChannel> listener)
         {
@@ -43,45 +43,20 @@ namespace MessageBus.Core
                 {
                     using (message)
                     {
-                        object body;
-                        DataContract dataContract;
-
                         using (XmlDictionaryReader bodyContents = message.GetReaderAtBodyContents())
                         {
                             string name = bodyContents.Name;
                             string ns = bodyContents.NamespaceURI;
-                            
-                            if (!_registeredTypes.TryGetValue(new DataContractKey(name, ns), out dataContract))
+
+                            IDispatcher dispatcher;
+                            if (!_registeredTypes.TryGetValue(new DataContractKey(name, ns), out dispatcher))
                             {
                                 // TODO: Log \ error callback
 
                                 continue;
                             }
 
-                            try
-                            {
-                                body = dataContract.Serializer.ReadObject(bodyContents);
-                            }
-                            catch (Exception)
-                            {
-                                // TODO: Log \ error callback
-
-                                continue;
-                            }
-                        }
-                        
-                        Action<object> callback = dataContract.Callback;
-                        
-                        try
-                        {
-                            // TODO: Dispatching thread
-                            callback(body);
-                        }
-                        catch (Exception)
-                        {
-                            // TODO: Log \ error callback
-
-                            continue;
+                            dispatcher.Dispatch(bodyContents);
                         }
                     }
                 }
@@ -90,16 +65,14 @@ namespace MessageBus.Core
 
         public bool Subscribe<TData>(Action<TData> callback)
         {
-            DataContract dataContract = new DataContract(typeof(TData), o => callback((TData)o));
-
-            return _registeredTypes.TryAdd(dataContract.Key, dataContract);
+            return Subscribe(typeof (TData), o => callback((TData) o));
         }
 
         public bool Subscribe(Type dataType, Action<object> callback)
         {
-            DataContract dataContract = new DataContract(dataType, callback);
+            DataContract dataContract = new DataContract(dataType);
 
-            return _registeredTypes.TryAdd(dataContract.Key, dataContract);
+            return _registeredTypes.TryAdd(dataContract.Key, new Dispatcher(dataContract.Serializer, callback));
         }
 
         public bool SubscribeHierarchy<TData>(Action<TData> callback)

@@ -9,11 +9,9 @@ namespace MessageBus.Core
         private DataContractKey _key;
 
         private readonly DataContractSerializer _serializer;
-        private readonly Action<object> _callback;
 
-        public DataContract(Type contractType, Action<object> callback)
+        public DataContract(Type contractType)
         {
-            _callback = callback;
             _serializer = new DataContractSerializer(contractType);
 
             object o = Activator.CreateInstance(contractType, true);
@@ -29,11 +27,6 @@ namespace MessageBus.Core
         public DataContractSerializer Serializer
         {
             get { return _serializer; }
-        }
-
-        public Action<object> Callback
-        {
-            get { return _callback; }
         }
 
         #region XmlDictionaryWriter
