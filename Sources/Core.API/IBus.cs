@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Practices.ServiceLocation;
 
 namespace MessageBus.Core.API
 {
@@ -7,5 +8,7 @@ namespace MessageBus.Core.API
         IPublisher CreatePublisher();
 
         ISubscriber CreateSubscriber();
+        
+        IAutoLocatingSubscriber CreateSubscriber(IServiceLocator serviceLocator);
     }
 }

@@ -68,6 +68,11 @@ namespace MessageBus.Core
             return Subscribe(typeof (TData), o => callback((TData) o));
         }
 
+        public bool Subscribe<TData>(IProcessor<TData> processor)
+        {
+            return Subscribe<TData>(processor.Process);
+        }
+        
         public bool Subscribe(Type dataType, Action<object> callback)
         {
             DataContract dataContract = new DataContract(dataType);

@@ -6,11 +6,11 @@ namespace MessageBus.Core
     public class RabbitMQBus : Bus
     {
         public RabbitMQBus()
-            : this("amq.fanout", false)
+            : this("localhost", "amq.fanout", false)
         {
         }
 
-        public RabbitMQBus(string exchange, bool exactlyOnce)
+        public RabbitMQBus(string host, string exchange, bool exactlyOnce)
             : base(new RabbitMQBinding
                 {
                     ApplicationId = Guid.NewGuid().ToString(),
@@ -19,7 +19,7 @@ namespace MessageBus.Core
                     OneWayOnly = true,
                     ExactlyOnce = exactlyOnce,
                     PersistentDelivery = false
-                })
+                }, new Uri(string.Format("amqp://{0}/{1}", host, exchange)), new Uri(string.Format("amqp://{0}/", host)))
         {
         }
     }
