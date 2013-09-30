@@ -26,9 +26,9 @@ namespace Core.IntegrationTest
 
                 using (ISubscriber subscriberA = entityA.CreateSubscriber())
                 {
-                    subscriberA.SubscribeHierarchy<Data>(d => counter++);
+                    subscriberA.Subscribe((Action<Data>)(d => counter++), true);
 
-                    subscriberA.Subscribe(typeof(OK), data => ev1.Set());
+                    subscriberA.Subscribe(typeof(OK), (Action<object>)(data => ev1.Set()));
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {

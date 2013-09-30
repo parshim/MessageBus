@@ -11,7 +11,7 @@ namespace Core.IntegrationTest
     public class BusSubscribtionsTests
     {
         [TestMethod]
-        public void Bus_PublishedMessage_ShouldNotArriveToSubscriberWithinSameBusInstance()
+        public void Bus_PublishedMessage_ReceiveSelfPublishIsFalse_ShouldNotArriveToSubscriber()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
@@ -19,9 +19,8 @@ namespace Core.IntegrationTest
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
-                    subscriber.Subscribe<OK>(ok => ev.Set());
-
-
+                    subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: false);
+                    
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
                         publisher.Send(new OK());
@@ -31,6 +30,30 @@ namespace Core.IntegrationTest
 
                     wait.Should()
                         .BeFalse("Message should not arrive from publisher to subscriber within same bus instance");
+                }
+            }
+        }
+        
+        [TestMethod]
+        public void Bus_PublishedMessage_ReceiveSelfPublishIsTrue_ShouldArriveToSubscriber()
+        {
+            ManualResetEvent ev = new ManualResetEvent(false);
+
+            using (IBus bus = new RabbitMQBus())
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber())
+                {
+                    subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: true);
+                    
+                    using (IPublisher publisher = bus.CreatePublisher())
+                    {
+                        publisher.Send(new OK());
+                    }
+
+                    bool wait = ev.WaitOne(TimeSpan.FromSeconds(5));
+
+                    wait.Should()
+                        .BeTrue("Message should not arrive from publisher to subscriber within same bus instance");
                 }
             }
         }

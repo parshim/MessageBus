@@ -43,11 +43,11 @@ namespace Core.IntegrationTest
 
                 using (ISubscriber subscriberA = entityA.CreateSubscriber(), subscriberB = entityB.CreateSubscriber())
                 {
-                    subscriberA.SubscribeHierarchy<Data>(received.Add);
+                    subscriberA.Subscribe<Data>(received.Add, true);
 
-                    subscriberA.Subscribe(typeof(OK), data => ev1.Set());
+                    subscriberA.Subscribe(typeof(OK), (Action<object>) (data => ev1.Set()));
 
-                    subscriberB.Subscribe<OK>(data => ev2.Set());
+                    subscriberB.Subscribe((Action<OK>) (data => ev2.Set()));
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
