@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.ServiceModel.Channels;
 using System.Threading;
 using System.Xml;
@@ -15,11 +16,43 @@ namespace MessageBus.Core
         private readonly Thread _receiver;
         private bool _receive;
 
-        private readonly ConcurrentDictionary<DataContractKey, IDispatcher> _registeredTypes = new ConcurrentDictionary<DataContractKey, IDispatcher>();
+        private string _busId; 
 
-        public Subscriber(IChannelListener<IInputChannel> listener)
+        private class MessageInfo
+        {
+            private readonly IDispatcher _dispatcher;
+            private readonly XmlObjectSerializer _serializer;
+            private readonly bool _receiveSelfPublish;
+
+            public MessageInfo(IDispatcher dispatcher, XmlObjectSerializer serializer, bool receiveSelfPublish)
+            {
+                _dispatcher = dispatcher;
+                _serializer = serializer;
+                _receiveSelfPublish = receiveSelfPublish;
+            }
+
+            public IDispatcher Dispatcher
+            {
+                get { return _dispatcher; }
+            }
+
+            public XmlObjectSerializer Serializer
+            {
+                get { return _serializer; }
+            }
+
+            public bool ReceiveSelfPublish
+            {
+                get { return _receiveSelfPublish; }
+            }
+        }
+
+        private readonly ConcurrentDictionary<DataContractKey, MessageInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageInfo>();
+
+        public Subscriber(IChannelListener<IInputChannel> listener, string busId)
         {
             _listener = listener;
+            _busId = busId;
 
             _listener.Open();
 
@@ -29,11 +62,11 @@ namespace MessageBus.Core
 
             _receive = true;
 
-            _receiver = new Thread(ProcessMessages);
+            _receiver = new Thread(MessagePump);
             _receiver.Start();
         }
 
-        private void ProcessMessages()
+        private void MessagePump()
         {
             while (_receive)
             {
@@ -43,47 +76,133 @@ namespace MessageBus.Core
                 {
                     using (message)
                     {
-                        using (XmlDictionaryReader bodyContents = message.GetReaderAtBodyContents())
+                        RawBusMessage busMessage = ReadMessage(message);
+
+                        MessageInfo messageInfo;
+
+                        if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageInfo))
                         {
-                            string name = bodyContents.Name;
-                            string ns = bodyContents.NamespaceURI;
+                            // TODO: Log \ error callback
 
-                            IDispatcher dispatcher;
-                            if (!_registeredTypes.TryGetValue(new DataContractKey(name, ns), out dispatcher))
-                            {
-                                // TODO: Log \ error callback
+                            continue;
+                        }
 
-                                continue;
-                            }
+                        if (!IsMessageSurvivesFilter(messageInfo, busMessage))
+                        {
+                            // TODO: Log \ error callback
 
-                            dispatcher.Dispatch(bodyContents);
+                            continue;
+                        }
+
+                        try
+                        {
+                            messageInfo.Dispatcher.Dispatch(busMessage);
+                        }
+                        catch(Exception)
+                        {
+                            // TODO: Log \ error callback
                         }
                     }
                 }
             }
         }
 
-        public bool Subscribe<TData>(Action<TData> callback)
+        private bool IsMessageSurvivesFilter(MessageInfo messageInfo, RawBusMessage busMessage)
         {
-            return Subscribe(typeof (TData), o => callback((TData) o));
+            if (messageInfo.ReceiveSelfPublish) return true;
+
+            bool selfPublished = Equals(busMessage.BusId, _busId);
+
+            return !selfPublished;
         }
 
-        public bool Subscribe<TData>(IProcessor<TData> processor)
+        private RawBusMessage ReadMessage(Message message)
         {
-            return Subscribe<TData>(processor.Process);
+            string busId = message.Headers.GetHeader<string>(MessagingConstancts.HeaderNames.BusId,
+                                                             MessagingConstancts.Namespace.MessageBus,
+                                                             MessagingConstancts.Actor.Bus);
+
+            DateTime sent = message.Headers.GetHeader<DateTime>(MessagingConstancts.HeaderNames.SentTime,
+                                                             MessagingConstancts.Namespace.MessageBus,
+                                                             MessagingConstancts.Actor.Bus);
+
+            RawBusMessage rawBusMessage = new RawBusMessage
+                {
+                    BusId = busId,
+                    Sent = sent
+                };
+
+            foreach (MessageHeaderInfo headerInfo in message.Headers.Where(info => info.Actor == MessagingConstancts.Actor.User &&
+                                                                                    info.Namespace == MessagingConstancts.Namespace.MessageBus))
+            {
+                string header = message.Headers.GetHeader<string>(headerInfo.Name, headerInfo.Namespace, headerInfo.Actor);
+
+                rawBusMessage.Headers.Add(headerInfo.Name, header);
+            }
+
+            using (XmlDictionaryReader bodyContents = message.GetReaderAtBodyContents())
+            {
+                rawBusMessage.Name = bodyContents.Name;
+                rawBusMessage.Namespace = bodyContents.NamespaceURI;
+
+                MessageInfo messageInfo;
+                if (_registeredTypes.TryGetValue(new DataContractKey(rawBusMessage.Name, rawBusMessage.Namespace), out messageInfo))
+                {
+                    try
+                    {
+                        rawBusMessage.Data = messageInfo.Serializer.ReadObject(bodyContents);
+                    }
+                    catch (Exception)
+                    {
+                        // TODO: Log \ error callback
+                    }
+                }
+            }
+
+            return rawBusMessage;
+        }
+
+        public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, bool receiveSelfPublish)
+        {
+            return Subscribe(typeof (TData), o => callback((TData) o), hierarchy, receiveSelfPublish);
         }
         
-        public bool Subscribe(Type dataType, Action<object> callback)
+        public bool Subscribe(Type dataType, Action<object> callback, bool hierarchy, bool receiveSelfPublish)
+        {
+            ActionDispatcher actionDispatcher = new ActionDispatcher(callback);
+           
+            return Subscribe(dataType, actionDispatcher, hierarchy, receiveSelfPublish);
+        }
+
+        public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, bool receiveSelfPublish)
+        {
+            return Subscribe(typeof(TData), new BusMessageDispatcher<TData>(callback), hierarchy, receiveSelfPublish);
+        }
+
+        public bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy, bool receiveSelfPublish)
+        {
+            return Subscribe(dataType, new RawDispatcher(callback), hierarchy, receiveSelfPublish);
+        }
+
+        private bool Subscribe(Type dataType, IDispatcher dispatcher, bool hierarchy, bool receiveSelfPublish)
+        {
+            if (hierarchy)
+            {
+                return SubscribeHierarchy(dataType, dispatcher, receiveSelfPublish);
+            }
+
+            return Subscribe(dataType, dispatcher, receiveSelfPublish);
+        }
+
+        private bool Subscribe(Type dataType, IDispatcher dispatcher, bool receiveSelfPublish)
         {
             DataContract dataContract = new DataContract(dataType);
 
-            return _registeredTypes.TryAdd(dataContract.Key, new Dispatcher(dataContract.Serializer, callback));
+            return _registeredTypes.TryAdd(dataContract.Key, new MessageInfo(dispatcher, dataContract.Serializer, receiveSelfPublish));
         }
 
-        public bool SubscribeHierarchy<TData>(Action<TData> callback)
+        private bool SubscribeHierarchy(Type baseType, IDispatcher dispatcher, bool receiveSelfPublish)
         {
-            Type baseType = typeof(TData);
-
             var types = from type in baseType.Assembly.GetTypes()
                         where type != baseType && baseType.IsAssignableFrom(type)
                         select type;
@@ -92,7 +211,7 @@ namespace MessageBus.Core
 
             foreach (Type type in types)
             {
-                atLeastOne = Subscribe(type, o => callback((TData)o)) || atLeastOne;
+                atLeastOne = Subscribe(type, dispatcher, receiveSelfPublish) || atLeastOne;
             }
 
             return atLeastOne;

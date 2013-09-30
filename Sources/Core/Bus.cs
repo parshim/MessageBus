@@ -2,7 +2,6 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using MessageBus.Core.API;
-using Microsoft.Practices.ServiceLocation;
 
 namespace MessageBus.Core
 {
@@ -15,11 +14,14 @@ namespace MessageBus.Core
 
         private readonly IChannelFactory<IOutputChannel> _channelFactory;
 
-        protected Bus(System.ServiceModel.Channels.Binding binding, Uri output, Uri input)
+        private readonly string _busId;
+
+        protected Bus(System.ServiceModel.Channels.Binding binding, Uri output, Uri input, string busId)
         {
             _binding = binding;
             _output = output;
             _input = input;
+            _busId = busId;
 
             _channelFactory = _binding.BuildChannelFactory<IOutputChannel>();
 
@@ -36,21 +38,15 @@ namespace MessageBus.Core
         {
             IOutputChannel outputChannel = _channelFactory.CreateChannel(new EndpointAddress(_output));
 
-            return new Publisher(outputChannel, _binding.MessageVersion);
+            return new Publisher(outputChannel, _binding.MessageVersion, _busId);
         }
 
         public ISubscriber CreateSubscriber()
         {
             IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(_input);
 
-            return new Subscriber(listener);
+            return new Subscriber(listener, _busId);
         }
 
-        public IAutoLocatingSubscriber CreateSubscriber(IServiceLocator serviceLocator)
-        {
-            IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(_input);
-
-            return new AutoLocatingSubscriber(serviceLocator, listener);
-        }
     }
 }

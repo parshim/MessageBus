@@ -1,9 +1,7 @@
-﻿using System.Xml;
-
-namespace MessageBus.Core.API
+﻿namespace MessageBus.Core.API
 {
     internal interface IDispatcher
     {
-        void Dispatch(XmlDictionaryReader bodyContents);
+        void Dispatch(RawBusMessage message);
     }
 }

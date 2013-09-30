@@ -88,7 +88,7 @@ namespace MessageBus.Binding.RabbitMQ
 
                 // Set message properties
                 basicProperties.Timestamp = new AmqpTimestamp(GetUnixTime(DateTime.Now));
-                basicProperties.ContentType = "SOAP";
+                basicProperties.ContentType = _encoder.ContentType;
                 basicProperties.DeliveryMode = _bindingElement.PersistentDelivery ? (byte)2 : (byte)1;
                 basicProperties.AppId = _bindingElement.ApplicationId ?? "";
 
