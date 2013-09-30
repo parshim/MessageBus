@@ -1,6 +1,6 @@
 ﻿namespace MessageBus.Core
 {
-    public class DataContractKey
+    internal class DataContractKey
     {
         private readonly string _name;
         private readonly string _namespace;

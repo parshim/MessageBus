@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace MessageBus.Core
 {
-    public class DataContract : XmlDictionaryWriter
+    internal class DataContract : XmlDictionaryWriter
     {
         private DataContractKey _key;
 

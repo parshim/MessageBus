@@ -15,13 +15,15 @@ namespace MessageBus.Core
         private readonly IChannelFactory<IOutputChannel> _channelFactory;
 
         private readonly string _busId;
+        private readonly IErrorSubscriber _errorSubscriber;
 
-        protected Bus(System.ServiceModel.Channels.Binding binding, Uri output, Uri input, string busId)
+        protected Bus(System.ServiceModel.Channels.Binding binding, Uri output, Uri input, string busId, IErrorSubscriber errorSubscriber)
         {
             _binding = binding;
             _output = output;
             _input = input;
             _busId = busId;
+            _errorSubscriber = errorSubscriber;
 
             _channelFactory = _binding.BuildChannelFactory<IOutputChannel>();
 
@@ -45,7 +47,7 @@ namespace MessageBus.Core
         {
             IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(_input);
 
-            return new Subscriber(listener, _busId);
+            return new Subscriber(listener, _busId, _errorSubscriber);
         }
 
     }

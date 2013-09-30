@@ -16,7 +16,9 @@ namespace MessageBus.Core
         private readonly Thread _receiver;
         private bool _receive;
 
-        private string _busId; 
+        private readonly string _busId;
+
+        private readonly IErrorSubscriber _errorSubscriber;
 
         private class MessageInfo
         {
@@ -49,10 +51,11 @@ namespace MessageBus.Core
 
         private readonly ConcurrentDictionary<DataContractKey, MessageInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageInfo>();
 
-        public Subscriber(IChannelListener<IInputChannel> listener, string busId)
+        public Subscriber(IChannelListener<IInputChannel> listener, string busId, IErrorSubscriber errorSubscriber)
         {
             _listener = listener;
             _busId = busId;
+            _errorSubscriber = errorSubscriber;
 
             _listener.Open();
 
@@ -82,14 +85,14 @@ namespace MessageBus.Core
 
                         if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageInfo))
                         {
-                            // TODO: Log \ error callback
+                            _errorSubscriber.UnregisteredMessageArrived(busMessage);
 
                             continue;
                         }
 
                         if (!IsMessageSurvivesFilter(messageInfo, busMessage))
                         {
-                            // TODO: Log \ error callback
+                            _errorSubscriber.MessageFilteredOut(busMessage);
 
                             continue;
                         }
@@ -98,9 +101,9 @@ namespace MessageBus.Core
                         {
                             messageInfo.Dispatcher.Dispatch(busMessage);
                         }
-                        catch(Exception)
+                        catch(Exception ex)
                         {
-                            // TODO: Log \ error callback
+                            _errorSubscriber.MessageDispatchException(busMessage, ex);
                         }
                     }
                 }
@@ -152,9 +155,9 @@ namespace MessageBus.Core
                     {
                         rawBusMessage.Data = messageInfo.Serializer.ReadObject(bodyContents);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        // TODO: Log \ error callback
+                        _errorSubscriber.MessageDeserializeException(rawBusMessage, ex);
                     }
                 }
             }

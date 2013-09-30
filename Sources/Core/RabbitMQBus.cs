@@ -1,5 +1,6 @@
 ﻿using System;
 using MessageBus.Binding.RabbitMQ;
+using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
@@ -11,11 +12,16 @@ namespace MessageBus.Core
         }
         
         public RabbitMQBus(string busId)
-            : this(busId, "localhost", "amq.fanout", false)
+            : this(busId, "localhost", "amq.fanout", false, new NullErrorSubscriber())
         {
         }
 
-        public RabbitMQBus(string busId, string host, string exchange, bool exactlyOnce)
+        public RabbitMQBus(string busId, IErrorSubscriber errorSubscriber)
+            : this(busId, "localhost", "amq.fanout", false, errorSubscriber)
+        {
+        }
+
+        public RabbitMQBus(string busId, string host, string exchange, bool exactlyOnce, IErrorSubscriber errorSubscriber)
             : base(new RabbitMQBinding
                 {
                     ApplicationId = busId,
@@ -24,7 +30,7 @@ namespace MessageBus.Core
                     OneWayOnly = true,
                     ExactlyOnce = exactlyOnce,
                     PersistentDelivery = false
-                }, new Uri(string.Format("amqp://{0}/{1}", host, exchange)), new Uri(string.Format("amqp://{0}/", host)), busId)
+                }, new Uri(string.Format("amqp://{0}/{1}", host, exchange)), new Uri(string.Format("amqp://{0}/", host)), busId, errorSubscriber)
         {
         }
     }

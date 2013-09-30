@@ -58,9 +58,8 @@ namespace Core.IntegrationTest
         }
     }
 
-    [DataContract]
+    [DataContract(Namespace = "bus.test.org")]
     public class OK
     {
-
     }
 }

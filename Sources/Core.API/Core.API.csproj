@@ -33,6 +33,7 @@
   <ItemGroup>
     <Compile Include="BusMessage.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="IErrorSubscriber.cs" />
     <Compile Include="IPublisher.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
