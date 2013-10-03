@@ -46,10 +46,19 @@ namespace MessageBus.Core.API
     /// </summary>
     public class RawBusMessage : BusMessage
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string Name { get; internal set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Namespace { get; internal set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public object Data { get; internal set; }
     }
 }
