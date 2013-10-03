@@ -74,6 +74,8 @@ namespace MessageBus.Binding.RabbitMQ
                 _transport.MaxReceivedMessageSize = MaxMessageSize;
             }
 
+            _encoding.ReaderQuotas.MaxArrayLength = 100000000;
+
             BindingElementCollection elements = new BindingElementCollection();
 
             if (!OneWayOnly)

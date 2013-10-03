@@ -13,7 +13,7 @@ namespace MessageBus.Core
         public DataContract(Type contractType)
         {
             _serializer = new DataContractSerializer(contractType);
-
+            
             object o = Activator.CreateInstance(contractType, true);
 
             _serializer.WriteStartObject(this, o);
