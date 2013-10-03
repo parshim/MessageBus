@@ -1,54 +1,44 @@
-﻿using System;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
+﻿using System.ServiceModel.Channels;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
     public abstract class Bus : IBus
     {
-        private readonly System.ServiceModel.Channels.Binding _binding;
-
-        private readonly Uri _output;
-        private readonly Uri _input;
-
-        private readonly IChannelFactory<IOutputChannel> _channelFactory;
-
         private readonly string _busId;
         private readonly IErrorSubscriber _errorSubscriber;
 
-        protected Bus(System.ServiceModel.Channels.Binding binding, Uri output, Uri input, string busId, IErrorSubscriber errorSubscriber)
+        protected Bus(string busId, IErrorSubscriber errorSubscriber)
         {
-            _binding = binding;
-            _output = output;
-            _input = input;
             _busId = busId;
             _errorSubscriber = errorSubscriber;
-
-            _channelFactory = _binding.BuildChannelFactory<IOutputChannel>();
-
-            _channelFactory.Open();
-
         }
-
-        public void Dispose()
-        {
-            _channelFactory.Close();
-        }
-
+        
         public IPublisher CreatePublisher()
         {
-            IOutputChannel outputChannel = _channelFactory.CreateChannel(new EndpointAddress(_output));
-
-            return new Publisher(outputChannel, _binding.MessageVersion, _busId);
+            IOutputChannel outputChannel = CreateOutputChannel();
+            
+            return new Publisher(outputChannel, MessageVersion, _busId);
         }
 
         public ISubscriber CreateSubscriber()
         {
-            IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(_input);
+            IInputChannel inputChannel = CreateInputChannel();
 
-            return new Subscriber(listener, _busId, _errorSubscriber);
+            if (inputChannel == null)
+            {
+                throw new NoListenningChannelException();
+            }
+
+            return new Subscriber(inputChannel, _busId, _errorSubscriber);
         }
 
+        protected abstract MessageVersion MessageVersion { get; }
+
+        protected abstract IOutputChannel CreateOutputChannel();
+
+        protected abstract IInputChannel CreateInputChannel();
+        
+        public abstract void Dispose();
     }
 }
