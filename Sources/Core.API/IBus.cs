@@ -38,8 +38,9 @@ namespace MessageBus.Core.API
         /// To logicaly separate processing of different message types, separate subscriber instances should be created.
         /// </remarks>
         /// <returns>
-        /// Subscriber instance
+        /// Subscriber instance.
         /// </returns>
+        /// <exception cref="NoIncomingConnectionAcceptedException">No incoming connection were accepted.</exception>
         ISubscriber CreateSubscriber();
     }
 }

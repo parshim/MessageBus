@@ -21,6 +21,8 @@ namespace Core.IntegrationTest
                 {
                     subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: false);
                     
+                    subscriber.StartProcessMessages();
+
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
                         publisher.Send(new OK());
@@ -45,6 +47,8 @@ namespace Core.IntegrationTest
                 {
                     subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: true);
                     
+                    subscriber.StartProcessMessages();
+
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
                         publisher.Send(new OK());
@@ -77,6 +81,10 @@ namespace Core.IntegrationTest
                     subscriberB1.Subscribe<Person>(p => { b1 = p; ev1.Set(); });
                     subscriberB2.Subscribe<Person>(p => { p.Id *= 2; b2 = p; ev2.Set(); });
                     subscriberC1.Subscribe<Person>(p => { c1 = p; ev3.Set(); });
+
+                    subscriberB1.StartProcessMessages();
+                    subscriberB2.StartProcessMessages();
+                    subscriberC1.StartProcessMessages();
 
                     using (IPublisher publisher = busA.CreatePublisher())
                     {

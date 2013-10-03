@@ -36,6 +36,8 @@ namespace Core.IntegrationTest
                             ev.Set();
                         }), receiveSelfPublish: true);
 
+                    subscriber.StartProcessMessages();
+
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
                         sent = DateTime.Now;

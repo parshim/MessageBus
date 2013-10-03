@@ -14,6 +14,7 @@ namespace MessageBus.Core
         private readonly IInputChannel _inputChannel;
         private readonly Thread _receiver;
         private bool _receive;
+        private bool _stared;
 
         private readonly string _busId;
 
@@ -49,20 +50,13 @@ namespace MessageBus.Core
         }
 
         private readonly ConcurrentDictionary<DataContractKey, MessageInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageInfo>();
-
+        
         public Subscriber(IInputChannel inputChannel, string busId, IErrorSubscriber errorSubscriber)
         {
             _busId = busId;
             _errorSubscriber = errorSubscriber;
-
             _inputChannel = inputChannel;
-            
-            _inputChannel.Open();
-
-            _receive = true;
-
             _receiver = new Thread(MessagePump);
-            _receiver.Start();
         }
 
         private void MessagePump()
@@ -183,6 +177,18 @@ namespace MessageBus.Core
             return Subscribe(dataType, new RawDispatcher(callback), hierarchy, receiveSelfPublish);
         }
 
+        public void StartProcessMessages()
+        {
+            if (_stared) return;
+            
+            _inputChannel.Open();
+
+            _receive = true;
+            _stared = true;
+
+            _receiver.Start();
+        }
+
         private bool Subscribe(Type dataType, IDispatcher dispatcher, bool hierarchy, bool receiveSelfPublish)
         {
             if (hierarchy)
@@ -195,6 +201,8 @@ namespace MessageBus.Core
 
         private bool Subscribe(Type dataType, IDispatcher dispatcher, bool receiveSelfPublish)
         {
+            if (_stared) throw new SubscribtionClosedException();
+
             DataContract dataContract = new DataContract(dataType);
 
             return _registeredTypes.TryAdd(dataContract.Key, new MessageInfo(dispatcher, dataContract.Serializer, receiveSelfPublish));
@@ -220,9 +228,12 @@ namespace MessageBus.Core
         {
             _receive = false;
 
-            _receiver.Join(TimeSpan.FromMilliseconds(200));
+            if (_stared)
+            {
+                _receiver.Join(TimeSpan.FromMilliseconds(200));
 
-            _inputChannel.Close();
+                _inputChannel.Close();
+            }
         }
     }
 }

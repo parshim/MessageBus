@@ -11,7 +11,8 @@ namespace MessageBus.Core
         protected Bus(string busId, IErrorSubscriber errorSubscriber)
         {
             _busId = busId;
-            _errorSubscriber = errorSubscriber;
+
+            _errorSubscriber = errorSubscriber ?? new NullErrorSubscriber();
         }
         
         public IPublisher CreatePublisher()
@@ -27,7 +28,7 @@ namespace MessageBus.Core
 
             if (inputChannel == null)
             {
-                throw new NoListenningChannelException();
+                throw new NoIncomingConnectionAcceptedException();
             }
 
             return new Subscriber(inputChannel, _busId, _errorSubscriber);

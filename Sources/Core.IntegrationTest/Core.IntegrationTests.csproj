@@ -55,6 +55,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusDurableTests.cs" />
     <Compile Include="BusMessageTests.cs" />
     <Compile Include="BusPerformanceTests.cs" />
     <Compile Include="BusSubscribtionsTests.cs" />

@@ -21,11 +21,13 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (IBus bus = new RabbitMQBus(busId, this))
+            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
                     subscriber.Subscribe(delegate(OK ok) {  }, receiveSelfPublish:false);
+
+                    subscriber.StartProcessMessages();
 
                     OK expectation = new OK();
 
@@ -51,12 +53,14 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (IBus bus = new RabbitMQBus(busId, this))
+            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
                     subscriber.Subscribe(delegate(ContractToReceive ok) { }, receiveSelfPublish: true);
                     
+                    subscriber.StartProcessMessages();
+
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
                         publisher.Send(new ContractToSend { Data = 4 });
@@ -82,12 +86,14 @@ namespace Core.IntegrationTest
 
             Exception ex = new Exception("My process error");
 
-            using (IBus bus = new RabbitMQBus(busId, this))
+            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
                     subscriber.Subscribe(delegate(ContractToSend ok) { throw ex; }, receiveSelfPublish: true);
                     
+                    subscriber.StartProcessMessages();
+
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
                         publisher.Send(new ContractToSend { Data = 4 });
@@ -113,10 +119,12 @@ namespace Core.IntegrationTest
 
             Exception ex = new Exception("My process error");
 
-            using (IBus bus = new RabbitMQBus(busId, this))
+            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
-                using (bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
+                    subscriber.StartProcessMessages();
+
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
                         publisher.Send(new ContractToSend { Data = 4 });

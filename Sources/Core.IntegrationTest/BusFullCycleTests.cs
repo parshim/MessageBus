@@ -49,6 +49,9 @@ namespace Core.IntegrationTest
 
                     subscriberB.Subscribe((Action<OK>) (data => ev2.Set()));
 
+                    subscriberA.StartProcessMessages();
+                    subscriberB.StartProcessMessages();
+
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
                         publisher.Send(messageA);

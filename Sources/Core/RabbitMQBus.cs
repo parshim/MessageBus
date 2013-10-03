@@ -8,8 +8,8 @@ namespace MessageBus.Core
 {
     public class RabbitMQBus : Bus
     {
-        private readonly string _host;
-        private readonly RabbitMQBinding _binding;
+        protected readonly string _host;
+        protected readonly RabbitMQBinding _binding;
 
         private IChannelFactory<IOutputChannel> _channelFactory;
 
@@ -18,20 +18,11 @@ namespace MessageBus.Core
         {
         }
         
-        public RabbitMQBus(string busId)
-            : this(busId, "localhost", "amq.fanout", false, new NullErrorSubscriber())
-        {
-        }
-
-        public RabbitMQBus(string busId, IErrorSubscriber errorSubscriber)
-            : this(busId, "localhost", "amq.fanout", false, errorSubscriber)
-        {
-        }
-
-        public RabbitMQBus(string busId, string host, string exchange, bool exactlyOnce, IErrorSubscriber errorSubscriber)
+        public RabbitMQBus(string busId, string host = "localhost", string exchange = "amq.fanout", bool exactlyOnce = false, IErrorSubscriber errorSubscriber = null)
             : base(busId, errorSubscriber)
         {
             _host = host;
+
             _binding = new RabbitMQBinding
                 {
                     ApplicationId = busId,
