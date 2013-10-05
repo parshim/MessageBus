@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
+using System.Xml;
 using FakeItEasy;
 using FluentAssertions;
 using MessageBus.Binding.RabbitMQ;
@@ -9,7 +10,7 @@ using RabbitMQ.IntegrationTests.ContractsAndServices;
 namespace RabbitMQ.IntegrationTests
 {
     [TestClass]
-    public class ApplicationIdIgnoreSelfPublishedTest : OneWayDeliveryTestBase
+    public class LargeBinaryTransferTest : OneWayDeliveryTestBase
     {
         /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
@@ -44,7 +45,10 @@ namespace RabbitMQ.IntegrationTests
                 //TTL = 1000, // Message time to leave in miliseconds
                 //PersistentDelivery = true // If true, every message will be written to disk on rabbitMQ broker side before dispatching to the destination(s)
                 ApplicationId = "MyApp",
-                IgnoreSelfPublished = true
+                ReaderQuotas = new XmlDictionaryReaderQuotas
+                    {
+                        MaxArrayLength = 10 * 1024 * 1024 // 10MB
+                    }
             }, serviceAddress);
 
             _host.Open();
@@ -62,24 +66,26 @@ namespace RabbitMQ.IntegrationTests
         }
 
         [TestMethod]
-        public void RabbitMQBinding_MessageWithSameAppId_DropedWithIgnoreSet()
+        public void RabbitMQBinding_TransferLargeBinary_TextBaseSerialization()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
 
-            Data data = new Data
+            Blob data = new Blob
             {
                 Id = 1,
-                Name = "Rabbit"
+                Data = new byte[8 * 1024 * 1024] // 8MB
             };
 
             A.CallTo(_errorProcessorFake).DoesNothing();
-            A.CallTo(() => _processorFake.Say(A<Data>.Ignored)).Invokes(() => _ev.Set());
+            A.CallTo(() => _processorFake.LargeData(A<Blob>.Ignored)).Invokes(() => _ev.Set());
 
-            channel.Say(data);
+            channel.LargeData(data);
 
             bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
 
-            wait.Should().BeFalse("message with same application id should be dropped,IgnoreSelfPublished = true");
+            wait.Should().BeTrue("message with same application id should be accepted, IgnoreSelfPublished = false");
+
+            A.CallTo(() => _processorFake.LargeData(A<Blob>._)).MustHaveHappened(Repeated.Like(i => i == 1));
         }
     }
 }

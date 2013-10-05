@@ -16,7 +16,6 @@ namespace MessageBus.Binding.RabbitMQ
         /// </summary>
         public RabbitMQTransportBindingElement()
         {
-            MaxReceivedMessageSize = RabbitMQBinding.DefaultMaxMessageSize;
         }
 
         private RabbitMQTransportBindingElement(RabbitMQTransportBindingElement other)
@@ -31,7 +30,6 @@ namespace MessageBus.Binding.RabbitMQ
             ReplyToExchange = other.ReplyToExchange;
             OneWayOnly = other.OneWayOnly;
             ApplicationId = other.ApplicationId;
-            IgnoreSelfPublished = other.IgnoreSelfPublished;
         }
         
         public override IChannelFactory<TChannel> BuildChannelFactory<TChannel>(BindingContext context)
@@ -124,14 +122,6 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get; set;
         }
-
-        /// <summary>
-        /// The largest receivable encoded message
-        /// </summary>
-        public override long MaxReceivedMessageSize
-        {
-            get; set;
-        }
         
         /// <summary>
         /// Specifies the version of the AMQP protocol that should be used to 
@@ -186,9 +176,5 @@ namespace MessageBus.Binding.RabbitMQ
         /// </remarks>
         public string ApplicationId { get; set; }
 
-        /// <summary>
-        /// Defines if messages published with same application id will be ignored
-        /// </summary>
-        public bool IgnoreSelfPublished { get; set; }
     }
 }

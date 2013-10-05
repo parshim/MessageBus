@@ -26,8 +26,9 @@ namespace MessageBus.Binding.RabbitMQ
         {
             _bindToExchange = bindToExchange;
             _bindingElement = context.Binding.Elements.Find<RabbitMQTransportBindingElement>();
-            TextMessageEncodingBindingElement encoderElem = context.BindingParameters.Find<TextMessageEncodingBindingElement>();
-            encoderElem.ReaderQuotas.MaxStringContentLength = (int)_bindingElement.MaxReceivedMessageSize;
+            
+            MessageEncodingBindingElement encoderElem = context.BindingParameters.Find<MessageEncodingBindingElement>();
+            
             _encoder = encoderElem.CreateMessageEncoderFactory().Encoder;
 
             _messageQueue = null;
@@ -46,9 +47,11 @@ namespace MessageBus.Binding.RabbitMQ
 #if VERBOSE
                 DebugHelper.Start();
 #endif
-                string messageAppId = result.BasicProperties.AppId;
-                
-                if (_bindingElement.IgnoreSelfPublished && MatchApplicationId(messageAppId))
+                string contentType = result.BasicProperties.ContentType;
+
+                bool isContentTypeSupported = _encoder.IsContentTypeSupported(contentType);
+
+                if (!isContentTypeSupported)
                 {
                     _messageQueue.DropMessage(result.DeliveryTag);
 
@@ -57,7 +60,7 @@ namespace MessageBus.Binding.RabbitMQ
 
                 _messageQueue.AcceptMessage(result.DeliveryTag);
 
-                Message message = _encoder.ReadMessage(new MemoryStream(result.Body), (int)_bindingElement.MaxReceivedMessageSize);
+                Message message = _encoder.ReadMessage(new MemoryStream(result.Body), int.MaxValue);
                 message.Headers.To = LocalAddress.Uri;
 #if VERBOSE
                 DebugHelper.Stop(" #### Message.Receive {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
@@ -76,14 +79,7 @@ namespace MessageBus.Binding.RabbitMQ
                 return null;
             }
         }
-
-        private bool MatchApplicationId(string messageAppId)
-        {
-            return !string.IsNullOrEmpty(messageAppId) && 
-                   !string.IsNullOrEmpty(_bindingElement.ApplicationId) &&
-                   messageAppId.Equals(_bindingElement.ApplicationId);
-        }
-
+        
         public override bool TryReceive(TimeSpan timeout, out Message message)
         {
             message = Receive(timeout);

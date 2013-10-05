@@ -56,13 +56,12 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationIdIgnoreSelfPublishedTest.cs" />
     <Compile Include="ContractsAndServices\Data.cs" />
     <Compile Include="ContractsAndServices\DuplexService.cs" />
     <Compile Include="ContractsAndServices\IDuplexService.cs" />
     <Compile Include="ContractsAndServices\IOneWayService.cs" />
     <Compile Include="ContractsAndServices\OneWayService.cs" />
-    <Compile Include="ApplicationIdAcceptsSelfPublishedTest.cs" />
+    <Compile Include="LargeBinaryTransferTest.cs" />
     <Compile Include="DuplexDeliveryTestBase.cs" />
     <Compile Include="NonTransactionalDuplexWithPredefinedCallbackQueueDeliveryTest.cs" />
     <Compile Include="OneWayDeliveryTestBase.cs" />

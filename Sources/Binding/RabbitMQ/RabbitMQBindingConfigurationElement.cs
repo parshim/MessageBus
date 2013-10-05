@@ -2,7 +2,7 @@ using System;
 using System.Configuration;
 using System.ServiceModel.Configuration;
 using System.Reflection;
-
+using System.Xml;
 using RabbitMQ.Client;
 
 namespace MessageBus.Binding.RabbitMQ
@@ -40,7 +40,6 @@ namespace MessageBus.Binding.RabbitMQ
             RabbitMQBinding rabbind = binding as RabbitMQBinding;
             if (rabbind != null)
             {
-                MaxMessageSize = rabbind.MaxMessageSize;
                 ExactlyOnce = rabbind.ExactlyOnce;
                 TTL = rabbind.TTL;
                 ReplyToExchange = rabbind.ReplyToQueue;
@@ -49,7 +48,7 @@ namespace MessageBus.Binding.RabbitMQ
                 OneWayOnly = rabbind.OneWayOnly;
                 ReplyToQueue = rabbind.ReplyToQueue;
                 ApplicationId = rabbind.ApplicationId;
-                IgnoreSelfPublished = rabbind.IgnoreSelfPublished;
+                ReadQuotas(rabbind.ReaderQuotas);
             }
         }
 
@@ -70,14 +69,42 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.AutoBindExchange = AutoBindExchange;
             rabbind.BrokerProtocol = Protocol;
             rabbind.ExactlyOnce = ExactlyOnce;
-            rabbind.Transport.MaxReceivedMessageSize = MaxMessageSize;
             rabbind.OneWayOnly = OneWayOnly;
             rabbind.PersistentDelivery = PersistentDelivery;
             rabbind.ReplyToExchange = ReplyToExchange == null ? null : new Uri(ReplyToExchange);
             rabbind.ReplyToQueue = ReplyToQueue;
             rabbind.TTL = TTL;
-            rabbind.IgnoreSelfPublished = IgnoreSelfPublished;
             rabbind.ApplicationId = ApplicationId;
+
+            ApplyQuotas(rabbind.ReaderQuotas);
+        }
+
+        private void ApplyQuotas(XmlDictionaryReaderQuotas target)
+        {
+            if (ReaderQuotas.MaxDepth != 0)
+                target.MaxDepth = ReaderQuotas.MaxDepth;
+            if (ReaderQuotas.MaxStringContentLength != 0)
+                target.MaxStringContentLength = ReaderQuotas.MaxStringContentLength;
+            if (ReaderQuotas.MaxArrayLength != 0)
+                target.MaxArrayLength = ReaderQuotas.MaxArrayLength;
+            if (ReaderQuotas.MaxBytesPerRead != 0)
+                target.MaxBytesPerRead = ReaderQuotas.MaxBytesPerRead;
+            if (ReaderQuotas.MaxNameTableCharCount != 0)
+                target.MaxNameTableCharCount = ReaderQuotas.MaxNameTableCharCount;
+        }
+        
+        private void ReadQuotas(XmlDictionaryReaderQuotas source)
+        {
+            if (source.MaxDepth != 0)
+                ReaderQuotas.MaxDepth = source.MaxDepth;
+            if (source.MaxStringContentLength != 0)
+                ReaderQuotas.MaxStringContentLength = source.MaxStringContentLength;
+            if (source.MaxArrayLength != 0)
+                ReaderQuotas.MaxArrayLength = source.MaxArrayLength;
+            if (source.MaxBytesPerRead != 0)
+                ReaderQuotas.MaxBytesPerRead = source.MaxBytesPerRead;
+            if (source.MaxNameTableCharCount != 0)
+                ReaderQuotas.MaxNameTableCharCount = source.MaxNameTableCharCount;
         }
 
         /// <summary>
@@ -110,16 +137,6 @@ namespace MessageBus.Binding.RabbitMQ
             set { base["oneWayOnly"] = value; }
         }
         
-        /// <summary>
-        /// Defines if messages published with same application id will be ignored
-        /// </summary>
-        [ConfigurationProperty("ignoreSelfPublished", DefaultValue = true)]
-        public bool IgnoreSelfPublished
-        {
-            get { return ((bool)base["ignoreSelfPublished"]); }
-            set { base["ignoreSelfPublished"] = value; }
-        }
-
         /// <summary>
         /// Application identificator. If not blanked will attached to the published messages. 
         /// </summary>
@@ -194,13 +211,23 @@ namespace MessageBus.Binding.RabbitMQ
         }
 
         /// <summary>
-        /// Specifies the maximum encoded message size
+        /// Gets or sets constraints on the complexity of SOAP messages that can be processed by endpoints configured with this binding.
         /// </summary>
-        [ConfigurationProperty("maxmessagesize", DefaultValue = 8192L)]
-        public long MaxMessageSize
+        /// 
+        /// <returns>
+        /// The <see cref="T:System.Xml.XmlDictionaryReaderQuotas"/> that specifies the complexity constraints.
+        /// </returns>
+        [ConfigurationProperty("readerQuotas")]
+        public XmlDictionaryReaderQuotasElement ReaderQuotas
         {
-            get { return (long)base["maxmessagesize"]; }
-            set { base["maxmessagesize"] = value; }
+            get
+            {
+                return ((XmlDictionaryReaderQuotasElement)base["readerQuotas"]);
+            }
+            set
+            {
+                base["readerQuotas"] = value;
+            }
         }
 
         private IProtocol GetProtocol() 

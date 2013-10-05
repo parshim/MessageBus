@@ -12,7 +12,6 @@ namespace RabbitMQ.UnitTests
         {
             RabbitMQBindingConfigurationElement element = new RabbitMQBindingConfigurationElement("Binding0");
             
-            element.IgnoreSelfPublished.Should().BeTrue();
             element.ExactlyOnce.Should().BeFalse();
             element.PersistentDelivery.Should().BeFalse();
             element.OneWayOnly.Should().BeTrue();
@@ -22,6 +21,7 @@ namespace RabbitMQ.UnitTests
             element.AutoBindExchange.Should().BeBlank();
             element.ApplicationId.Should().BeBlank();
             element.ProtocolVersion.Should().Be("DefaultProtocol");
+            element.ReaderQuotas.Should().NotBeNull();
         }
 
     }

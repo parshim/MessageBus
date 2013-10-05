@@ -20,5 +20,11 @@ namespace RabbitMQ.IntegrationTests.ContractsAndServices
             _errorProcessor.Say(data);
             _processor.Say(data);
         }
+
+        public void LargeData(Blob data)
+        {
+            _errorProcessor.LargeData(data);
+            _processor.LargeData(data);
+        }
     }
 }

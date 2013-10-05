@@ -11,4 +11,14 @@ namespace RabbitMQ.IntegrationTests.ContractsAndServices
         [DataMember]
         public string Name { get; set; }
     }
+
+    [DataContract]
+    public class Blob
+    {
+        [DataMember]
+        public int Id { get; set; }
+        
+        [DataMember]
+        public byte[] Data { get; set; }
+    }
 }

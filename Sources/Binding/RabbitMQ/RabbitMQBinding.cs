@@ -1,5 +1,6 @@
 using System;
 using System.ServiceModel.Channels;
+using System.Xml;
 using RabbitMQ.Client;
 
 namespace MessageBus.Binding.RabbitMQ
@@ -9,15 +10,12 @@ namespace MessageBus.Binding.RabbitMQ
     /// </summary>
     public sealed class RabbitMQBinding : System.ServiceModel.Channels.Binding
     {
-        private long _maxMessageSize;
         private bool _isInitialized;
 
         private CompositeDuplexBindingElement _duplex;
         private TextMessageEncodingBindingElement _encoding;
         private RabbitMQTransportBindingElement _transport;
         
-        public static readonly long DefaultMaxMessageSize = 8192L;
-
         /// <summary>
         /// Creates a new instance of the RabbitMQBinding class initialized
         /// to use the Protocols.DefaultProtocol. The broker must be set
@@ -27,17 +25,6 @@ namespace MessageBus.Binding.RabbitMQ
             : this(Protocols.DefaultProtocol)
         { }
         
-        /// <summary>
-        /// Uses the broker, login and protocol specified
-        /// </summary>
-       /// <param name="maxMessageSize">The largest allowable encoded message size</param>
-        /// <param name="protocol">The protocol version to use</param>
-        public RabbitMQBinding(long maxMessageSize, IProtocol protocol)
-            : this(protocol)
-        {
-            MaxMessageSize = maxMessageSize;
-        }
-
         /// <summary>
         /// Uses the specified protocol. The broker must be set before use.
         /// </summary>
@@ -67,15 +54,12 @@ namespace MessageBus.Binding.RabbitMQ
             _transport.ReplyToExchange = ReplyToExchange;
             _transport.OneWayOnly = OneWayOnly;
             _transport.ApplicationId = ApplicationId;
-            _transport.IgnoreSelfPublished = IgnoreSelfPublished;
-            
-            if (MaxMessageSize != DefaultMaxMessageSize)
+
+            if (ReaderQuotas != null)
             {
-                _transport.MaxReceivedMessageSize = MaxMessageSize;
+                ReaderQuotas.CopyTo(_encoding.ReaderQuotas);
             }
-
-            _encoding.ReaderQuotas.MaxArrayLength = 100000000;
-
+            
             BindingElementCollection elements = new BindingElementCollection();
 
             if (!OneWayOnly)
@@ -96,9 +80,9 @@ namespace MessageBus.Binding.RabbitMQ
                 {
                     _transport = new RabbitMQTransportBindingElement();
                     _encoding = new TextMessageEncodingBindingElement();
+                        
                     _duplex = new CompositeDuplexBindingElement();
-
-                    _maxMessageSize = DefaultMaxMessageSize;
+                    
                     _isInitialized = true;
                 }
             }
@@ -110,15 +94,6 @@ namespace MessageBus.Binding.RabbitMQ
         public override string Scheme
         {
             get { return CurrentVersion.Scheme; }
-        }
-
-        /// <summary>
-        /// Specifies the maximum encoded message size
-        /// </summary>
-        public long MaxMessageSize
-        {
-            get { return _maxMessageSize; }
-            set { _maxMessageSize = value; }
         }
 
         /// <summary>
@@ -183,8 +158,9 @@ namespace MessageBus.Binding.RabbitMQ
         public string ApplicationId { get; set; }
 
         /// <summary>
-        /// Defines if messages published with same application id will be ignored
+        /// Text serializer quotas
         /// </summary>
-        public bool IgnoreSelfPublished { get; set; }
+        public XmlDictionaryReaderQuotas ReaderQuotas { get; set; }
     }
+
 }

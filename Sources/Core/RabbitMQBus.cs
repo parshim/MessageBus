@@ -26,7 +26,6 @@ namespace MessageBus.Core
             _binding = new RabbitMQBinding
                 {
                     ApplicationId = busId,
-                    IgnoreSelfPublished = false,
                     AutoBindExchange = exchange,
                     OneWayOnly = true,
                     ExactlyOnce = exactlyOnce,
