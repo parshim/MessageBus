@@ -5,6 +5,12 @@ using RabbitMQ.Client;
 
 namespace MessageBus.Binding.RabbitMQ
 {
+    public enum MessageFormat
+    {
+        Text = 0x0,
+        MTOM = 0x1
+    }
+
     /// <summary>
     /// A windows communication foundation binding over AMQP
     /// </summary>
@@ -13,7 +19,8 @@ namespace MessageBus.Binding.RabbitMQ
         private bool _isInitialized;
 
         private CompositeDuplexBindingElement _duplex;
-        private TextMessageEncodingBindingElement _encoding;
+        private TextMessageEncodingBindingElement _textEncoding;
+        private MtomMessageEncodingBindingElement _mtomEncoding;
         private RabbitMQTransportBindingElement _transport;
         
         /// <summary>
@@ -54,10 +61,12 @@ namespace MessageBus.Binding.RabbitMQ
             _transport.ReplyToExchange = ReplyToExchange;
             _transport.OneWayOnly = OneWayOnly;
             _transport.ApplicationId = ApplicationId;
+            _transport.MessageFormat = MessageFormat;
 
             if (ReaderQuotas != null)
             {
-                ReaderQuotas.CopyTo(_encoding.ReaderQuotas);
+                ReaderQuotas.CopyTo(_textEncoding.ReaderQuotas);
+                ReaderQuotas.CopyTo(_mtomEncoding.ReaderQuotas);
             }
             
             BindingElementCollection elements = new BindingElementCollection();
@@ -66,7 +75,9 @@ namespace MessageBus.Binding.RabbitMQ
             {
                 elements.Add(_duplex);
             }
-            elements.Add(_encoding);
+
+            elements.Add(_mtomEncoding);
+            elements.Add(_textEncoding);
             elements.Add(_transport);
 
             return elements;
@@ -79,7 +90,8 @@ namespace MessageBus.Binding.RabbitMQ
                 if (!_isInitialized)
                 {
                     _transport = new RabbitMQTransportBindingElement();
-                    _encoding = new TextMessageEncodingBindingElement();
+                    _textEncoding = new TextMessageEncodingBindingElement();
+                    _mtomEncoding = new MtomMessageEncodingBindingElement();
                         
                     _duplex = new CompositeDuplexBindingElement();
                     
@@ -156,6 +168,14 @@ namespace MessageBus.Binding.RabbitMQ
         /// If not blanked application id will be used as queue name if queue name is not supplied by listener address or ReplyToQueue
         /// </remarks>
         public string ApplicationId { get; set; }
+
+        /// <summary>
+        /// Defines which message format to use when messages are sent
+        /// </summary>
+        /// <remarks>
+        /// Received messages may be in all supported format even for the same binding
+        /// </remarks>
+        public MessageFormat MessageFormat { get; set; }
 
         /// <summary>
         /// Text serializer quotas

@@ -17,7 +17,7 @@ namespace MessageBus.Binding.RabbitMQ
     {
         private readonly string _bindToExchange;
         private readonly RabbitMQTransportBindingElement _bindingElement;
-        private readonly MessageEncoder _encoder;
+        private readonly Dictionary<string, MessageEncoder> _encoders = new Dictionary<string, MessageEncoder>();
         
         private IModel _model;
         private IMessageQueue _messageQueue;
@@ -27,10 +27,20 @@ namespace MessageBus.Binding.RabbitMQ
             _bindToExchange = bindToExchange;
             _bindingElement = context.Binding.Elements.Find<RabbitMQTransportBindingElement>();
             
-            MessageEncodingBindingElement encoderElem = context.BindingParameters.Find<MessageEncodingBindingElement>();
-            
-            _encoder = encoderElem.CreateMessageEncoderFactory().Encoder;
+            IEnumerable<MessageEncodingBindingElement> encoderElemements = context.BindingParameters.FindAll<MessageEncodingBindingElement>();
 
+            foreach (MessageEncodingBindingElement encoderElem in encoderElemements)
+            {
+                MessageEncoder encoder = encoderElem.CreateMessageEncoderFactory().Encoder;
+
+                if (encoder.ContentType == null)
+                {
+                    continue;
+                }
+
+                _encoders.Add(encoder.ContentType, encoder);
+            }
+            
             _messageQueue = null;
         }
 
@@ -49,18 +59,18 @@ namespace MessageBus.Binding.RabbitMQ
 #endif
                 string contentType = result.BasicProperties.ContentType;
 
-                bool isContentTypeSupported = _encoder.IsContentTypeSupported(contentType);
-
-                if (!isContentTypeSupported)
+                if (!_encoders.ContainsKey(contentType))
                 {
                     _messageQueue.DropMessage(result.DeliveryTag);
 
                     return null;
                 }
 
+                MessageEncoder encoder = _encoders[contentType];
+
                 _messageQueue.AcceptMessage(result.DeliveryTag);
 
-                Message message = _encoder.ReadMessage(new MemoryStream(result.Body), int.MaxValue);
+                Message message = encoder.ReadMessage(new MemoryStream(result.Body), int.MaxValue);
                 message.Headers.To = LocalAddress.Uri;
 #if VERBOSE
                 DebugHelper.Stop(" #### Message.Receive {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",

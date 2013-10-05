@@ -48,6 +48,7 @@ namespace MessageBus.Binding.RabbitMQ
                 OneWayOnly = rabbind.OneWayOnly;
                 ReplyToQueue = rabbind.ReplyToQueue;
                 ApplicationId = rabbind.ApplicationId;
+                MessageFormat = rabbind.MessageFormat;
                 ReadQuotas(rabbind.ReaderQuotas);
             }
         }
@@ -75,6 +76,7 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.ReplyToQueue = ReplyToQueue;
             rabbind.TTL = TTL;
             rabbind.ApplicationId = ApplicationId;
+            rabbind.MessageFormat = MessageFormat;
 
             ApplyQuotas(rabbind.ReaderQuotas);
         }
@@ -151,6 +153,19 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get { return ((string)base["applicationId"]); }
             set { base["applicationId"] = value; }
+        }
+
+        /// <summary>
+        /// Defines which message format to use when messages are sent
+        /// </summary>
+        /// <remarks>
+        /// Received messages may be in all supported format even for the same binding
+        /// </remarks>
+        [ConfigurationProperty("messageFormat", DefaultValue = MessageFormat.Text)]
+        public MessageFormat MessageFormat
+        {
+            get { return ((MessageFormat)base["messageFormat"]); }
+            set { base["messageFormat"] = value; }
         }
 
         /// <summary>

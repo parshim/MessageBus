@@ -61,6 +61,7 @@
     <Compile Include="ContractsAndServices\IDuplexService.cs" />
     <Compile Include="ContractsAndServices\IOneWayService.cs" />
     <Compile Include="ContractsAndServices\OneWayService.cs" />
+    <Compile Include="MessageFormatsTest.cs" />
     <Compile Include="LargeBinaryTransferTest.cs" />
     <Compile Include="DuplexDeliveryTestBase.cs" />
     <Compile Include="NonTransactionalDuplexWithPredefinedCallbackQueueDeliveryTest.cs" />

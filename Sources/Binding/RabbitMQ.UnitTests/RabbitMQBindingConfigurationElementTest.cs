@@ -20,6 +20,7 @@ namespace RabbitMQ.UnitTests
             element.ReplyToQueue.Should().BeBlank();
             element.AutoBindExchange.Should().BeBlank();
             element.ApplicationId.Should().BeBlank();
+            element.MessageFormat.Should().Be(MessageFormat.Text);
             element.ProtocolVersion.Should().Be("DefaultProtocol");
             element.ReaderQuotas.Should().NotBeNull();
         }

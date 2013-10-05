@@ -20,12 +20,26 @@ namespace MessageBus.Binding.RabbitMQ
         public RabbitMQTransportOutputChannel(BindingContext context, EndpointAddress address, Uri via)
             : base(context, address, via)
         {
-            MessageEncodingBindingElement encoderElement = context.Binding.Elements.Find<MessageEncodingBindingElement>();
-            if (encoderElement != null) {
+
+            _bindingElement = context.Binding.Elements.Find<RabbitMQTransportBindingElement>();
+
+            MessageEncodingBindingElement encoderElement;
+
+            if (_bindingElement.MessageFormat == MessageFormat.MTOM)
+            {
+                encoderElement = context.Binding.Elements.Find<MtomMessageEncodingBindingElement>();
+            }
+            else
+            {
+                encoderElement = context.Binding.Elements.Find<TextMessageEncodingBindingElement>();
+            }
+
+            if (encoderElement != null) 
+            {
                 _encoder = encoderElement.CreateMessageEncoderFactory().Encoder;
             }
 
-            _bindingElement = context.Binding.Elements.Find<RabbitMQTransportBindingElement>();
+            
         }
 
         public override void Open(TimeSpan timeout)
@@ -97,7 +111,7 @@ namespace MessageBus.Binding.RabbitMQ
                     basicProperties.Expiration = _bindingElement.TTL;
                 }
 
-                // TODO: read custom headers and put it into the message properties
+                // TODO: Read custom headers and put it into the message headers
                 //foreach (MessageHeaderInfo messageHeaderInfo in message.Headers)
                 //{
                 //    basicProperties.Headers.Add(messageHeaderInfo.Name, "");

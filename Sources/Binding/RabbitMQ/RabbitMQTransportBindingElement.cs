@@ -30,6 +30,7 @@ namespace MessageBus.Binding.RabbitMQ
             ReplyToExchange = other.ReplyToExchange;
             OneWayOnly = other.OneWayOnly;
             ApplicationId = other.ApplicationId;
+            MessageFormat = other.MessageFormat;
         }
         
         public override IChannelFactory<TChannel> BuildChannelFactory<TChannel>(BindingContext context)
@@ -175,6 +176,14 @@ namespace MessageBus.Binding.RabbitMQ
         /// If not blanked application id will be used as queue name if queue name is not supplied by listener address or ReplyToQueue
         /// </remarks>
         public string ApplicationId { get; set; }
+
+        /// <summary>
+        /// Defines which message format to use when messages are sent
+        /// </summary>
+        /// <remarks>
+        /// Received messages may be in all supported format even for the same binding
+        /// </remarks>
+        public MessageFormat MessageFormat { get; set; }
 
     }
 }

@@ -17,7 +17,7 @@ namespace RabbitMQ.IntegrationTests
         protected IOneWayService _errorProcessorFake = A.Fake<IOneWayService>();
 
         [TestCleanup]
-        public void TestCleanup()
+        public virtual void TestCleanup()
         {
             _host.Close(TimeSpan.FromSeconds(2));
 

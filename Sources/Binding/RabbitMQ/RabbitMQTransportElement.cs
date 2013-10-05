@@ -33,6 +33,7 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.ReplyToQueue = ReplyToQueue;
             rabbind.ReplyToExchange = ReplyToExchange != null ? new Uri(ReplyToExchange) : null;
             rabbind.OneWayOnly = OneWayOnly;
+            rabbind.MessageFormat = MessageFormat;
         }
 
         public override void CopyFrom(ServiceModelExtensionElement from)
@@ -49,6 +50,7 @@ namespace MessageBus.Binding.RabbitMQ
                 ReplyToQueue = element.ReplyToQueue;
                 ReplyToExchange = element.ReplyToExchange;
                 OneWayOnly = element.OneWayOnly;
+                MessageFormat = element.MessageFormat;
             }
         }
 
@@ -89,6 +91,7 @@ namespace MessageBus.Binding.RabbitMQ
             ReplyToQueue = rabbind.ReplyToQueue;
             ReplyToExchange = rabbind.ReplyToExchange.ToString();
             OneWayOnly = rabbind.OneWayOnly;
+            MessageFormat = rabbind.MessageFormat;
         }
 
         public override Type BindingElementType
@@ -188,6 +191,19 @@ namespace MessageBus.Binding.RabbitMQ
             {
                 base["replyToQueue"] = value;
             }
+        }
+
+        /// <summary>
+        /// Defines which message format to use when messages are sent
+        /// </summary>
+        /// <remarks>
+        /// Received messages may be in all supported format even for the same binding
+        /// </remarks>
+        [ConfigurationProperty("messageFormat", DefaultValue = MessageFormat.Text)]
+        public MessageFormat MessageFormat
+        {
+            get { return ((MessageFormat)base["messageFormat"]); }
+            set { base["messageFormat"] = value; }
         }
 
         private IProtocol GetProtocol()
