@@ -8,7 +8,8 @@ namespace MessageBus.Binding.RabbitMQ
     public enum MessageFormat
     {
         Text = 0x0,
-        MTOM = 0x1
+        MTOM = 0x1,
+        NetBinary = 0x2,
     }
 
     /// <summary>
@@ -21,6 +22,7 @@ namespace MessageBus.Binding.RabbitMQ
         private CompositeDuplexBindingElement _duplex;
         private TextMessageEncodingBindingElement _textEncoding;
         private MtomMessageEncodingBindingElement _mtomEncoding;
+        private BinaryMessageEncodingBindingElement _binaryEncoding;
         private RabbitMQTransportBindingElement _transport;
         
         /// <summary>
@@ -68,6 +70,7 @@ namespace MessageBus.Binding.RabbitMQ
             {
                 ReaderQuotas.CopyTo(_textEncoding.ReaderQuotas);
                 ReaderQuotas.CopyTo(_mtomEncoding.ReaderQuotas);
+                ReaderQuotas.CopyTo(_binaryEncoding.ReaderQuotas);
             }
             
             BindingElementCollection elements = new BindingElementCollection();
@@ -77,6 +80,7 @@ namespace MessageBus.Binding.RabbitMQ
                 elements.Add(_duplex);
             }
 
+            elements.Add(_binaryEncoding);
             elements.Add(_mtomEncoding);
             elements.Add(_textEncoding);
             elements.Add(_transport);
@@ -93,6 +97,7 @@ namespace MessageBus.Binding.RabbitMQ
                     _transport = new RabbitMQTransportBindingElement();
                     _textEncoding = new TextMessageEncodingBindingElement();
                     _mtomEncoding = new MtomMessageEncodingBindingElement();
+                    _binaryEncoding = new BinaryMessageEncodingBindingElement();
                         
                     _duplex = new CompositeDuplexBindingElement();
                     

@@ -31,6 +31,10 @@ namespace MessageBus.Binding.RabbitMQ
             {
                 encoderElement = context.Binding.Elements.Find<MtomMessageEncodingBindingElement>();
             }
+            else if (_bindingElement.MessageFormat == MessageFormat.NetBinary)
+            {
+                encoderElement = context.Binding.Elements.Find<BinaryMessageEncodingBindingElement>();
+            }
             else
             {
                 encoderElement = context.Binding.Elements.Find<TextMessageEncodingBindingElement>();
