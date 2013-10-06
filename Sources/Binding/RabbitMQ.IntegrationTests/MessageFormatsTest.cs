@@ -14,6 +14,7 @@ namespace RabbitMQ.IntegrationTests
     public class MessageFormatsTest : OneWayDeliveryTestBase
     {
         private ChannelFactory<IOneWayService> _mtomFactory;
+        private ChannelFactory<IOneWayService> _binaryFactory;
 
             /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
@@ -69,6 +70,12 @@ namespace RabbitMQ.IntegrationTests
                     OneWayOnly = true,
                     MessageFormat = MessageFormat.MTOM
                 }, clientAddress);
+            
+            _binaryFactory = new ChannelFactory<IOneWayService>(new RabbitMQBinding
+                {
+                    OneWayOnly = true,
+                    MessageFormat = MessageFormat.NetBinary
+                }, clientAddress);
 
             _channelFactory.Open();
             _mtomFactory.Open();
@@ -79,6 +86,7 @@ namespace RabbitMQ.IntegrationTests
             base.TestCleanup();
 
             _mtomFactory.Close();
+            _binaryFactory.Close();
         }
 
 
@@ -87,6 +95,7 @@ namespace RabbitMQ.IntegrationTests
         {
             IOneWayService textChannel = _channelFactory.CreateChannel();
             IOneWayService mtomChannel = _mtomFactory.CreateChannel();
+            IOneWayService binaryChannel = _binaryFactory.CreateChannel();
 
             Blob data = new Blob
                 {
@@ -102,12 +111,13 @@ namespace RabbitMQ.IntegrationTests
 
             textChannel.LargeData(data);
             mtomChannel.LargeData(data);
+            binaryChannel.LargeData(data);
 
             textChannel.Say(new Data());
 
             bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
 
-            receiveCounter.Should().Be(2);
+            receiveCounter.Should().Be(3);
 
             wait.Should().BeTrue("Service were not being invoked");
         }
