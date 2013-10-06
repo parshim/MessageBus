@@ -163,26 +163,26 @@ namespace MessageBus.Core
             return rawBusMessage;
         }
 
-        public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, bool receiveSelfPublish)
+        public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
-            return Subscribe(typeof (TData), o => callback((TData) o), hierarchy, receiveSelfPublish);
+            return Subscribe(typeof (TData), o => callback((TData) o), hierarchy, receiveSelfPublish, filter);
         }
-        
-        public bool Subscribe(Type dataType, Action<object> callback, bool hierarchy, bool receiveSelfPublish)
+
+        public bool Subscribe(Type dataType, Action<object> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
             ActionDispatcher actionDispatcher = new ActionDispatcher(callback);
            
-            return Subscribe(dataType, actionDispatcher, hierarchy, receiveSelfPublish);
+            return Subscribe(dataType, actionDispatcher, hierarchy, receiveSelfPublish, filter);
         }
 
-        public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, bool receiveSelfPublish)
+        public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
-            return Subscribe(typeof(TData), new BusMessageDispatcher<TData>(callback), hierarchy, receiveSelfPublish);
+            return Subscribe(typeof(TData), new BusMessageDispatcher<TData>(callback), hierarchy, receiveSelfPublish, filter);
         }
 
-        public bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy, bool receiveSelfPublish)
+        public bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
-            return Subscribe(dataType, new RawDispatcher(callback), hierarchy, receiveSelfPublish);
+            return Subscribe(dataType, new RawDispatcher(callback), hierarchy, receiveSelfPublish, filter);
         }
 
         public void StartProcessMessages()
@@ -201,17 +201,17 @@ namespace MessageBus.Core
 
         protected abstract void ApplyFilters(IEnumerable<MessageFilterInfo> filters);
 
-        private bool Subscribe(Type dataType, IDispatcher dispatcher, bool hierarchy, bool receiveSelfPublish)
+        private bool Subscribe(Type dataType, IDispatcher dispatcher, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
             if (hierarchy)
             {
-                return SubscribeHierarchy(dataType, dispatcher, receiveSelfPublish);
+                return SubscribeHierarchy(dataType, dispatcher, receiveSelfPublish, filter);
             }
 
-            return Subscribe(dataType, dispatcher, receiveSelfPublish);
+            return Subscribe(dataType, dispatcher, receiveSelfPublish, filter);
         }
 
-        private bool Subscribe(Type dataType, IDispatcher dispatcher, bool receiveSelfPublish)
+        private bool Subscribe(Type dataType, IDispatcher dispatcher, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
             if (_stared) throw new SubscribtionClosedException();
 
@@ -220,10 +220,10 @@ namespace MessageBus.Core
             return _registeredTypes.TryAdd(dataContract.Key,
                                            new MessageSubscribtionInfo(dataContract.Key, dispatcher,
                                                                        dataContract.Serializer, receiveSelfPublish,
-                                                                       Enumerable.Empty<BusHeader>()));
+                                                                       filter ?? Enumerable.Empty<BusHeader>()));
         }
 
-        private bool SubscribeHierarchy(Type baseType, IDispatcher dispatcher, bool receiveSelfPublish)
+        private bool SubscribeHierarchy(Type baseType, IDispatcher dispatcher, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
             var types = from type in baseType.Assembly.GetTypes()
                         where type != baseType && baseType.IsAssignableFrom(type)
@@ -233,7 +233,7 @@ namespace MessageBus.Core
 
             foreach (Type type in types)
             {
-                atLeastOne = Subscribe(type, dispatcher, receiveSelfPublish) || atLeastOne;
+                atLeastOne = Subscribe(type, dispatcher, receiveSelfPublish, filter) || atLeastOne;
             }
 
             return atLeastOne;
