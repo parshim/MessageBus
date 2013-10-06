@@ -35,7 +35,7 @@ namespace RabbitMQ.IntegrationTests
         {
             _host = new ServiceHost(new OneWayService(_processorFake, _errorProcessorFake));
 
-            const string serviceAddress = "amqp://localhost/myQueue?routingKey=OneWayService";
+            const string serviceAddress = "amqp://localhost/largeQueue?routingKey=large";
 
             _host.AddServiceEndpoint(typeof(IOneWayService), new RabbitMQBinding
             {
@@ -54,7 +54,7 @@ namespace RabbitMQ.IntegrationTests
             _host.Open();
 
 
-            const string clientAddress = "amqp://localhost/amq.direct?routingKey=OneWayService";
+            const string clientAddress = "amqp://localhost/amq.direct?routingKey=large";
 
             _channelFactory = new ChannelFactory<IOneWayService>(new RabbitMQBinding
             {
@@ -83,7 +83,7 @@ namespace RabbitMQ.IntegrationTests
 
             bool wait = _ev.Wait(TimeSpan.FromSeconds(10));
 
-            wait.Should().BeTrue("message with same application id should be accepted, IgnoreSelfPublished = false");
+            wait.Should().BeTrue();
 
             A.CallTo(() => _processorFake.LargeData(A<Blob>._)).MustHaveHappened(Repeated.Like(i => i == 1));
         }

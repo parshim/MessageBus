@@ -18,6 +18,13 @@ namespace MessageBus.Core
 
             _serializer.WriteStartObject(this, o);
         }
+        
+        public DataContract(object contract)
+        {
+            _serializer = new DataContractSerializer(contract.GetType());
+
+            _serializer.WriteStartObject(this, contract);
+        }
 
         public DataContractKey Key
         {

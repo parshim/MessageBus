@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Transactions;
@@ -38,8 +40,6 @@ namespace MessageBus.Binding.RabbitMQ
             {
                 _encoder = encoderElement.CreateMessageEncoderFactory().Encoder;
             }
-
-            
         }
 
         public override void Open(TimeSpan timeout)
@@ -101,54 +101,31 @@ namespace MessageBus.Binding.RabbitMQ
                 IBasicProperties basicProperties = _model.CreateBasicProperties();
 
                 // Set message properties
-                basicProperties.Timestamp = new AmqpTimestamp(GetUnixTime(DateTime.Now));
-                basicProperties.ContentType = _encoder.ContentType;
-                basicProperties.DeliveryMode = _bindingElement.PersistentDelivery ? (byte)2 : (byte)1;
-                basicProperties.AppId = _bindingElement.ApplicationId ?? "";
+                SetMessageProperties(basicProperties);
 
-                if (!string.IsNullOrEmpty(_bindingElement.TTL))
-                {
-                    basicProperties.Expiration = _bindingElement.TTL;
-                }
+                // Read custom headers and put it into the message headers
+                SetMessageHeaders(message, basicProperties);
 
-                // TODO: Read custom headers and put it into the message headers
-                //foreach (MessageHeaderInfo messageHeaderInfo in message.Headers)
-                //{
-                //    basicProperties.Headers.Add(messageHeaderInfo.Name, "");
-                //}
-
+                // Set ReplyTo address if specified
                 if (_bindingElement.ReplyToExchange != null)
                 {
                     message.Headers.ReplyTo = new EndpointAddress(_bindingElement.ReplyToExchange);
                 }
 
+                // Serialize the message to stream
                 using (MemoryStream str = new MemoryStream())
                 {
                     _encoder.WriteMessage(message, str);
                     body = str.ToArray();
                 }
 
+                // Build AMQP uri
                 RabbitMQUri uri = new RabbitMQUri(RemoteAddress.Uri);
 
-                if (_transactional)
-                {
-                    Transaction current = Transaction.Current;
+                // Enlist operation into transaction 
+                EnlistTransaction();
 
-                    if (current == null)
-                    {
-                        throw new FaultException("Channel used inside transaction scope can not be used without transaction thereafter. Reopen client channel.");
-                    }
-
-                    if (!_transactionIdentifiers.Contains(current.TransactionInformation.LocalIdentifier))
-                    {
-                        current.EnlistVolatile(new TransactionalDispatchingEnslistment(_model), EnlistmentOptions.None);
-
-                        current.TransactionCompleted += CurrentOnTransactionCompleted;
-
-                        _transactionIdentifiers.Add(current.TransactionInformation.LocalIdentifier);
-                    }
-                }
-
+                // Publish AMQP message
                 _model.BasicPublish(uri.Endpoint,
                                      uri.RoutingKey,
                                      basicProperties,
@@ -159,6 +136,60 @@ namespace MessageBus.Binding.RabbitMQ
                     body.Length,
                     message.Headers.Action.Remove(0, message.Headers.Action.LastIndexOf('/')));
 #endif
+            }
+        }
+
+        private void SetMessageProperties(IBasicProperties basicProperties)
+        {
+            basicProperties.Timestamp = new AmqpTimestamp(GetUnixTime(DateTime.Now));
+            basicProperties.ContentType = _encoder.ContentType;
+            basicProperties.DeliveryMode = _bindingElement.PersistentDelivery ? (byte)2 : (byte)1;
+            basicProperties.AppId = _bindingElement.ApplicationId ?? "";
+            basicProperties.Headers = new Hashtable();
+
+            if (!string.IsNullOrEmpty(_bindingElement.TTL))
+            {
+                basicProperties.Expiration = _bindingElement.TTL;
+            }
+        }
+
+        private void SetMessageHeaders(Message message, IBasicProperties basicProperties)
+        {
+            string nsToMap = _bindingElement.HeaderNamespace;
+
+            if (string.IsNullOrEmpty(nsToMap)) return;
+
+            foreach (MessageHeaderInfo messageHeaderInfo in message.Headers.Where(info => info.Namespace == nsToMap))
+            {
+                // TODO: add support for bool and int types
+                string header = message.Headers.GetHeader<string>(messageHeaderInfo.Name,
+                                                                  messageHeaderInfo.Namespace,
+                                                                  messageHeaderInfo.Actor);
+
+                basicProperties.Headers.Add(messageHeaderInfo.Name, header);
+            }
+        }
+
+        private void EnlistTransaction()
+        {
+            if (_transactional)
+            {
+                Transaction current = Transaction.Current;
+
+                if (current == null)
+                {
+                    throw new FaultException(
+                        "Channel used inside transaction scope can not be used without transaction thereafter. Reopen client channel.");
+                }
+
+                if (!_transactionIdentifiers.Contains(current.TransactionInformation.LocalIdentifier))
+                {
+                    current.EnlistVolatile(new TransactionalDispatchingEnslistment(_model), EnlistmentOptions.None);
+
+                    current.TransactionCompleted += CurrentOnTransactionCompleted;
+
+                    _transactionIdentifiers.Add(current.TransactionInformation.LocalIdentifier);
+                }
             }
         }
 

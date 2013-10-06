@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
+using System.Xml;
 using FakeItEasy;
 using FluentAssertions;
 
@@ -37,7 +38,7 @@ namespace RabbitMQ.IntegrationTests
         {
             _host = new ServiceHost(new OneWayService(_processorFake, _errorProcessorFake));
 
-            const string serviceAddress = "amqp://localhost/myQueue?routingKey=OneWayService";
+            const string serviceAddress = "amqp://localhost//?routingKey=testFormats";
 
             _host.AddServiceEndpoint(typeof(IOneWayService), new RabbitMQBinding
                 {
@@ -46,12 +47,16 @@ namespace RabbitMQ.IntegrationTests
                     OneWayOnly = true, // Use False only if calback communication required
                     //TTL = 1000, // Message time to leave in miliseconds
                     //PersistentDelivery = true // If true, every message will be written to disk on rabbitMQ broker side before dispatching to the destination(s)
+                    ReaderQuotas = new XmlDictionaryReaderQuotas
+                        {
+                            MaxArrayLength = 2 * 1024 * 1024
+                        }
                 }, serviceAddress);
 
             _host.Open();
 
 
-            const string clientAddress = "amqp://localhost/amq.direct?routingKey=OneWayService";
+            const string clientAddress = "amqp://localhost/amq.direct?routingKey=testFormats";
 
             _channelFactory = new ChannelFactory<IOneWayService>(new RabbitMQBinding
                 {

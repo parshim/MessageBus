@@ -151,16 +151,9 @@ namespace MessageBus.Binding.RabbitMQ
             }
 
             //Create a queue for messages destined to this service, bind it to the service URI routing key
-            bool autoDelete = false;
+            bool autoDelete = string.IsNullOrEmpty(queue);
 
-            if (queue == null)
-            {
-                queue = Guid.NewGuid().ToString();
-                
-                autoDelete = true;
-            }
-
-            queue = _model.QueueDeclare(queue, true, autoDelete, autoDelete, args);
+            queue = _model.QueueDeclare(queue ?? "", true, autoDelete, autoDelete, args);
 
             if (!string.IsNullOrEmpty(_bindToExchange))
             {

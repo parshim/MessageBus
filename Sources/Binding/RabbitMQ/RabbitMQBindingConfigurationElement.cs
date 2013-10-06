@@ -48,6 +48,7 @@ namespace MessageBus.Binding.RabbitMQ
                 OneWayOnly = rabbind.OneWayOnly;
                 ReplyToQueue = rabbind.ReplyToQueue;
                 ApplicationId = rabbind.ApplicationId;
+                HeaderNamespace = rabbind.HeaderNamespace;
                 MessageFormat = rabbind.MessageFormat;
                 ReadQuotas(rabbind.ReaderQuotas);
             }
@@ -77,6 +78,7 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.TTL = TTL;
             rabbind.ApplicationId = ApplicationId;
             rabbind.MessageFormat = MessageFormat;
+            rabbind.HeaderNamespace = HeaderNamespace;
 
             ApplyQuotas(rabbind.ReaderQuotas);
         }
@@ -153,6 +155,16 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get { return ((string)base["applicationId"]); }
             set { base["applicationId"] = value; }
+        }
+
+        /// <summary>
+        /// Specify SOAP headers namespace to map to AMQP message header 
+        /// </summary>
+        [ConfigurationProperty("headerNamespace", DefaultValue = null)]
+        public string HeaderNamespace
+        {
+            get { return ((string)base["headerNamespace"]); }
+            set { base["headerNamespace"] = value; }
         }
 
         /// <summary>

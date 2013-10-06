@@ -51,6 +51,8 @@ namespace MessageBus.Binding.RabbitMQ
                 ReplyToExchange = element.ReplyToExchange;
                 OneWayOnly = element.OneWayOnly;
                 MessageFormat = element.MessageFormat;
+                ApplicationId = element.ApplicationId;
+                HeaderNamespace = element.HeaderNamespace;
             }
         }
 
@@ -92,6 +94,8 @@ namespace MessageBus.Binding.RabbitMQ
             ReplyToExchange = rabbind.ReplyToExchange.ToString();
             OneWayOnly = rabbind.OneWayOnly;
             MessageFormat = rabbind.MessageFormat;
+            ApplicationId = rabbind.ApplicationId;
+            HeaderNamespace = rabbind.HeaderNamespace;
         }
 
         public override Type BindingElementType
@@ -121,6 +125,32 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get { return ((bool)base["oneWayOnly"]); }
             set { base["oneWayOnly"] = value; }
+        }
+
+        /// <summary>
+        /// Application identificator. If not blanked will attached to the published messages. 
+        /// </summary>
+        /// <remarks>
+        /// If IgnoreSelfPublished is True messages with same application id will be dropped. 
+        /// </remarks>
+        /// <remarks>
+        /// If not blanked application id will be used as queue name if queue name is not supplied by listener address or ReplyToQueue
+        /// </remarks>
+        [ConfigurationProperty("applicationId", DefaultValue = null)]
+        public string ApplicationId
+        {
+            get { return ((string)base["applicationId"]); }
+            set { base["applicationId"] = value; }
+        }
+
+        /// <summary>
+        /// Specify SOAP headers namespace to map to AMQP message header 
+        /// </summary>
+        [ConfigurationProperty("headerNamespace", DefaultValue = null)]
+        public string HeaderNamespace
+        {
+            get { return ((string)base["headerNamespace"]); }
+            set { base["headerNamespace"] = value; }
         }
 
         /// <summary>

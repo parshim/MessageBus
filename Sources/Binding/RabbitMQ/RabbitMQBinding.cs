@@ -62,6 +62,7 @@ namespace MessageBus.Binding.RabbitMQ
             _transport.OneWayOnly = OneWayOnly;
             _transport.ApplicationId = ApplicationId;
             _transport.MessageFormat = MessageFormat;
+            _transport.HeaderNamespace = HeaderNamespace;
 
             if (ReaderQuotas != null)
             {
@@ -176,6 +177,11 @@ namespace MessageBus.Binding.RabbitMQ
         /// Received messages may be in all supported format even for the same binding
         /// </remarks>
         public MessageFormat MessageFormat { get; set; }
+
+        /// <summary>
+        /// Specify SOAP headers namespace to map to AMQP message header 
+        /// </summary>
+        public string HeaderNamespace { get; set; }
 
         /// <summary>
         /// Text serializer quotas

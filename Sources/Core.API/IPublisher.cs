@@ -18,7 +18,7 @@ namespace MessageBus.Core.API
         /// 
         /// </summary>
         /// <typeparam name="TData"></typeparam>
-        /// <param name="data"></param>
-        void Send<TData>(BusMessage<TData> data);
+        /// <param name="busMessage"></param>
+        void Send<TData>(BusMessage<TData> busMessage);
     }
 }

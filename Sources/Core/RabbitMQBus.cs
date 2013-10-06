@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Xml;
 using MessageBus.Binding.RabbitMQ;
 using MessageBus.Core.API;
 
@@ -29,7 +30,13 @@ namespace MessageBus.Core
                     AutoBindExchange = exchange,
                     OneWayOnly = true,
                     ExactlyOnce = exactlyOnce,
-                    PersistentDelivery = false
+                    PersistentDelivery = false,
+                    // TODO: Config
+                    //MessageFormat = MessageFormat.MTOM,
+                    //ReaderQuotas = new XmlDictionaryReaderQuotas
+                    //    {
+                    //        MaxArrayLength = 10 * 1024 * 1024
+                    //    }
                 };
         }
 

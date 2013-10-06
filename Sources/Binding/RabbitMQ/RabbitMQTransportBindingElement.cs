@@ -185,5 +185,9 @@ namespace MessageBus.Binding.RabbitMQ
         /// </remarks>
         public MessageFormat MessageFormat { get; set; }
 
+        /// <summary>
+        /// Specify SOAP headers namespace to map to AMQP message header 
+        /// </summary>
+        public string HeaderNamespace { get; set; }
     }
 }
