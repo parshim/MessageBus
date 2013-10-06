@@ -21,7 +21,10 @@ namespace Core.IntegrationTest
                     {
                         Data = new Person { Id = 5 }
                     };
-                message.Headers.Add("Version", "Ver1");
+                message.Headers.Add(new BusHeader
+                    {
+                       Name = "Version", Value = "Ver1"
+                    });
 
                 BusMessage<Person> received = null;
                 
@@ -47,7 +50,6 @@ namespace Core.IntegrationTest
                     bool wait = ev.WaitOne(TimeSpan.FromSeconds(5));
 
                     wait.Should().BeTrue();
-
                 }
 
                 received.ShouldBeEquivalentTo(message, options => options.Excluding(m => m.BusId).Excluding(m => m.Sent));

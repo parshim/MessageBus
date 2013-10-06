@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -52,9 +51,9 @@ namespace MessageBus.Core
                     Data = (TData)message.Data
                 };
 
-            foreach (KeyValuePair<string, string> header in message.Headers)
+            foreach (BusHeader header in message.Headers)
             {
-                busMessage.Headers.Add(header.Key, header.Value);
+                busMessage.Headers.Add(header);
             }
 
             _action(busMessage);

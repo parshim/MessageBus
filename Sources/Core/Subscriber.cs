@@ -128,9 +128,13 @@ namespace MessageBus.Core
             foreach (MessageHeaderInfo headerInfo in message.Headers.Where(info => info.Actor == MessagingConstancts.Actor.User &&
                                                                                     info.Namespace == MessagingConstancts.Namespace.MessageBus))
             {
-                string header = message.Headers.GetHeader<string>(headerInfo.Name, headerInfo.Namespace, headerInfo.Actor);
+                string value = message.Headers.GetHeader<string>(headerInfo.Name, headerInfo.Namespace, headerInfo.Actor);
 
-                rawBusMessage.Headers.Add(headerInfo.Name, header);
+                rawBusMessage.Headers.Add(new BusHeader
+                    {
+                        Name = headerInfo.Name,
+                        Value = value
+                    });
             }
 
             using (XmlDictionaryReader bodyContents = message.GetReaderAtBodyContents())

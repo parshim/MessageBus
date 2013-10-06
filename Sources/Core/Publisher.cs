@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ServiceModel.Channels;
 using MessageBus.Core.API;
 
@@ -43,29 +42,37 @@ namespace MessageBus.Core
 
             using (Message message = Message.CreateMessage(_messageVersion, MessagingConstancts.MessageAction.Regular, busMessage.Data))
             {
-                message.Headers.Add(MessageHeader.CreateHeader(MessagingConstancts.HeaderNames.Name,
-                                                               MessagingConstancts.Namespace.MessageBus, contractKey.Name, false,
-                                                               MessagingConstancts.Actor.Bus));
+                SetBusHeaders(message, contractKey);
 
-                message.Headers.Add(MessageHeader.CreateHeader(MessagingConstancts.HeaderNames.NameSpace,
-                                                               MessagingConstancts.Namespace.MessageBus, contractKey.Ns, false,
-                                                               MessagingConstancts.Actor.Bus));
-                
-                message.Headers.Add(MessageHeader.CreateHeader(MessagingConstancts.HeaderNames.BusId,
-                                                               MessagingConstancts.Namespace.MessageBus, _busId, false,
-                                                               MessagingConstancts.Actor.Bus));
-                
-                message.Headers.Add(MessageHeader.CreateHeader(MessagingConstancts.HeaderNames.SentTime,
-                                                               MessagingConstancts.Namespace.MessageBus, DateTime.Now, false,
-                                                               MessagingConstancts.Actor.Bus));
-
-                foreach (KeyValuePair<string, string> pair in busMessage.Headers)
-                {
-                    message.Headers.Add(MessageHeader.CreateHeader(pair.Key, MessagingConstancts.Namespace.MessageBus, pair.Value, false, MessagingConstancts.Actor.User));
-                }
+                SetUserHeaders(busMessage, message);
 
                 _outputChannel.Send(message);
             }
+        }
+
+        private static void SetUserHeaders<TData>(BusMessage<TData> busMessage, Message message)
+        {
+            foreach (BusHeader busHeader in busMessage.Headers)
+            {
+                message.Headers.Add(MessageHeader.CreateHeader(busHeader.Name,
+                                                               MessagingConstancts.Namespace.MessageBus,
+                                                               busHeader.Value, false,
+                                                               MessagingConstancts.Actor.User));
+            }
+        }
+
+        private void SetBusHeaders(Message message, DataContractKey contractKey)
+        {
+            SetBusHeader(message, MessagingConstancts.HeaderNames.Name, contractKey.Name);
+            SetBusHeader(message, MessagingConstancts.HeaderNames.NameSpace, contractKey.Ns);
+            SetBusHeader(message, MessagingConstancts.HeaderNames.BusId, _busId);
+            SetBusHeader(message, MessagingConstancts.HeaderNames.SentTime, DateTime.Now);
+        }
+
+        private void SetBusHeader(Message message, string name, object value)
+        {
+            message.Headers.Add(MessageHeader.CreateHeader(name, MessagingConstancts.Namespace.MessageBus,
+                                                           value, false, MessagingConstancts.Actor.Bus));
         }
 
         public void Dispose()

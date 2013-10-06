@@ -6,11 +6,27 @@ namespace MessageBus.Core.API
     /// <summary>
     /// 
     /// </summary>
+    public class BusHeader
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Value { get; set; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class BusMessage
     {
         internal BusMessage()
         {
-            Headers = new Dictionary<string, string>();
+            Headers = new List<BusHeader>();
         }
 
         /// <summary>
@@ -26,7 +42,7 @@ namespace MessageBus.Core.API
         /// <summary>
         /// 
         /// </summary>
-        public IDictionary<string, string> Headers { get; private set; }
+        public IList<BusHeader> Headers { get; private set; }
     }
 
     /// <summary>
