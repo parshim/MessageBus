@@ -15,7 +15,7 @@ namespace Core.IntegrationTest
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            using (IBus bus = new RabbitMQBus())
+            using (RabbitMQBus bus = new RabbitMQBus())
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
@@ -41,7 +41,7 @@ namespace Core.IntegrationTest
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            using (IBus bus = new RabbitMQBus())
+            using (var bus = new RabbitMQBus())
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
@@ -74,7 +74,7 @@ namespace Core.IntegrationTest
 
             ManualResetEvent ev1 = new ManualResetEvent(false), ev2 = new ManualResetEvent(false), ev3 = new ManualResetEvent(false);
 
-            using (IBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
+            using (RabbitMQBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
             {
                 using (ISubscriber subscriberB1 = busB.CreateSubscriber(), subscriberB2 = busB.CreateSubscriber(), subscriberC1 = busC.CreateSubscriber())
                 {

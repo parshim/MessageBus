@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ServiceModel.Channels;
+using System.Xml;
+using MessageBus.Binding.RabbitMQ;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -9,13 +11,10 @@ namespace MessageBus.Core
         private readonly string _queue;
 
         private IChannelListener<IInputChannel> _listener;
-
-        public DurableRabbitMQBus(string queue)
-            : this(Guid.NewGuid().ToString(), queue)
-        {
-        }
-
-        public DurableRabbitMQBus(string busId, string queue, string host = "localhost", string exchange = "amq.fanout", bool exactlyOnce = false, IErrorSubscriber errorSubscriber = null) : base(busId, host, exchange, exactlyOnce, errorSubscriber)
+        
+        public DurableRabbitMQBus(string queue, string busId = null, string host = "localhost", string exchange = "amq.headers",
+                            bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, IErrorSubscriber errorSubscriber = null, XmlDictionaryReaderQuotas readerQuotas = null)
+            : base(busId, host, exchange, exactlyOnce, messageFormat, errorSubscriber, readerQuotas)
         {
             _queue = queue;
         }

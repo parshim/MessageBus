@@ -21,6 +21,7 @@ namespace MessageBus.Binding.RabbitMQ
         
         private IModel _model;
         private IMessageQueue _messageQueue;
+        private string _queueName;
         
         public RabbitMQTransportInputChannel(BindingContext context, EndpointAddress address, string bindToExchange) : base(context, address)
         {
@@ -42,6 +43,16 @@ namespace MessageBus.Binding.RabbitMQ
             }
             
             _messageQueue = null;
+        }
+
+        public IModel Model
+        {
+            get { return _model; }
+        }
+
+        public string QueueName
+        {
+            get { return _queueName; }
         }
 
         public override Message Receive(TimeSpan timeout)
@@ -140,7 +151,7 @@ namespace MessageBus.Binding.RabbitMQ
 
             _model = ConnectionManager.Instance.OpenModel(uri, _bindingElement.BrokerProtocol, timeout);
 
-            string queue = uri.Endpoint;
+            _queueName = uri.Endpoint;
 
             IDictionary args = new Dictionary<String, Object>();
 
@@ -151,13 +162,13 @@ namespace MessageBus.Binding.RabbitMQ
             }
 
             //Create a queue for messages destined to this service, bind it to the service URI routing key
-            bool autoDelete = string.IsNullOrEmpty(queue);
+            bool autoDelete = string.IsNullOrEmpty(_queueName);
 
-            queue = _model.QueueDeclare(queue ?? "", true, autoDelete, autoDelete, args);
+            _queueName = _model.QueueDeclare(_queueName ?? "", true, autoDelete, autoDelete, args);
 
             if (!string.IsNullOrEmpty(_bindToExchange))
             {
-                _model.QueueBind(queue, _bindToExchange, uri.RoutingKey);
+                _model.QueueBind(_queueName, _bindToExchange, uri.RoutingKey);
             }
 
             QueueingBasicConsumerBase queueingBasicConsumer;
@@ -177,7 +188,7 @@ namespace MessageBus.Binding.RabbitMQ
             //Listen to the queue
             bool noAck = !_bindingElement.TransactedReceiveEnabled;
 
-            _model.BasicConsume(queue, noAck, queueingBasicConsumer);
+            _model.BasicConsume(_queueName, noAck, queueingBasicConsumer);
 
 #if VERBOSE
             DebugHelper.Stop(" ## In.Channel.Open {{\n\tAddress={1}, \n\tTime={0}ms}}.", LocalAddress.Uri.PathAndQuery);

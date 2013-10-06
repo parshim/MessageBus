@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MessageBus.Core.API
+﻿namespace MessageBus.Core.API
 {
     /// <summary>
     /// Message bus interface provides a way to publishers messages and subscriber for messages.
@@ -22,8 +20,13 @@ namespace MessageBus.Core.API
     ///     } // Once disposed no data will be consumed any more
     /// }
     /// </example>
-    public interface IBus : IDisposable
+    public interface IBus
     {
+        /// <summary>
+        /// Bus client name which uniquely identifies publishers and subscribers created within this instance
+        /// </summary>
+        string BusId { get; }
+
         /// <summary>
         /// Creates publisher session. It is recomended to open new session every time there is a need to send messages.
         /// </summary>

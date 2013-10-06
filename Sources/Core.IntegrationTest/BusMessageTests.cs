@@ -15,7 +15,7 @@ namespace Core.IntegrationTest
         {
             const string busId = "Bus";
 
-            using (IBus bus = new RabbitMQBus(busId))
+            using (RabbitMQBus bus = new RabbitMQBus(busId))
             {
                 BusMessage<Person> message = new BusMessage<Person>
                     {

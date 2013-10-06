@@ -21,7 +21,7 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
@@ -53,7 +53,7 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
@@ -86,7 +86,7 @@ namespace Core.IntegrationTest
 
             Exception ex = new Exception("My process error");
 
-            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
@@ -113,13 +113,11 @@ namespace Core.IntegrationTest
         }
         
         [TestMethod]
-        public void Bus_ErrorSubscriber_UnregisteredMessageArrived()
+        public void Bus_ErrorSubscriber_UnregisteredMessageShouldNotArrive()
         {
             const string busId = "MyBus";
 
-            Exception ex = new Exception("My process error");
-
-            using (IBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
@@ -132,12 +130,8 @@ namespace Core.IntegrationTest
 
                     bool wait = _ev.WaitOne(TimeSpan.FromSeconds(5));
 
-                    wait.Should().BeTrue();
-
-                    _busMessage.Name.Should().Be("Data");
-                    _busMessage.Namespace.Should().Be("bus.error.test.org");
-                    _busMessage.Data.Should().BeNull();
-                    _busMessage.BusId.Should().Be(busId);
+                    wait.Should().BeFalse();
+                    _busMessage.Should().BeNull();
                 }
             }
         }

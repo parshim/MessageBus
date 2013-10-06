@@ -25,7 +25,7 @@ namespace Core.IntegrationTest
         [TestMethod]
         public void Bus_Dialog_WithOrderedDelivery_AllSubscriptionTypes()
         {
-            using (IBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
+            using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
             {
                 Data messageA = new Person
                     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel.Channels;
@@ -9,7 +10,7 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class Subscriber : ISubscriber
+    public abstract class Subscriber : ISubscriber
     {
         private readonly IInputChannel _inputChannel;
         private readonly Thread _receiver;
@@ -20,17 +21,18 @@ namespace MessageBus.Core
 
         private readonly IErrorSubscriber _errorSubscriber;
 
-        private class MessageInfo
+        private class MessageSubscribtionInfo
         {
             private readonly IDispatcher _dispatcher;
             private readonly XmlObjectSerializer _serializer;
-            private readonly bool _receiveSelfPublish;
+            private readonly MessageFilterInfo _filterInfo;
 
-            public MessageInfo(IDispatcher dispatcher, XmlObjectSerializer serializer, bool receiveSelfPublish)
+            public MessageSubscribtionInfo(DataContractKey contractKey, IDispatcher dispatcher, XmlObjectSerializer serializer, bool receiveSelfPublish, IEnumerable<BusHeader> filterHeaders)
             {
                 _dispatcher = dispatcher;
                 _serializer = serializer;
-                _receiveSelfPublish = receiveSelfPublish;
+
+                _filterInfo = new MessageFilterInfo(contractKey, receiveSelfPublish, filterHeaders);
             }
 
             public IDispatcher Dispatcher
@@ -43,15 +45,15 @@ namespace MessageBus.Core
                 get { return _serializer; }
             }
 
-            public bool ReceiveSelfPublish
+            public MessageFilterInfo FilterInfo
             {
-                get { return _receiveSelfPublish; }
+                get { return _filterInfo; }
             }
         }
 
-        private readonly ConcurrentDictionary<DataContractKey, MessageInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageInfo>();
-        
-        public Subscriber(IInputChannel inputChannel, string busId, IErrorSubscriber errorSubscriber)
+        private readonly ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo>();
+
+        protected Subscriber(IInputChannel inputChannel, string busId, IErrorSubscriber errorSubscriber)
         {
             _busId = busId;
             _errorSubscriber = errorSubscriber;
@@ -71,16 +73,16 @@ namespace MessageBus.Core
                     {
                         RawBusMessage busMessage = ReadMessage(message);
 
-                        MessageInfo messageInfo;
+                        MessageSubscribtionInfo messageSubscribtionInfo;
 
-                        if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageInfo))
+                        if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageSubscribtionInfo))
                         {
                             _errorSubscriber.UnregisteredMessageArrived(busMessage);
 
                             continue;
                         }
 
-                        if (!IsMessageSurvivesFilter(messageInfo, busMessage))
+                        if (!IsMessageSurvivesFilter(messageSubscribtionInfo.FilterInfo, busMessage))
                         {
                             _errorSubscriber.MessageFilteredOut(busMessage);
 
@@ -89,7 +91,7 @@ namespace MessageBus.Core
 
                         try
                         {
-                            messageInfo.Dispatcher.Dispatch(busMessage);
+                            messageSubscribtionInfo.Dispatcher.Dispatch(busMessage);
                         }
                         catch(Exception ex)
                         {
@@ -100,9 +102,11 @@ namespace MessageBus.Core
             }
         }
 
-        private bool IsMessageSurvivesFilter(MessageInfo messageInfo, RawBusMessage busMessage)
+        private bool IsMessageSurvivesFilter(MessageFilterInfo filterInfo, RawBusMessage busMessage)
         {
-            if (messageInfo.ReceiveSelfPublish) return true;
+            // TODO: Add header filtering
+
+            if (filterInfo.ReceiveSelfPublish) return true;
 
             bool selfPublished = Equals(busMessage.BusId, _busId);
 
@@ -142,12 +146,12 @@ namespace MessageBus.Core
                 rawBusMessage.Name = bodyContents.Name;
                 rawBusMessage.Namespace = bodyContents.NamespaceURI;
 
-                MessageInfo messageInfo;
-                if (_registeredTypes.TryGetValue(new DataContractKey(rawBusMessage.Name, rawBusMessage.Namespace), out messageInfo))
+                MessageSubscribtionInfo messageSubscribtionInfo;
+                if (_registeredTypes.TryGetValue(new DataContractKey(rawBusMessage.Name, rawBusMessage.Namespace), out messageSubscribtionInfo))
                 {
                     try
                     {
-                        rawBusMessage.Data = messageInfo.Serializer.ReadObject(bodyContents);
+                        rawBusMessage.Data = messageSubscribtionInfo.Serializer.ReadObject(bodyContents);
                     }
                     catch (Exception ex)
                     {
@@ -190,8 +194,12 @@ namespace MessageBus.Core
             _receive = true;
             _stared = true;
 
+            ApplyFilters(_registeredTypes.Values.Select(info => info.FilterInfo));
+
             _receiver.Start();
         }
+
+        protected abstract void ApplyFilters(IEnumerable<MessageFilterInfo> filters);
 
         private bool Subscribe(Type dataType, IDispatcher dispatcher, bool hierarchy, bool receiveSelfPublish)
         {
@@ -209,7 +217,10 @@ namespace MessageBus.Core
 
             DataContract dataContract = new DataContract(dataType);
 
-            return _registeredTypes.TryAdd(dataContract.Key, new MessageInfo(dispatcher, dataContract.Serializer, receiveSelfPublish));
+            return _registeredTypes.TryAdd(dataContract.Key,
+                                           new MessageSubscribtionInfo(dataContract.Key, dispatcher,
+                                                                       dataContract.Serializer, receiveSelfPublish,
+                                                                       Enumerable.Empty<BusHeader>()));
         }
 
         private bool SubscribeHierarchy(Type baseType, IDispatcher dispatcher, bool receiveSelfPublish)

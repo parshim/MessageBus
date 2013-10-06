@@ -7,45 +7,37 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class RabbitMQBus : Bus
+    public class RabbitMQBus : Bus, IDisposable
     {
         protected readonly string _host;
+        protected readonly string _exchange;
         protected readonly RabbitMQBinding _binding;
+        protected readonly IErrorSubscriber _errorSubscriber;
 
         private IChannelFactory<IOutputChannel> _channelFactory;
 
-        public RabbitMQBus()
-            : this(Guid.NewGuid().ToString())
-        {
-        }
-        
-        public RabbitMQBus(string busId, string host = "localhost", string exchange = "amq.fanout", bool exactlyOnce = false, IErrorSubscriber errorSubscriber = null)
-            : base(busId, errorSubscriber)
+        public RabbitMQBus(string busId = null, string host = "localhost", string exchange = "amq.headers", 
+                            bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, IErrorSubscriber errorSubscriber = null, XmlDictionaryReaderQuotas readerQuotas = null)
+            : base(busId)
         {
             _host = host;
+            _exchange = exchange;
+
+            _errorSubscriber = errorSubscriber ?? new NullErrorSubscriber();
 
             _binding = new RabbitMQBinding
                 {
                     ApplicationId = busId,
-                    AutoBindExchange = exchange,
                     OneWayOnly = true,
                     ExactlyOnce = exactlyOnce,
                     PersistentDelivery = false,
-                    // TODO: Config
-                    //MessageFormat = MessageFormat.MTOM,
-                    //ReaderQuotas = new XmlDictionaryReaderQuotas
-                    //    {
-                    //        MaxArrayLength = 10 * 1024 * 1024
-                    //    }
+                    HeaderNamespace = MessagingConstancts.Namespace.MessageBus,
+                    MessageFormat = messageFormat,
+                    ReaderQuotas = readerQuotas
                 };
         }
 
-        protected override MessageVersion MessageVersion
-        {
-            get { return _binding.MessageVersion; }
-        }
-
-        protected override IOutputChannel CreateOutputChannel()
+        protected virtual IOutputChannel CreateOutputChannel()
         {
             if (_channelFactory == null)
             {
@@ -54,12 +46,12 @@ namespace MessageBus.Core
                 _channelFactory.Open();
             }
 
-            Uri toAddress = new Uri(string.Format("amqp://{0}/{1}", _host, _binding.AutoBindExchange));
+            Uri toAddress = new Uri(string.Format("amqp://{0}/{1}", _host, _exchange));
 
             return _channelFactory.CreateChannel(new EndpointAddress(toAddress));
         }
 
-        protected override IInputChannel CreateInputChannel()
+        protected virtual IInputChannel CreateInputChannel()
         {
             Uri listenUriBaseAddress = new Uri(string.Format("amqp://{0}/", _host));
 
@@ -77,12 +69,31 @@ namespace MessageBus.Core
             }
         }
 
-        public override void Dispose()
+        public virtual void Dispose()
         {
             if (_channelFactory != null)
             {
                 _channelFactory.Close();
             }
+        }
+
+        public override IPublisher CreatePublisher()
+        {
+            IOutputChannel outputChannel = CreateOutputChannel();
+
+            return new Publisher(outputChannel, _binding.MessageVersion, BusId);
+        }
+
+        public override ISubscriber CreateSubscriber()
+        {
+            RabbitMQTransportInputChannel inputChannel = CreateInputChannel() as RabbitMQTransportInputChannel;
+
+            if (inputChannel == null)
+            {
+                throw new NoIncomingConnectionAcceptedException();
+            }
+
+            return new RabbitMQSubscriber(inputChannel, _exchange, BusId, _errorSubscriber);
         }
     }
 }

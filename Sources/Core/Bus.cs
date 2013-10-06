@@ -1,4 +1,4 @@
-﻿using System.ServiceModel.Channels;
+﻿using System;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -6,40 +6,19 @@ namespace MessageBus.Core
     public abstract class Bus : IBus
     {
         private readonly string _busId;
-        private readonly IErrorSubscriber _errorSubscriber;
 
-        protected Bus(string busId, IErrorSubscriber errorSubscriber)
+        protected Bus(string busId)
         {
-            _busId = busId;
-
-            _errorSubscriber = errorSubscriber ?? new NullErrorSubscriber();
-        }
-        
-        public IPublisher CreatePublisher()
-        {
-            IOutputChannel outputChannel = CreateOutputChannel();
-            
-            return new Publisher(outputChannel, MessageVersion, _busId);
+            _busId = busId ?? Guid.NewGuid().ToString();
         }
 
-        public ISubscriber CreateSubscriber()
+        public string BusId
         {
-            IInputChannel inputChannel = CreateInputChannel();
-
-            if (inputChannel == null)
-            {
-                throw new NoIncomingConnectionAcceptedException();
-            }
-
-            return new Subscriber(inputChannel, _busId, _errorSubscriber);
+            get { return _busId; }
         }
 
-        protected abstract MessageVersion MessageVersion { get; }
+        public abstract IPublisher CreatePublisher();
 
-        protected abstract IOutputChannel CreateOutputChannel();
-
-        protected abstract IInputChannel CreateInputChannel();
-        
-        public abstract void Dispose();
+        public abstract ISubscriber CreateSubscriber();
     }
 }
