@@ -85,8 +85,8 @@ namespace MessageBus.Binding.RabbitMQ
                 message.Headers.To = LocalAddress.Uri;
 #if VERBOSE
                 DebugHelper.Stop(" #### Message.Receive {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
-                        msg.Body.Length,
-                        result.Headers.Action.Remove(0, result.Headers.Action.LastIndexOf('/')));
+                        result.Body.Length,
+                        message.Headers.Action);
 #endif
                 return message;
             }

@@ -123,12 +123,21 @@ namespace MessageBus.Binding.RabbitMQ
                     body = str.ToArray();
                 }
 
+#if VERBOSE
+                DebugHelper.Stop(" #### Message.Serialized {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                    body.Length,
+                    message.Headers.Action);
+#endif
+
                 // Build AMQP uri
                 RabbitMQUri uri = new RabbitMQUri(RemoteAddress.Uri);
 
                 // Enlist operation into transaction 
                 EnlistTransaction();
 
+#if VERBOSE
+                DebugHelper.Start();
+#endif
                 // Publish AMQP message
                 _model.BasicPublish(uri.Endpoint,
                                      uri.RoutingKey,
@@ -136,9 +145,9 @@ namespace MessageBus.Binding.RabbitMQ
                                      body);
 
 #if VERBOSE
-                DebugHelper.Stop(" #### Message.Send {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                DebugHelper.Stop(" #### Message.Publish {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
                     body.Length,
-                    message.Headers.Action.Remove(0, message.Headers.Action.LastIndexOf('/')));
+                    message.Headers.Action);
 #endif
             }
         }
@@ -207,46 +216,6 @@ namespace MessageBus.Binding.RabbitMQ
         private long GetUnixTime(DateTime dateTime)
         {
             return Convert.ToInt64((dateTime.Subtract(new DateTime(1970, 1, 1, 0, 0, 0))).TotalSeconds);
-        }
-    }
-
-    internal class TransactionalDispatchingEnslistment : IEnlistmentNotification
-    {
-        private readonly IModel _model;
-
-        public TransactionalDispatchingEnslistment(IModel model)
-        {
-            _model = model;
-        }
-
-        public void Prepare(PreparingEnlistment preparingEnlistment)
-        {
-            preparingEnlistment.Prepared();
-        }
-
-        public void Commit(Enlistment enlistment)
-        {
-            if (_model.IsOpen)
-            {
-                _model.TxCommit();
-            }
-
-            enlistment.Done();
-        }
-
-        public void Rollback(Enlistment enlistment)
-        {
-            if (_model.IsOpen)
-            {
-                _model.TxRollback();
-            }
-
-            enlistment.Done();
-        }
-
-        public void InDoubt(Enlistment enlistment)
-        {
-            enlistment.Done();
         }
     }
 }
