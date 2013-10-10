@@ -97,9 +97,6 @@ namespace MessageBus.Binding.RabbitMQ
         {
             if (State == CommunicationState.Opened && !message.IsFault)
             {
-#if VERBOSE
-                DebugHelper.Start();
-#endif
                 byte[] body;
 
                 IBasicProperties basicProperties = _model.CreateBasicProperties();
@@ -116,6 +113,9 @@ namespace MessageBus.Binding.RabbitMQ
                     message.Headers.ReplyTo = new EndpointAddress(_bindingElement.ReplyToExchange);
                 }
 
+#if VERBOSE
+                DebugHelper.Start();
+#endif
                 // Serialize the message to stream
                 using (MemoryStream str = new MemoryStream())
                 {
@@ -124,7 +124,7 @@ namespace MessageBus.Binding.RabbitMQ
                 }
 
 #if VERBOSE
-                DebugHelper.Stop(" #### Message.Serialized {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                DebugHelper.Stop(" #### Message.Serialize {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
                     body.Length,
                     message.Headers.Action);
 #endif

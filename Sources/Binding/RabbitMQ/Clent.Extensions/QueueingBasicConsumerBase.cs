@@ -4,7 +4,7 @@ using RabbitMQ.Client.Events;
 
 namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
 {
-    public abstract class QueueingBasicConsumerBase : DefaultBasicConsumer, IMessageQueue
+    public abstract class QueueingBasicConsumerBase : DefaultBasicConsumer, IMessageReceiver
     {
         protected SharedQueue<BasicDeliverEventArgs> _queue;
 
@@ -66,6 +66,17 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
                 };
 
             _queue.Enqueue(e);
+        }
+
+        public BasicGetResult Receive(TimeSpan timeout)
+        {
+            BasicDeliverEventArgs message;
+
+            bool dequeue = Dequeue(timeout, out message);
+
+            if (!dequeue) return null;
+
+            return new BasicGetResult(message.DeliveryTag, message.Redelivered, message.Exchange, message.RoutingKey, 0, message.BasicProperties, message.Body);
         }
 
         public bool WaitForMessage(TimeSpan timeout)

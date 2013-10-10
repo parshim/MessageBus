@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using MessageBus.Binding.RabbitMQ.Clent.Extensions;
 
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Framing.v0_9;
 
 namespace MessageBus.Binding.RabbitMQ
 {
@@ -20,9 +18,9 @@ namespace MessageBus.Binding.RabbitMQ
         private readonly Dictionary<string, MessageEncoder> _encoders = new Dictionary<string, MessageEncoder>();
         
         private IModel _model;
-        private IMessageQueue _messageQueue;
+        private IMessageReceiver _messageReceiver;
         private string _queueName;
-        
+
         public RabbitMQTransportInputChannel(BindingContext context, EndpointAddress address, string bindToExchange) : base(context, address)
         {
             _bindToExchange = bindToExchange;
@@ -41,8 +39,6 @@ namespace MessageBus.Binding.RabbitMQ
 
                 _encoders.Add(encoder.ContentType, encoder);
             }
-            
-            _messageQueue = null;
         }
 
         public IModel Model
@@ -59,32 +55,42 @@ namespace MessageBus.Binding.RabbitMQ
         {
             try
             {
-                BasicDeliverEventArgs result;
-
-                if (!_messageQueue.Dequeue(timeout, out result))
-                {
-                    return null;
-                }
 #if VERBOSE
                 DebugHelper.Start();
 #endif
+                BasicGetResult result = _messageReceiver.Receive(timeout);
+
+                if (result == null)
+                {
+                    return null;
+                }
+
                 string contentType = result.BasicProperties.ContentType;
 
                 if (!_encoders.ContainsKey(contentType))
                 {
-                    _messageQueue.DropMessage(result.DeliveryTag);
+                    _messageReceiver.DropMessage(result.DeliveryTag);
 
                     return null;
                 }
 
                 MessageEncoder encoder = _encoders[contentType];
 
-                _messageQueue.AcceptMessage(result.DeliveryTag);
+                _messageReceiver.AcceptMessage(result.DeliveryTag);
 
+#if VERBOSE
+                DebugHelper.Stop(" #### Message.Receive {{\n\tBytes={1}, \n\tTime={0}ms}}.",
+                        result.Body.Length);
+#endif
+
+#if VERBOSE
+                DebugHelper.Start();
+#endif
                 Message message = encoder.ReadMessage(new MemoryStream(result.Body), int.MaxValue);
                 message.Headers.To = LocalAddress.Uri;
+
 #if VERBOSE
-                DebugHelper.Stop(" #### Message.Receive {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                DebugHelper.Stop(" #### Message.DeSerialize {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
                         result.Body.Length,
                         message.Headers.Action);
 #endif
@@ -92,10 +98,6 @@ namespace MessageBus.Binding.RabbitMQ
             }
             catch (EndOfStreamException)
             {
-                if (_messageQueue == null || _messageQueue.ShutdownReason != null && _messageQueue.ShutdownReason.ReplyCode != Constants.ReplySuccess)
-                {
-                    OnFaulted();
-                }
                 Close();
                 return null;
             }
@@ -109,7 +111,7 @@ namespace MessageBus.Binding.RabbitMQ
 
         public override bool WaitForMessage(TimeSpan timeout)
         {
-            return _messageQueue.WaitForMessage(timeout);
+            return true;
         }
 
         public override void Close(TimeSpan timeout)
@@ -125,8 +127,6 @@ namespace MessageBus.Binding.RabbitMQ
 #endif
             if (_model != null)
             {
-                _model.BasicCancel(_messageQueue.ConsumerTag);
-
                 ConnectionManager.Instance.CloseModel(_model, timeout);
                 
                 _model = null;
@@ -171,25 +171,16 @@ namespace MessageBus.Binding.RabbitMQ
                 _model.QueueBind(_queueName, _bindToExchange, uri.RoutingKey);
             }
 
-            QueueingBasicConsumerBase queueingBasicConsumer;
-
-            // Create queue
+            // Create receiver
             if (_bindingElement.TransactedReceiveEnabled)
             {
-                queueingBasicConsumer = new TransactionalQueueConsumer(_model);
+                _messageReceiver = new TransactionalMessageReceiver(_model, _queueName);
             }
             else
             {
-                queueingBasicConsumer = new QueueingNoAckBasicConsumer(_model);
+                _messageReceiver = new NoAckMessageReceiver(_model, _queueName);
             }
-
-            _messageQueue = queueingBasicConsumer;
-
-            //Listen to the queue
-            bool noAck = !_bindingElement.TransactedReceiveEnabled;
-
-            _model.BasicConsume(_queueName, noAck, queueingBasicConsumer);
-
+            
 #if VERBOSE
             DebugHelper.Stop(" ## In.Channel.Open {{\n\tAddress={1}, \n\tTime={0}ms}}.", LocalAddress.Uri.PathAndQuery);
 #endif

@@ -49,10 +49,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clent.Extensions\IMessageQueue.cs" />
+    <Compile Include="Clent.Extensions\ConsumptionEnslistment.cs" />
+    <Compile Include="Clent.Extensions\IMessageReceiver.cs" />
+    <Compile Include="Clent.Extensions\NoAckMessageReceiver.cs" />
     <Compile Include="Clent.Extensions\QueueingBasicConsumer.cs" />
     <Compile Include="Clent.Extensions\QueueingBasicConsumerBase.cs" />
     <Compile Include="Clent.Extensions\SharedQueue.cs" />
+    <Compile Include="Clent.Extensions\TransactionalMessageReceiver.cs" />
     <Compile Include="Clent.Extensions\TransactionalQueueConsumer.cs" />
     <Compile Include="CommunicationOperation.cs" />
     <Compile Include="ConnectionManager.cs" />
