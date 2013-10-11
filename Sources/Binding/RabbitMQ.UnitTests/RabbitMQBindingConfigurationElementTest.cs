@@ -5,10 +5,10 @@ using FluentAssertions;
 namespace RabbitMQ.UnitTests
 {
     [TestClass]
-    public class RabbitMQBindingConfigurationElementTest
+    public class ConfigurationElementTest
     {
         [TestMethod]
-        public void RabbitMQBindingConfigurationElement_CreateInstance()
+        public void RabbitMQBinding_ConfigurationElement_CreateInstance()
         {
             RabbitMQBindingConfigurationElement element = new RabbitMQBindingConfigurationElement("Binding0");
             
