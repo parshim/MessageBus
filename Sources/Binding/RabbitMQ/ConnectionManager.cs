@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 using RabbitMQ.Client;
 
@@ -8,8 +7,6 @@ namespace MessageBus.Binding.RabbitMQ
     internal class ConnectionManager
     {
         private static readonly ConnectionManager PrivateInstance = new ConnectionManager();
-
-        private readonly Dictionary<ConnectionKey, IConnection> _connections = new Dictionary<ConnectionKey, IConnection>();
 
         private ConnectionManager()
         {
@@ -28,40 +25,23 @@ namespace MessageBus.Binding.RabbitMQ
 
         public IModel OpenModel(RabbitMQUri uri, IProtocol protocol, TimeSpan timeout)
         {
-            string host = uri.Host;
-            int port = uri.Port.HasValue ? uri.Port.Value : protocol.DefaultPort;
+            IConnection connection = OpenConnection(uri, protocol);
 
-            ConnectionKey key = new ConnectionKey(host, port);
+            IModel model = connection.CreateModel();
 
-            lock (_connections)
-            {
-                IConnection connection;
-              
-                if (_connections.ContainsKey(key))
-                {
-                    connection = _connections[key];
-                }
-                else
-                {
-                    connection = OpenConnection(key, uri, protocol);
+            connection.AutoClose = true;
 
-                    _connections.Add(key, connection);
-                }
-
-                IModel model = connection.CreateModel();
-
-                connection.AutoClose = true;
-
-                return model;
-            }
+            return model;
         }
 
-        private IConnection OpenConnection(ConnectionKey key, RabbitMQUri uri, IProtocol protocol)
+        private IConnection OpenConnection(RabbitMQUri uri, IProtocol protocol)
         {
+            int port = uri.Port.HasValue ? uri.Port.Value : protocol.DefaultPort;
+
             ConnectionFactory connFactory = new ConnectionFactory
                 {
-                    HostName = key.Host,
-                    Port = key.Port,
+                    HostName = uri.Host,
+                    Port = port,
                     Protocol = protocol
                 };
 
@@ -78,69 +58,7 @@ namespace MessageBus.Binding.RabbitMQ
                 connFactory.VirtualHost = uri.VirtualHost;
             }
 
-            IConnection connection = connFactory.CreateConnection();
-
-            connection.ConnectionShutdown += OnConnectionShutdown;
-
-            return connection;
-        }
-
-        private void OnConnectionShutdown(IConnection connection, ShutdownEventArgs reason)
-        {
-            ConnectionKey key = new ConnectionKey(connection.Endpoint.HostName, connection.Endpoint.Port);
-
-            lock (_connections)
-            {
-                if (_connections.ContainsKey(key))
-                {
-                    _connections.Remove(key);
-                }
-
-                connection.ConnectionShutdown -= OnConnectionShutdown;
-            }
-        }
-    }
-
-    public class ConnectionKey
-    {
-        private readonly string _host;
-        private readonly int _port;
-
-        public ConnectionKey(string host, int port)
-        {
-            _host = host;
-            _port = port;
-        }
-
-        public string Host
-        {
-            get { return _host; }
-        }
-
-        public int Port
-        {
-            get { return _port; }
-        }
-
-        protected bool Equals(ConnectionKey other)
-        {
-            return string.Equals(_host, other._host) && string.Equals(_port, other._port);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((ConnectionKey) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (_host.GetHashCode()*397) ^ _port.GetHashCode();
-            }
+            return connFactory.CreateConnection();
         }
     }
 }
