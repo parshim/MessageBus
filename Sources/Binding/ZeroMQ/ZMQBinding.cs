@@ -5,42 +5,40 @@ namespace MessageBus.Binding.ZeroMQ
 {
     public abstract class ZMQBinding : System.ServiceModel.Channels.Binding
     {
-        // Stack
-        private readonly MessageEncodingBindingElement _encoding;
-        private readonly ZMQTransportBindingElement _transport;
-
         protected ZMQBinding(string name, SocketMode socketMode)
         {
             Name = name;
-            Namespace = "http://schemas.a-solutions.com/2013/ZMQ/";
-
-            _encoding = new BinaryMessageEncodingBindingElement
-                {
-                    ReaderQuotas = new XmlDictionaryReaderQuotas
-                        {
-                            MaxArrayLength = 10 * 1024 * 1024
-                        }
-                };
-
-            _transport = new ZMQTransportBindingElement(Scheme, socketMode);
+            SocketMode = socketMode;
         }
 
         public override BindingElementCollection CreateBindingElements()
         {
+            BinaryMessageEncodingBindingElement encoding = new BinaryMessageEncodingBindingElement();
+
+            ZMQTransportBindingElement transport = new ZMQTransportBindingElement(Scheme, SocketMode);
+
+            if (ReaderQuotas != null)
+            {
+                ReaderQuotas.CopyTo(encoding.ReaderQuotas);
+            }
+            
             BindingElementCollection collection = new BindingElementCollection
                 {
-                    _encoding, 
-                    _transport
+                    encoding, 
+                    transport
                 };
 
             return collection;
         }
 
-        public SocketMode SocketMode
-        {
-            get { return _transport.SocketMode; }
-            set { _transport.SocketMode = value; }
-        }
-
+        /// <summary>
+        /// ZMQ Socket Mode
+        /// </summary>
+        public SocketMode SocketMode { get; set; }
+       
+        /// <summary>
+        /// Serializer quotas
+        /// </summary>
+        public XmlDictionaryReaderQuotas ReaderQuotas { get; set; }
     }
 }

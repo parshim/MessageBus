@@ -189,7 +189,7 @@ namespace MessageBus.Binding.RabbitMQ
         public string HeaderNamespace { get; set; }
 
         /// <summary>
-        /// Text serializer quotas
+        /// Serializer quotas
         /// </summary>
         public XmlDictionaryReaderQuotas ReaderQuotas { get; set; }
     }
