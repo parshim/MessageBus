@@ -7,7 +7,7 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class RabbitMQBus : Bus, IDisposable
+    public class RabbitMQBus : Bus
     {
         protected readonly string _host;
         protected readonly string _exchange;
@@ -37,11 +37,13 @@ namespace MessageBus.Core
                 };
         }
 
-        protected virtual IOutputChannel CreateOutputChannel()
+        protected virtual IOutputChannel CreateOutputChannel(BufferManager bufferManager)
         {
             if (_channelFactory == null)
             {
-                _channelFactory = _binding.BuildChannelFactory<IOutputChannel>();
+                object[] parameters = CreateParameters(bufferManager);
+
+                _channelFactory = _binding.BuildChannelFactory<IOutputChannel>(parameters);
 
                 _channelFactory.Open();
             }
@@ -51,11 +53,13 @@ namespace MessageBus.Core
             return _channelFactory.CreateChannel(new EndpointAddress(toAddress));
         }
 
-        protected virtual IInputChannel CreateInputChannel()
+        protected virtual IInputChannel CreateInputChannel(BufferManager bufferManager)
         {
             Uri listenUriBaseAddress = new Uri(string.Format("amqp://{0}/", _host));
 
-            IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress);
+            object[] parameters = CreateParameters(bufferManager);
+
+            IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress, parameters);
 
             listener.Open();
 
@@ -69,7 +73,7 @@ namespace MessageBus.Core
             }
         }
 
-        public virtual void Dispose()
+        public override void Dispose()
         {
             if (_channelFactory != null)
             {
@@ -77,16 +81,16 @@ namespace MessageBus.Core
             }
         }
 
-        public override IPublisher CreatePublisher()
+        public override IPublisher CreatePublisher(BufferManager bufferManager = null)
         {
-            IOutputChannel outputChannel = CreateOutputChannel();
+            IOutputChannel outputChannel = CreateOutputChannel(bufferManager);
 
             return new Publisher(outputChannel, _binding.MessageVersion, BusId);
         }
 
-        public override ISubscriber CreateSubscriber()
+        public override ISubscriber CreateSubscriber(BufferManager bufferManager = null)
         {
-            RabbitMQTransportInputChannel inputChannel = CreateInputChannel() as RabbitMQTransportInputChannel;
+            RabbitMQTransportInputChannel inputChannel = CreateInputChannel(bufferManager) as RabbitMQTransportInputChannel;
 
             if (inputChannel == null)
             {

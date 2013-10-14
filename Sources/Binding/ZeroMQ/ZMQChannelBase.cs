@@ -11,6 +11,7 @@ namespace MessageBus.Binding.ZeroMQ
         protected readonly MessageEncoder _encoder;
         private readonly BindingContext _context;
         protected readonly Socket _socket;
+        protected readonly BufferManager _bufferManager;
 
         private readonly Action<Message> _onSendHandler;
         private readonly SocketMode _socketMode;
@@ -21,12 +22,14 @@ namespace MessageBus.Binding.ZeroMQ
             MessageEncodingBindingElement encoderElem = context.BindingParameters.Find<MessageEncodingBindingElement>();
             
             _encoder = encoderElem.CreateMessageEncoderFactory().Encoder;
-
+            
             _context = context;
             _socket = socket;
             _socketMode = socketMode;
 
             _onSendHandler = Send;
+
+            _bufferManager = context.BindingParameters.Find<BufferManager>();
         }
 
         protected BindingContext Context
@@ -50,6 +53,13 @@ namespace MessageBus.Binding.ZeroMQ
             
             return message;
         }
+        
+        protected Message ConstructMessage(ArraySegment<byte> buffer, BufferManager bufferManager)
+        {
+            Message message = _encoder.ReadMessage(buffer, bufferManager);
+            
+            return message;
+        }
 
         #region Send
 
@@ -68,12 +78,10 @@ namespace MessageBus.Binding.ZeroMQ
                 body = str.ToArray();
             }
 
-            SendStatus sendStatus = _socket.Send(body);
+            byte[] lengthBytes = BitConverter.GetBytes(body.Length);
 
-            if (sendStatus != SendStatus.Sent)
-            {
-                // TODO: exception
-            }
+            _socket.SendMore(lengthBytes);
+            _socket.Send(body);
         }
 
         #endregion

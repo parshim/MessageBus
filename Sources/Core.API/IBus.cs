@@ -1,4 +1,7 @@
-﻿namespace MessageBus.Core.API
+﻿using System;
+using System.ServiceModel.Channels;
+
+namespace MessageBus.Core.API
 {
     /// <summary>
     /// Message bus interface provides a way to publishers messages and subscriber for messages.
@@ -20,7 +23,7 @@
     ///     } // Once disposed no data will be consumed any more
     /// }
     /// </example>
-    public interface IBus
+    public interface IBus : IDisposable
     {
         /// <summary>
         /// Bus client name which uniquely identifies publishers and subscribers created within this instance
@@ -32,7 +35,7 @@
         /// </summary>
         /// <remarks>Publisher implementation should support transactions. Thus every time there is a need to send multiple messages, which are logically connected, it should be done inside transactio scope.</remarks>
         /// <returns>Publisher instance</returns>
-        IPublisher CreatePublisher();
+        IPublisher CreatePublisher(BufferManager bufferManager = null);
 
         /// <summary>
         /// Creates subscriber. Subscriber implementation should provide ordered message delivery, i.e. preserve message dispatching order.
@@ -44,6 +47,6 @@
         /// Subscriber instance.
         /// </returns>
         /// <exception cref="NoIncomingConnectionAcceptedException">No incoming connection were accepted.</exception>
-        ISubscriber CreateSubscriber();
+        ISubscriber CreateSubscriber(BufferManager bufferManager = null);
     }
 }

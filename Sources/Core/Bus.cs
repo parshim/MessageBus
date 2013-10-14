@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.ServiceModel.Channels;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -17,8 +19,15 @@ namespace MessageBus.Core
             get { return _busId; }
         }
 
-        public abstract IPublisher CreatePublisher();
+        protected object[] CreateParameters(params object[] parameters)
+        {
+            return parameters.Where(o => o != null).ToArray();
+        }
 
-        public abstract ISubscriber CreateSubscriber();
+        public abstract IPublisher CreatePublisher(BufferManager bufferManager = null);
+
+        public abstract ISubscriber CreateSubscriber(BufferManager bufferManager = null);
+        
+        public abstract void Dispose();
     }
 }

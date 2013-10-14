@@ -36,10 +36,24 @@ namespace MessageBus.Binding.ZeroMQ
         public Message Receive(TimeSpan timeout)
         {
             byte[] bytes;
+            int length;
 
             try
             {
-                bytes = _socket.Recv();
+                byte[] lengthBytes = _socket.Recv();
+                
+                length = BitConverter.ToInt32(lengthBytes, 0);
+
+                if (_bufferManager == null)
+                {
+                    bytes = _socket.Recv();
+                }
+                else
+                {
+                    bytes = _bufferManager.TakeBuffer(length);
+
+                    _socket.Recv(bytes, out length);
+                }
             }
             catch
             {
@@ -48,7 +62,16 @@ namespace MessageBus.Binding.ZeroMQ
 
             if (bytes == null) return null;
 
-            Message message = ConstructMessage(bytes);
+            Message message;
+
+            if (_bufferManager == null)
+            {
+                message = ConstructMessage(bytes);
+            }
+            else
+            {
+                message = ConstructMessage(new ArraySegment<byte>(bytes, 0, length), _bufferManager);
+            }
 
             message.Headers.To = LocalAddress.Uri;
 

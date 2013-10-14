@@ -7,7 +7,7 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class ZeroMQBus : Bus, IDisposable
+    public class ZeroMQBus : Bus
     {
         private readonly string _host;
         private readonly int _port;
@@ -30,11 +30,13 @@ namespace MessageBus.Core
             _errorSubscriber = errorSubscriber ?? new NullErrorSubscriber();
         }
 
-        public override IPublisher CreatePublisher()
+        public override IPublisher CreatePublisher(BufferManager bufferManager = null)
         {
             if (_channelFactory == null)
             {
-                _channelFactory = _binding.BuildChannelFactory<IOutputChannel>();
+                object[] parameters = CreateParameters(bufferManager);
+ 
+                _channelFactory = _binding.BuildChannelFactory<IOutputChannel>(parameters);
 
                 _channelFactory.Open();
             }
@@ -51,11 +53,13 @@ namespace MessageBus.Core
             return new Uri(string.Format("tcp://{0}:{1}", _host, _port));
         }
 
-        public override ISubscriber CreateSubscriber()
+        public override ISubscriber CreateSubscriber(BufferManager bufferManager = null)
         {
             Uri listenUriBaseAddress = CreateUri();
 
-            IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress);
+            object[] parameters = CreateParameters(bufferManager);
+
+            IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress, parameters);
 
             listener.Open();
 
@@ -73,7 +77,7 @@ namespace MessageBus.Core
             return new ZeroMQSubscriber(channel, BusId, _errorSubscriber);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if (_channelFactory != null)
             {

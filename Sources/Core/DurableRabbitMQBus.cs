@@ -19,13 +19,13 @@ namespace MessageBus.Core
             _queue = queue;
         }
 
-        protected override IInputChannel CreateInputChannel()
+        protected override IInputChannel CreateInputChannel(BufferManager bufferManager)
         {
             if (_listener == null)
             {
                 Uri listenUriBaseAddress = new Uri(string.Format("amqp://{0}/{1}", _host, _queue));
 
-                _listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress);
+                _listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress, bufferManager);
 
                 _listener.Open();
             }
