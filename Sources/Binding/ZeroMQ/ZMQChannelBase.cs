@@ -70,18 +70,37 @@ namespace MessageBus.Binding.ZeroMQ
 
         public void Send(Message message)
         {
-            byte[] body;
-
-            using (MemoryStream str = new MemoryStream())
+            if (_bufferManager == null)
             {
-                _encoder.WriteMessage(message, str);
-                body = str.ToArray();
+                byte[] body;
+
+                using (MemoryStream str = new MemoryStream())
+                {
+                    _encoder.WriteMessage(message, str);
+                    body = str.ToArray();
+                }
+
+                byte[] lengthBytes = BitConverter.GetBytes(body.Length);
+
+                _socket.SendMore(lengthBytes);
+                _socket.Send(body);
             }
+            else
+            {
+                ArraySegment<byte> body = _encoder.WriteMessage(message, 10 * 1024 * 1024, _bufferManager);
 
-            byte[] lengthBytes = BitConverter.GetBytes(body.Length);
+                try
+                {
+                    byte[] lengthBytes = BitConverter.GetBytes(body.Count);
 
-            _socket.SendMore(lengthBytes);
-            _socket.Send(body);
+                    _socket.SendMore(lengthBytes);
+                    _socket.Send(body.Array, body.Offset, body.Count);
+                }
+                finally
+                {
+                    _bufferManager.ReturnBuffer(body.Array);
+                }
+            }
         }
 
         #endregion

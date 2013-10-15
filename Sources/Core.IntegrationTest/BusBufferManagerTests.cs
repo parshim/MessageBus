@@ -48,7 +48,7 @@ namespace Core.IntegrationTest
 
                     subscriberA.StartProcessMessages();
 
-                    using (IPublisher publisher = entityB.CreatePublisher())
+                    using (IPublisher publisher = entityB.CreatePublisher(BufferManager.CreateBufferManager(3, 10 * 1024 * 1024)))
                     {
                         publisher.Send(data);
                     }
