@@ -2,7 +2,6 @@
 using System.ServiceModel.Channels;
 using System.Xml;
 using MessageBus.Binding.RabbitMQ;
-using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
@@ -13,8 +12,8 @@ namespace MessageBus.Core
         private IChannelListener<IInputChannel> _listener;
         
         public DurableRabbitMQBus(string queue, string busId = null, string host = "localhost", string exchange = "amq.headers",
-                            bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, IErrorSubscriber errorSubscriber = null, XmlDictionaryReaderQuotas readerQuotas = null)
-            : base(busId, host, exchange, exactlyOnce, messageFormat, errorSubscriber, readerQuotas)
+                            bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, XmlDictionaryReaderQuotas readerQuotas = null, bool mandatory = false)
+            : base(busId, host, exchange, exactlyOnce, messageFormat, readerQuotas, mandatory)
         {
             _queue = queue;
         }
@@ -25,7 +24,9 @@ namespace MessageBus.Core
             {
                 Uri listenUriBaseAddress = new Uri(string.Format("amqp://{0}/{1}", _host, _queue));
 
-                _listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress, bufferManager);
+                object[] parameters = CreateParameters(bufferManager);
+
+                _listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress, parameters);
 
                 _listener.Open();
             }

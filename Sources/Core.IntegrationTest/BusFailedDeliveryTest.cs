@@ -1,0 +1,69 @@
+﻿using System;
+using System.Threading;
+using FluentAssertions;
+using MessageBus.Core;
+using MessageBus.Core.API;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Core.IntegrationTest
+{
+    [TestClass]
+    public class BusFailedDeliveryTest : IPublishingErrorHandler
+    {
+        private readonly ManualResetEvent _ev = new ManualResetEvent(false);
+
+        private int _errorCode;
+        private string _text;
+        private RawBusMessage _message;
+        
+        [TestMethod]
+        public void Bus_UndeliveriableMessages_ReturnedToSubscriber()
+        {
+            using (IBus bus = new RabbitMQBus(mandatory: true))
+            {
+                using (IPublisher publisher = bus.CreatePublisher(conf => conf.UseErrorHandler(this)))
+                {
+                    Person person = new Person {Id = 5};
+
+                    BusMessage<Person> busMessage = new BusMessage<Person>
+                        {
+                            Data = person
+                        };
+
+                    busMessage.Headers.Add(new BusHeader
+                        {
+                            Name = "Header",
+                            Value = "Value"
+                        });
+
+                    publisher.Send(busMessage);
+
+                    bool waitOne = _ev.WaitOne(TimeSpan.FromSeconds(5));
+
+                    waitOne.Should().BeTrue();
+
+                    _errorCode.Should().Be(312);
+                    _text.Should().Be("NO_ROUTE");
+
+                    _message.BusId.Should().Be(bus.BusId);
+                    _message.Name.Should().Be("Person");
+                    _message.Sent.Should().BeCloseTo(DateTime.Now, 2000);
+                    _message.Data.Should().BeOfType<Person>();
+
+                    _message.Headers.Should().OnlyContain(header => header.Name == "Header" && header.Value == "Value");
+
+                    person.ShouldBeEquivalentTo(_message.Data);
+                }
+            }
+        }
+
+        public void DeliveryFailed(int errorCode, string text, RawBusMessage message)
+        {
+            _errorCode = errorCode;
+            _text = text;
+            _message = message;
+
+            _ev.Set();
+        }
+    }
+}

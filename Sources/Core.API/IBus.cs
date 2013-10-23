@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ServiceModel.Channels;
 
 namespace MessageBus.Core.API
 {
@@ -35,7 +34,7 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <remarks>Publisher implementation should support transactions. Thus every time there is a need to send multiple messages, which are logically connected, it should be done inside transactio scope.</remarks>
         /// <returns>Publisher instance</returns>
-        IPublisher CreatePublisher(BufferManager bufferManager = null);
+        IPublisher CreatePublisher(Action<IPublisherConfigurator> configure = null);
 
         /// <summary>
         /// Creates subscriber. Subscriber implementation should provide ordered message delivery, i.e. preserve message dispatching order.
@@ -47,6 +46,6 @@ namespace MessageBus.Core.API
         /// Subscriber instance.
         /// </returns>
         /// <exception cref="NoIncomingConnectionAcceptedException">No incoming connection were accepted.</exception>
-        ISubscriber CreateSubscriber(BufferManager bufferManager = null);
+        ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null);
     }
 }

@@ -21,9 +21,9 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
                 {
                     subscriber.Subscribe(delegate(OK ok) {  }, receiveSelfPublish:false);
 
@@ -53,9 +53,9 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
                 {
                     subscriber.Subscribe(delegate(ContractToReceive ok) { }, receiveSelfPublish: true);
                     
@@ -86,9 +86,9 @@ namespace Core.IntegrationTest
 
             Exception ex = new Exception("My process error");
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
                 {
                     subscriber.Subscribe(delegate(ContractToSend ok) { throw ex; }, receiveSelfPublish: true);
                     
@@ -117,9 +117,9 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId, errorSubscriber: this))
+            using (RabbitMQBus bus = new RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
                 {
                     subscriber.StartProcessMessages();
 

@@ -7,6 +7,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Transactions;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace MessageBus.Binding.RabbitMQ
 {
@@ -14,6 +15,7 @@ namespace MessageBus.Binding.RabbitMQ
     {
         private readonly RabbitMQTransportBindingElement _bindingElement;
         private readonly MessageEncoder _encoder;
+        private readonly IFaultMessageProcessor _messageProcessor;
         private IModel _model;
         private bool _transactional;
 
@@ -22,7 +24,6 @@ namespace MessageBus.Binding.RabbitMQ
         public RabbitMQTransportOutputChannel(BindingContext context, EndpointAddress address, Uri via)
             : base(context, address, via)
         {
-
             _bindingElement = context.Binding.Elements.Find<RabbitMQTransportBindingElement>();
 
             MessageEncodingBindingElement encoderElement;
@@ -44,6 +45,13 @@ namespace MessageBus.Binding.RabbitMQ
             {
                 _encoder = encoderElement.CreateMessageEncoderFactory().Encoder;
             }
+
+            _messageProcessor = context.BindingParameters.Find<IFaultMessageProcessor>();
+        }
+
+        public IModel Model
+        {
+            get { return _model; }
         }
 
         public override void Open(TimeSpan timeout)
@@ -64,12 +72,17 @@ namespace MessageBus.Binding.RabbitMQ
                 _transactional = true;
             }
 
+            if (_messageProcessor != null)
+            {
+                _model.BasicReturn += ModelOnBasicReturn;
+            }
+
 #if VERBOSE
             DebugHelper.Stop(" ## Out.Open {{Time={0}ms}}.");
 #endif
             OnOpened();
         }
-        
+
         public override void Close(TimeSpan timeout)
         {
             if (State == CommunicationState.Closed || State == CommunicationState.Closing)
@@ -83,7 +96,13 @@ namespace MessageBus.Binding.RabbitMQ
 
             if (_model != null)
             {
+                if (_messageProcessor != null)
+                {
+                    _model.BasicReturn -= ModelOnBasicReturn;
+                }
+
                 ConnectionManager.Instance.CloseModel(_model, timeout);
+
                 _model = null;
             }
 
@@ -91,6 +110,14 @@ namespace MessageBus.Binding.RabbitMQ
             DebugHelper.Stop(" ## Out.Close {{Time={0}ms}}.");
 #endif
             OnClosed();
+        }
+
+        private void ModelOnBasicReturn(IModel model, BasicReturnEventArgs args)
+        {
+            using (Message message = _encoder.ReadMessage(new MemoryStream(args.Body), int.MaxValue))
+            {
+                _messageProcessor.Process(args.ReplyCode, args.ReplyText, message);
+            }
         }
 
         public override void Send(Message message, TimeSpan timeout)
@@ -141,6 +168,8 @@ namespace MessageBus.Binding.RabbitMQ
                 // Publish AMQP message
                 _model.BasicPublish(uri.Endpoint,
                                      uri.RoutingKey,
+                                     _bindingElement.Mandatory,
+                                     _bindingElement.Immediate,
                                      basicProperties,
                                      body);
 

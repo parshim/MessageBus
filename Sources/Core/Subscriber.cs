@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel.Channels;
 using System.Threading;
 using System.Xml;
@@ -19,38 +18,9 @@ namespace MessageBus.Core
 
         private readonly string _busId;
 
+        private readonly RawBusMessageReader _reader = new RawBusMessageReader();
+
         private readonly IErrorSubscriber _errorSubscriber;
-
-        private class MessageSubscribtionInfo
-        {
-            private readonly IDispatcher _dispatcher;
-            private readonly XmlObjectSerializer _serializer;
-            private readonly MessageFilterInfo _filterInfo;
-
-            public MessageSubscribtionInfo(DataContractKey contractKey, IDispatcher dispatcher, XmlObjectSerializer serializer, bool receiveSelfPublish, IEnumerable<BusHeader> filterHeaders)
-            {
-                _dispatcher = dispatcher;
-                _serializer = serializer;
-
-                _filterInfo = new MessageFilterInfo(contractKey, receiveSelfPublish, filterHeaders);
-            }
-
-            public IDispatcher Dispatcher
-            {
-                get { return _dispatcher; }
-            }
-
-            public XmlObjectSerializer Serializer
-            {
-                get { return _serializer; }
-            }
-
-            public MessageFilterInfo FilterInfo
-            {
-                get { return _filterInfo; }
-            }
-        }
-
         private readonly ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo>();
 
         protected Subscriber(IInputChannel inputChannel, string busId, IErrorSubscriber errorSubscriber)
@@ -71,10 +41,29 @@ namespace MessageBus.Core
                 {
                     using (message)
                     {
-                        RawBusMessage busMessage = ReadMessage(message);
-
                         MessageSubscribtionInfo messageSubscribtionInfo;
 
+                        Action<RawBusMessage, XmlDictionaryReader> provider = (msg, reader) =>
+                            {
+                                if (!_registeredTypes.TryGetValue(new DataContractKey(msg.Name, msg.Namespace), out messageSubscribtionInfo))
+                                {
+                                    return;
+                                }
+
+                                try
+                                {
+                                    msg.Data = messageSubscribtionInfo.Serializer.ReadObject(reader);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _errorSubscriber.MessageDeserializeException(msg, ex);
+                                }
+                            };
+
+                        RawBusMessage busMessage = _reader.ReadMessage(message, provider);
+
+                        
+                        
                         if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageSubscribtionInfo))
                         {
                             _errorSubscriber.UnregisteredMessageArrived(busMessage);
@@ -111,56 +100,6 @@ namespace MessageBus.Core
             bool selfPublished = Equals(busMessage.BusId, _busId);
 
             return !selfPublished;
-        }
-
-        private RawBusMessage ReadMessage(Message message)
-        {
-            string busId = message.Headers.GetHeader<string>(MessagingConstancts.HeaderNames.BusId,
-                                                             MessagingConstancts.Namespace.MessageBus,
-                                                             MessagingConstancts.Actor.Bus);
-
-            DateTime sent = message.Headers.GetHeader<DateTime>(MessagingConstancts.HeaderNames.SentTime,
-                                                             MessagingConstancts.Namespace.MessageBus,
-                                                             MessagingConstancts.Actor.Bus);
-
-            RawBusMessage rawBusMessage = new RawBusMessage
-                {
-                    BusId = busId,
-                    Sent = sent
-                };
-
-            foreach (MessageHeaderInfo headerInfo in message.Headers.Where(info => info.Actor == MessagingConstancts.Actor.User &&
-                                                                                    info.Namespace == MessagingConstancts.Namespace.MessageBus))
-            {
-                string value = message.Headers.GetHeader<string>(headerInfo.Name, headerInfo.Namespace, headerInfo.Actor);
-
-                rawBusMessage.Headers.Add(new BusHeader
-                    {
-                        Name = headerInfo.Name,
-                        Value = value
-                    });
-            }
-
-            using (XmlDictionaryReader bodyContents = message.GetReaderAtBodyContents())
-            {
-                rawBusMessage.Name = bodyContents.Name;
-                rawBusMessage.Namespace = bodyContents.NamespaceURI;
-
-                MessageSubscribtionInfo messageSubscribtionInfo;
-                if (_registeredTypes.TryGetValue(new DataContractKey(rawBusMessage.Name, rawBusMessage.Namespace), out messageSubscribtionInfo))
-                {
-                    try
-                    {
-                        rawBusMessage.Data = messageSubscribtionInfo.Serializer.ReadObject(bodyContents);
-                    }
-                    catch (Exception ex)
-                    {
-                        _errorSubscriber.MessageDeserializeException(rawBusMessage, ex);
-                    }
-                }
-            }
-
-            return rawBusMessage;
         }
 
         public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)

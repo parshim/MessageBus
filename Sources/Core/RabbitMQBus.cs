@@ -12,18 +12,15 @@ namespace MessageBus.Core
         protected readonly string _host;
         protected readonly string _exchange;
         protected readonly RabbitMQBinding _binding;
-        protected readonly IErrorSubscriber _errorSubscriber;
 
         private IChannelFactory<IOutputChannel> _channelFactory;
 
         public RabbitMQBus(string busId = null, string host = "localhost", string exchange = "amq.headers", 
-                            bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, IErrorSubscriber errorSubscriber = null, XmlDictionaryReaderQuotas readerQuotas = null)
+                            bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, XmlDictionaryReaderQuotas readerQuotas = null, bool mandatory = false)
             : base(busId)
         {
             _host = host;
             _exchange = exchange;
-
-            _errorSubscriber = errorSubscriber ?? new NullErrorSubscriber();
 
             _binding = new RabbitMQBinding
                 {
@@ -33,15 +30,16 @@ namespace MessageBus.Core
                     PersistentDelivery = false,
                     HeaderNamespace = MessagingConstancts.Namespace.MessageBus,
                     MessageFormat = messageFormat,
-                    ReaderQuotas = readerQuotas
+                    ReaderQuotas = readerQuotas,
+                    Mandatory = mandatory
                 };
         }
 
-        protected virtual IOutputChannel CreateOutputChannel(BufferManager bufferManager)
+        protected virtual IOutputChannel CreateOutputChannel(BufferManager bufferManager, IFaultMessageProcessor messageProcessor)
         {
             if (_channelFactory == null)
             {
-                object[] parameters = CreateParameters(bufferManager);
+                object[] parameters = CreateParameters(bufferManager, messageProcessor);
 
                 _channelFactory = _binding.BuildChannelFactory<IOutputChannel>(parameters);
 
@@ -81,23 +79,30 @@ namespace MessageBus.Core
             }
         }
 
-        public override IPublisher CreatePublisher(BufferManager bufferManager = null)
+        internal override IPublisher OnCreatePublisher(PublisherConfigurator configurator)
         {
-            IOutputChannel outputChannel = CreateOutputChannel(bufferManager);
+            FaultMessageProcessor faultMessageProcessor = configurator.FaultMessageProcessor;
 
-            return new Publisher(outputChannel, _binding.MessageVersion, BusId);
+            RabbitMQTransportOutputChannel outputChannel = CreateOutputChannel(configurator.BufferManager, faultMessageProcessor) as RabbitMQTransportOutputChannel;
+
+            if (outputChannel == null)
+            {
+                throw new NoIncomingConnectionAcceptedException();
+            }
+
+            return new Publisher(outputChannel, _binding.MessageVersion, faultMessageProcessor, BusId);
         }
 
-        public override ISubscriber CreateSubscriber(BufferManager bufferManager = null)
+        internal override ISubscriber OnCreateSubscriber(SubscriberConfigurator configurator)
         {
-            RabbitMQTransportInputChannel inputChannel = CreateInputChannel(bufferManager) as RabbitMQTransportInputChannel;
+            RabbitMQTransportInputChannel inputChannel = CreateInputChannel(configurator.BufferManager) as RabbitMQTransportInputChannel;
 
             if (inputChannel == null)
             {
                 throw new NoIncomingConnectionAcceptedException();
             }
 
-            return new RabbitMQSubscriber(inputChannel, _exchange, BusId, _errorSubscriber);
+            return new RabbitMQSubscriber(inputChannel, _exchange, BusId, configurator.ErrorSubscriber);
         }
     }
 }

@@ -31,6 +31,9 @@ namespace MessageBus.Binding.RabbitMQ
             OneWayOnly = other.OneWayOnly;
             ApplicationId = other.ApplicationId;
             MessageFormat = other.MessageFormat;
+            HeaderNamespace = other.HeaderNamespace;
+            Immediate = other.Immediate;
+            Mandatory = other.Mandatory;
         }
         
         public override IChannelFactory<TChannel> BuildChannelFactory<TChannel>(BindingContext context)
@@ -189,5 +192,15 @@ namespace MessageBus.Binding.RabbitMQ
         /// Specify SOAP headers namespace to map to AMQP message header 
         /// </summary>
         public string HeaderNamespace { get; set; }
+
+        /// <summary>
+        /// This flag tells the server how to react if the message cannot be routed to a queue. If this flag is set, the server will return an unroutable message with a Return method. If this flag is zero, the server silently drops the message.
+        /// </summary>
+        public bool Mandatory { get; set; }
+
+        /// <summary>
+        /// This flag tells the server how to react if the message cannot be routed to a queue consumer immediately. If this flag is set, the server will return an undeliverable message with a Return method. If this flag is zero, the server will queue the message, but with no guarantee that it will ever be consumed.
+        /// </summary>
+        public bool Immediate { get; set; }
     }
 }

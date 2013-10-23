@@ -12,11 +12,10 @@ namespace MessageBus.Core
         private readonly string _host;
         private readonly int _port;
         protected readonly ZMQTcpBinding _binding;
-        protected readonly IErrorSubscriber _errorSubscriber;
 
         private IChannelFactory<IOutputChannel> _channelFactory;
 
-        public ZeroMQBus(string host, int port, string busId = null, IErrorSubscriber errorSubscriber = null, XmlDictionaryReaderQuotas readerQuotas = null)
+        public ZeroMQBus(string host, int port, string busId = null, XmlDictionaryReaderQuotas readerQuotas = null)
             : base(busId)
         {
             _host = host;
@@ -26,15 +25,13 @@ namespace MessageBus.Core
                     SocketMode = SocketMode.PubSub,
                     ReaderQuotas = readerQuotas
                 };
-
-            _errorSubscriber = errorSubscriber ?? new NullErrorSubscriber();
         }
 
-        public override IPublisher CreatePublisher(BufferManager bufferManager = null)
+        internal override IPublisher OnCreatePublisher(PublisherConfigurator configuration)
         {
             if (_channelFactory == null)
             {
-                object[] parameters = CreateParameters(bufferManager);
+                object[] parameters = CreateParameters(configuration.BufferManager);
  
                 _channelFactory = _binding.BuildChannelFactory<IOutputChannel>(parameters);
 
@@ -45,7 +42,7 @@ namespace MessageBus.Core
 
             IOutputChannel outputChannel = _channelFactory.CreateChannel(new EndpointAddress(toAddress));
 
-            return new Publisher(outputChannel, _binding.MessageVersion, BusId);
+            return new Publisher(outputChannel, _binding.MessageVersion, configuration.FaultMessageProcessor, BusId);
         }
 
         private Uri CreateUri()
@@ -53,11 +50,11 @@ namespace MessageBus.Core
             return new Uri(string.Format("tcp://{0}:{1}", _host, _port));
         }
 
-        public override ISubscriber CreateSubscriber(BufferManager bufferManager = null)
+        internal override ISubscriber OnCreateSubscriber(SubscriberConfigurator configuration)
         {
             Uri listenUriBaseAddress = CreateUri();
 
-            object[] parameters = CreateParameters(bufferManager);
+            object[] parameters = CreateParameters(configuration.BufferManager);
 
             IChannelListener<IInputChannel> listener = _binding.BuildChannelListener<IInputChannel>(listenUriBaseAddress, parameters);
 
@@ -74,7 +71,7 @@ namespace MessageBus.Core
                 listener.Close();
             }
 
-            return new ZeroMQSubscriber(channel, BusId, _errorSubscriber);
+            return new ZeroMQSubscriber(channel, BusId, configuration.ErrorSubscriber);
         }
 
         public override void Dispose()

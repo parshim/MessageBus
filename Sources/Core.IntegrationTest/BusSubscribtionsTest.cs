@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Core.IntegrationTest
 {
     [TestClass]
-    public class BusSubscribtionsTests
+    public class BusSubscribtionsTest
     {
         [TestMethod]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsFalse_ShouldNotArriveToSubscriber()

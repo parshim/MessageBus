@@ -24,6 +24,8 @@ namespace RabbitMQ.UnitTests
             element.MessageFormat.Should().Be(MessageFormat.Text);
             element.ProtocolVersion.Should().Be("DefaultProtocol");
             element.ReaderQuotas.Should().NotBeNull();
+            element.Mandatory.Should().BeFalse();
+            element.Immediate.Should().BeFalse();
         }
 
     }

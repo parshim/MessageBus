@@ -61,6 +61,7 @@
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="CurrentVersion.cs" />
     <Compile Include="DebugHelper.cs" />
+    <Compile Include="IFaultMessageProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMQBinding.cs" />
     <Compile Include="RabbitMQBindingConfigurationElement.cs" />

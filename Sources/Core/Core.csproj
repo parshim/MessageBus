@@ -54,14 +54,19 @@
     <Compile Include="ActionDispatcher.cs" />
     <Compile Include="API\IDispatcher.cs" />
     <Compile Include="DurableRabbitMQBus.cs" />
+    <Compile Include="FaultMessageProcessor.cs" />
     <Compile Include="MessageFilterInfo.cs" />
+    <Compile Include="MessageSubscribtionInfo.cs" />
     <Compile Include="MessagingConstancts.cs" />
     <Compile Include="NullErrorSubscriber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
+    <Compile Include="PublisherConfigurator.cs" />
     <Compile Include="RabbitMQBus.cs" />
     <Compile Include="RabbitMQSubscriber.cs" />
+    <Compile Include="RawBusMessageReader.cs" />
     <Compile Include="Subscriber.cs" />
+    <Compile Include="SubscriberConfigurator.cs" />
     <Compile Include="ZeroMQBus.cs" />
     <Compile Include="ZeroMQSubscriber.cs" />
   </ItemGroup>

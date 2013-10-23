@@ -42,13 +42,15 @@ namespace Core.IntegrationTest
 
                 ManualResetEvent ev1 = new ManualResetEvent(false);
 
-                using (ISubscriber subscriberA = entityA.CreateSubscriber(BufferManager.CreateBufferManager(3, 10 * 1024 * 1024)))
+                BufferManager bufferManager = BufferManager.CreateBufferManager(3, 10*1024*1024);
+
+                using (ISubscriber subscriberA = entityA.CreateSubscriber(configurator => configurator.UseBufferManager(bufferManager)))
                 {
                     subscriberA.Subscribe(delegate(Blob blob) { received++; ev1.Set(); });
 
                     subscriberA.StartProcessMessages();
 
-                    using (IPublisher publisher = entityB.CreatePublisher(BufferManager.CreateBufferManager(3, 10 * 1024 * 1024)))
+                    using (IPublisher publisher = entityB.CreatePublisher(configurator => configurator.UseBufferManager(bufferManager)))
                     {
                         publisher.Send(data);
                     }

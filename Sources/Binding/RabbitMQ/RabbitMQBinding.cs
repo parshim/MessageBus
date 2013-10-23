@@ -65,6 +65,8 @@ namespace MessageBus.Binding.RabbitMQ
             _transport.ApplicationId = ApplicationId;
             _transport.MessageFormat = MessageFormat;
             _transport.HeaderNamespace = HeaderNamespace;
+            _transport.Immediate = Immediate;
+            _transport.Mandatory = Mandatory; 
 
             if (ReaderQuotas != null)
             {
@@ -87,7 +89,7 @@ namespace MessageBus.Binding.RabbitMQ
 
             return elements;
         }
-        
+
         private void Initialize()
         {
             lock (this)
@@ -192,6 +194,16 @@ namespace MessageBus.Binding.RabbitMQ
         /// Serializer quotas
         /// </summary>
         public XmlDictionaryReaderQuotas ReaderQuotas { get; set; }
+
+        /// <summary>
+        /// This flag tells the server how to react if the message cannot be routed to a queue. If this flag is set, the server will return an unroutable message with a Return method. If this flag is zero, the server silently drops the message.
+        /// </summary>
+        public bool Mandatory { get; set; }
+
+        /// <summary>
+        /// This flag tells the server how to react if the message cannot be routed to a queue consumer immediately. If this flag is set, the server will return an undeliverable message with a Return method. If this flag is zero, the server will queue the message, but with no guarantee that it will ever be consumed.
+        /// </summary>
+        public bool Immediate { get; set; }
     }
 
 }

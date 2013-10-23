@@ -63,9 +63,10 @@
   <ItemGroup>
     <Compile Include="BusBufferManagerTests.cs" />
     <Compile Include="BusDurableTests.cs" />
+    <Compile Include="BusFailedDeliveryTest.cs" />
     <Compile Include="BusMessageTests.cs" />
     <Compile Include="BusPerformanceTests.cs" />
-    <Compile Include="BusSubscribtionsTests.cs" />
+    <Compile Include="BusSubscribtionsTest.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="ErrorSubscriberTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

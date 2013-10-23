@@ -50,6 +50,8 @@ namespace MessageBus.Binding.RabbitMQ
                 ApplicationId = rabbind.ApplicationId;
                 HeaderNamespace = rabbind.HeaderNamespace;
                 MessageFormat = rabbind.MessageFormat;
+                Immediate = rabbind.Immediate;
+                Mandatory = rabbind.Mandatory;
                 ReadQuotas(rabbind.ReaderQuotas);
             }
         }
@@ -79,6 +81,8 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.ApplicationId = ApplicationId;
             rabbind.MessageFormat = MessageFormat;
             rabbind.HeaderNamespace = HeaderNamespace;
+            rabbind.Immediate = Immediate;
+            rabbind.Mandatory = Mandatory;
 
             ApplyQuotas(rabbind.ReaderQuotas);
         }
@@ -139,6 +143,27 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get { return ((bool)base["oneWayOnly"]); }
             set { base["oneWayOnly"] = value; }
+        }
+
+
+        /// <summary>
+        /// This flag tells the server how to react if the message cannot be routed to a queue. If this flag is set, the server will return an unroutable message with a Return method. If this flag is zero, the server silently drops the message.
+        /// </summary>
+        [ConfigurationProperty("mandatory", DefaultValue = false)]
+        public bool Mandatory
+        {
+            get { return ((bool)base["mandatory"]); }
+            set { base["mandatory"] = value; }
+        }
+
+        /// <summary>
+        /// This flag tells the server how to react if the message cannot be routed to a queue consumer immediately. If this flag is set, the server will return an undeliverable message with a Return method. If this flag is zero, the server will queue the message, but with no guarantee that it will ever be consumed.
+        /// </summary>
+        [ConfigurationProperty("immediate", DefaultValue = false)]
+        public bool Immediate
+        {
+            get { return ((bool)base["immediate"]); }
+            set { base["immediate"] = value; }
         }
         
         /// <summary>
