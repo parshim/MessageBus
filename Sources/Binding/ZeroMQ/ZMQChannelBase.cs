@@ -73,28 +73,55 @@ namespace MessageBus.Binding.ZeroMQ
             if (_bufferManager == null)
             {
                 byte[] body;
-
+#if VERBOSE
+                DebugHelper.Start();
+#endif
                 using (MemoryStream str = new MemoryStream())
                 {
                     _encoder.WriteMessage(message, str);
                     body = str.ToArray();
                 }
-
+#if VERBOSE
+                DebugHelper.Stop(" #### Message.Serialize {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                    body.Length,
+                    message.Headers.Action);
+#endif
                 byte[] lengthBytes = BitConverter.GetBytes(body.Length);
-
+#if VERBOSE
+                DebugHelper.Start();
+#endif
                 _socket.SendMore(lengthBytes);
                 _socket.Send(body);
+#if VERBOSE
+                DebugHelper.Stop(" #### Message.Publish {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                    body.Length,
+                    message.Headers.Action);
+#endif
             }
             else
             {
-                ArraySegment<byte> body = _encoder.WriteMessage(message, 10 * 1024 * 1024, _bufferManager);
-
+#if VERBOSE
+                DebugHelper.Start();
+#endif
+                ArraySegment<byte> body = _encoder.WriteMessage(message, 100 * 1024 * 1024, _bufferManager);
+#if VERBOSE
+                DebugHelper.Stop(" #### Message.Serialize {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                    body.Count,
+                    message.Headers.Action);
+#endif
                 try
                 {
                     byte[] lengthBytes = BitConverter.GetBytes(body.Count);
-
+#if VERBOSE
+                    DebugHelper.Start();
+#endif
                     _socket.SendMore(lengthBytes);
                     _socket.Send(body.Array, body.Offset, body.Count);
+#if VERBOSE
+                    DebugHelper.Stop(" #### Message.Publish {{\n\tAction={2}, \n\tBytes={1}, \n\tTime={0}ms}}.",
+                        body.Count,
+                        message.Headers.Action);
+#endif
                 }
                 finally
                 {

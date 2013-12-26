@@ -14,7 +14,17 @@ namespace MessageBus.Core
         {
             _serializer = new DataContractSerializer(contractType);
             
-            object o = Activator.CreateInstance(contractType, true);
+            object o;
+            
+            if (contractType.IsArray)
+            {
+                o = Array.CreateInstance(contractType.GetElementType(), 0);
+            }
+            else
+            {
+                o = Activator.CreateInstance(contractType, true);    
+            }
+            
 
             _serializer.WriteStartObject(this, o);
         }

@@ -11,6 +11,18 @@
         {
             get { return "tcp"; }
         }
+    }
+    
+    public sealed class ZMQIpcBinding : ZMQBinding
+    {
+        public ZMQIpcBinding()
+            : base("ZMQIpcBinding", SocketMode.PubSub)
+        {
+        }
 
+        public override string Scheme
+        {
+            get { return "ipc"; }
+        }
     }
 }

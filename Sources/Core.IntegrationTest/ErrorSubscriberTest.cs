@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace Core.IntegrationTest
 {
     [TestClass]
-    public class ErrorSubscriberTests : IErrorSubscriber
+    public class ErrorSubscriberTest : IErrorSubscriber
     {
         private RawBusMessage _busMessage;
         private Exception _exception;

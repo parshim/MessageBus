@@ -102,7 +102,9 @@ namespace MessageBus.Core
                 throw new NoIncomingConnectionAcceptedException();
             }
 
-            return new RabbitMQSubscriber(inputChannel, _exchange, BusId, configurator.ErrorSubscriber);
+            var messageFilter = new RabbitMQMessageFilter(inputChannel, _exchange);
+
+            return new Subscriber(inputChannel, BusId, configurator.ErrorSubscriber, messageFilter);
         }
     }
 }

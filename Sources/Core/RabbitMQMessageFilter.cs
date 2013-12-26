@@ -6,19 +6,18 @@ using RabbitMQ.Client;
 
 namespace MessageBus.Core
 {
-    internal class RabbitMQSubscriber : Subscriber
+    internal class RabbitMQMessageFilter : IMessageFilter
     {
         private readonly RabbitMQTransportInputChannel _inputChannel;
         private readonly string _exchange;
 
-        public RabbitMQSubscriber(RabbitMQTransportInputChannel inputChannel, string exchange, string busId, IErrorSubscriber errorSubscriber)
-            : base(inputChannel, busId, errorSubscriber)
+        public RabbitMQMessageFilter(RabbitMQTransportInputChannel inputChannel, string exchange)
         {
-            _exchange = exchange;
             _inputChannel = inputChannel;
+            _exchange = exchange;
         }
 
-        protected override void ApplyFilters(IEnumerable<MessageFilterInfo> filters)
+        public void ApplyFilters(IEnumerable<MessageFilterInfo> filters)
         {
             IModel model = _inputChannel.Model;
             string queueName = _inputChannel.QueueName;

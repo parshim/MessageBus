@@ -40,6 +40,9 @@ namespace MessageBus.Binding.ZeroMQ
 
             try
             {
+#if VERBOSE
+                DebugHelper.Start();
+#endif
                 byte[] lengthBytes = _socket.Recv();
                 
                 length = BitConverter.ToInt32(lengthBytes, 0);
@@ -54,6 +57,9 @@ namespace MessageBus.Binding.ZeroMQ
 
                     _socket.Recv(bytes, out length);
                 }
+#if VERBOSE
+                DebugHelper.Stop(" #### Message.Receive {{\n\tBytes={1}, \n\tTime={0}ms}}.", length);
+#endif
             }
             catch
             {
@@ -63,7 +69,9 @@ namespace MessageBus.Binding.ZeroMQ
             if (bytes == null) return null;
 
             Message message;
-
+#if VERBOSE
+            DebugHelper.Start();
+#endif
             if (_bufferManager == null)
             {
                 message = ConstructMessage(bytes);
@@ -72,8 +80,17 @@ namespace MessageBus.Binding.ZeroMQ
             {
                 message = ConstructMessage(new ArraySegment<byte>(bytes, 0, length), _bufferManager);
             }
-
+            
             message.Headers.To = LocalAddress.Uri;
+
+#if VERBOSE
+            DebugHelper.Stop(
+                " #### Message.DeSerialize {{\n\tAction={3}, \n\tBytes={2}, \n\tNow={1:HH-mm-ss:fff}ms, \n\tTime={0}ms}}.",
+                DateTime.Now,
+                length,
+                message.Headers.Action);
+#endif
+            
 
             return message;
         }

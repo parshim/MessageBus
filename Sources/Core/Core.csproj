@@ -48,6 +48,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\IMessageFilter.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="DataContract.cs" />
     <Compile Include="DataContractKey.cs" />
@@ -59,16 +60,17 @@
     <Compile Include="MessageSubscribtionInfo.cs" />
     <Compile Include="MessagingConstancts.cs" />
     <Compile Include="NullErrorSubscriber.cs" />
+    <Compile Include="NullMessageFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="PublisherConfigurator.cs" />
     <Compile Include="RabbitMQBus.cs" />
-    <Compile Include="RabbitMQSubscriber.cs" />
+    <Compile Include="RabbitMQMessageFilter.cs" />
     <Compile Include="RawBusMessageReader.cs" />
     <Compile Include="Subscriber.cs" />
+    <Compile Include="SubscriberBase.cs" />
     <Compile Include="SubscriberConfigurator.cs" />
     <Compile Include="ZeroMQBus.cs" />
-    <Compile Include="ZeroMQSubscriber.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Binding\RabbitMQ\RabbitMQ.csproj">

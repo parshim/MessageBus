@@ -11,7 +11,7 @@ namespace MessageBus.Core
     {
         private readonly string _host;
         private readonly int _port;
-        protected readonly ZMQTcpBinding _binding;
+        protected readonly ZMQBinding _binding;
 
         private IChannelFactory<IOutputChannel> _channelFactory;
 
@@ -71,7 +71,7 @@ namespace MessageBus.Core
                 listener.Close();
             }
 
-            return new ZeroMQSubscriber(channel, BusId, configuration.ErrorSubscriber);
+            return new Subscriber(channel, BusId, configuration.ErrorSubscriber, new NullMessageFilter());
         }
 
         public override void Dispose()
