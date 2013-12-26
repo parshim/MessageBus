@@ -10,10 +10,10 @@ namespace MessageBus.Core
         private readonly string _queue;
 
         private IChannelListener<IInputChannel> _listener;
-        
-        public DurableRabbitMQBus(string queue, string busId = null, string host = "localhost", string exchange = "amq.headers",
+
+        public DurableRabbitMQBus(string queue, string busId = null, string host = null, int? port = null, string exchange = null,
                             bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, XmlDictionaryReaderQuotas readerQuotas = null, bool mandatory = false)
-            : base(busId, host, exchange, exactlyOnce, messageFormat, readerQuotas, mandatory)
+            : base(busId, host, port, exchange, exactlyOnce, messageFormat, readerQuotas, mandatory)
         {
             _queue = queue;
         }
