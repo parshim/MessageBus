@@ -18,11 +18,24 @@ namespace MessageBus.Core
 
         private IChannelFactory<IOutputChannel> _channelFactory;
 
-        public RabbitMQBus(string busId = null, string host = null, int? port = null, string exchange = null, 
+        public RabbitMQBus(string busId = null, string host = null, int port = 0, string exchange = null, 
                             bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, XmlDictionaryReaderQuotas readerQuotas = null, bool mandatory = false)
             : base(busId)
         {
-            SetPropertyValues(host, port, exchange);
+            RabbitMQBusConfigSectionHandler section = ConfigurationManager.GetSection(RabbitMQBusConfigSectionHandler.SectionName) as RabbitMQBusConfigSectionHandler;
+
+            _host = GetPropertyValue(host, "localhost", section, s => s.BrokerHost);
+            _port = GetPropertyValue(port, 5672, section, s => s.Port);
+            _exchange = GetPropertyValue(exchange, "amq.headers", section, s => s.Exchange);
+
+            readerQuotas = GetPropertyValue(readerQuotas, null, section, s => new XmlDictionaryReaderQuotas
+                {
+                    MaxArrayLength = s.ReaderQuotas.MaxArrayLength,
+                    MaxBytesPerRead = s.ReaderQuotas.MaxBytesPerRead,
+                    MaxDepth = s.ReaderQuotas.MaxDepth,
+                    MaxNameTableCharCount = s.ReaderQuotas.MaxNameTableCharCount,
+                    MaxStringContentLength = s.ReaderQuotas.MaxStringContentLength
+                });
 
             _binding = new RabbitMQBinding
                 {
@@ -37,13 +50,13 @@ namespace MessageBus.Core
                 };
         }
 
-        private void SetPropertyValues(string host = null, int? port = null, string exchange = null)
+        protected T GetPropertyValue<T>(T value, T defaultValue, RabbitMQBusConfigSectionHandler section, Func<RabbitMQBusConfigSectionHandler, T> selector)
         {
-            RabbitMQBusConfigSectionHandler section = ConfigurationManager.GetSection(RabbitMQBusConfigSectionHandler.SectionName) as RabbitMQBusConfigSectionHandler;
+            if (!Equals(value, default(T))) return value;
 
-            _host = host ?? (section == null ? "localhost" : section.BrokerHost);
-            _port = port ?? (section == null ? 5672 : section.Port);
-            _exchange = exchange ?? (section == null ? "amq.headers" : section.Exchange);
+            if (section == null) return defaultValue;
+
+            return selector(section);
         }
 
         protected virtual IOutputChannel CreateOutputChannel(BufferManager bufferManager, IFaultMessageProcessor messageProcessor)

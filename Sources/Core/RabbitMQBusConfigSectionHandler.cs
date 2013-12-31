@@ -1,10 +1,24 @@
 ﻿using System.Configuration;
+using System.ServiceModel.Configuration;
 
 namespace MessageBus.Core
 {
     public class RabbitMQBusConfigSectionHandler : ConfigurationSection
     {
         public const string SectionName = "rabbitMQBus";
+
+        [ConfigurationProperty("readerQuotas")]
+        public XmlDictionaryReaderQuotasElement ReaderQuotas
+        {
+            get
+            {
+                return (XmlDictionaryReaderQuotasElement)this["readerQuotas"];
+            }
+            set
+            {
+                this["readerQuotas"] = value;
+            }
+        }
 
         [ConfigurationProperty("brokerHost", DefaultValue = "localhost")]
         public string BrokerHost
