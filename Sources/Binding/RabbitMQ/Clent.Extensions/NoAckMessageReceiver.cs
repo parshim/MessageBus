@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using RabbitMQ.Client;
 
 namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
@@ -16,7 +17,28 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
 
         public BasicGetResult Receive(TimeSpan timeout)
         {
-            return _model.BasicGet(_queue, true);
+            BasicGetResult result;
+            DateTime startTime = DateTime.Now;
+
+            do
+            {
+                result = _model.BasicGet(_queue, true);
+
+                TimeSpan elapsedTime = DateTime.Now - startTime;
+                TimeSpan remainingTime = timeout.Subtract(elapsedTime);
+                if (remainingTime <= TimeSpan.Zero)
+                {
+                    return result;
+                }
+
+                if (result == null)
+                {
+                    Thread.Sleep(0);
+                }
+
+            } while (result == null);
+
+            return result;
         }
 
         public bool WaitForMessage(TimeSpan timeout)
