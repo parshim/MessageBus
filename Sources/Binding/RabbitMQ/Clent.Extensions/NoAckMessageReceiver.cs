@@ -9,6 +9,8 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
         private readonly IModel _model;
         private readonly string _queue;
 
+        private const int MinimalThreadSleepTickTime = 1;
+
         public NoAckMessageReceiver(IModel model, string queue)
         {
             _model = model;
@@ -24,15 +26,15 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
             {
                 BasicGetResult result = _model.BasicGet(_queue, true);
 
-                TimeSpan elapsedTime = DateTime.Now - startTime;
-                remainingTime = timeout.Subtract(elapsedTime);
-                
                 if (result != null)
                 {
                     return result;
                 }
 
-                Thread.Sleep(5);
+                Thread.Sleep(MinimalThreadSleepTickTime);
+
+                TimeSpan elapsedTime = DateTime.Now - startTime;
+                remainingTime = timeout.Subtract(elapsedTime);
 
             } while (remainingTime > TimeSpan.Zero);
 
