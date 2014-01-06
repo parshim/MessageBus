@@ -17,28 +17,26 @@ namespace MessageBus.Binding.RabbitMQ.Clent.Extensions
 
         public BasicGetResult Receive(TimeSpan timeout)
         {
-            BasicGetResult result;
             DateTime startTime = DateTime.Now;
+            TimeSpan remainingTime;
 
             do
             {
-                result = _model.BasicGet(_queue, true);
+                BasicGetResult result = _model.BasicGet(_queue, true);
 
                 TimeSpan elapsedTime = DateTime.Now - startTime;
-                TimeSpan remainingTime = timeout.Subtract(elapsedTime);
-                if (remainingTime <= TimeSpan.Zero)
+                remainingTime = timeout.Subtract(elapsedTime);
+                
+                if (result != null)
                 {
                     return result;
                 }
 
-                if (result == null)
-                {
-                    Thread.Sleep(0);
-                }
+                Thread.Sleep(5);
 
-            } while (result == null);
+            } while (remainingTime > TimeSpan.Zero);
 
-            return result;
+            return null;
         }
 
         public bool WaitForMessage(TimeSpan timeout)
