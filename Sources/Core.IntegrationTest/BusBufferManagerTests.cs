@@ -3,8 +3,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel.Channels;
 using System.Threading;
 using System.Xml;
+using MessageBus.Core.ZeroMQ;
 using FluentAssertions;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

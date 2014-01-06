@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MessageBus.Core.ZeroMQ;
 using FluentAssertions;
 using MessageBus.Core;
 using MessageBus.Core.API;

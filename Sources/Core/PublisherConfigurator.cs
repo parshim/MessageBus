@@ -1,5 +1,4 @@
-﻿using System;
-using System.ServiceModel.Channels;
+﻿using System.ServiceModel.Channels;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -14,11 +13,11 @@ namespace MessageBus.Core
             get { return _bufferManager; }
         }
 
-        internal FaultMessageProcessor FaultMessageProcessor
+        internal IPublishingErrorHandler ErrorHandler
         {
             get
             {
-                return new FaultMessageProcessor(_errorHandler ?? new NullPublishingErrorHandler());
+                return _errorHandler ?? new NullPublishingErrorHandler();
             }
         }
 
@@ -34,14 +33,6 @@ namespace MessageBus.Core
             _errorHandler = errorHandler;
 
             return this;
-        }
-    }
-
-    internal class NullPublishingErrorHandler : IPublishingErrorHandler
-    {
-        public void DeliveryFailed(int errorCode, string text, RawBusMessage message)
-        {
-            
         }
     }
 }

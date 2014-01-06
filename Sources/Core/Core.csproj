@@ -49,6 +49,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\IKnownContractCollector.cs" />
     <Compile Include="API\IMessageFilter.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="DataContract.cs" />
@@ -57,11 +58,13 @@
     <Compile Include="API\IDispatcher.cs" />
     <Compile Include="DurableRabbitMQBus.cs" />
     <Compile Include="FaultMessageProcessor.cs" />
+    <Compile Include="KnownContractCollector.cs" />
     <Compile Include="MessageFilterInfo.cs" />
     <Compile Include="MessageSubscribtionInfo.cs" />
     <Compile Include="MessagingConstancts.cs" />
     <Compile Include="NullErrorSubscriber.cs" />
     <Compile Include="NullMessageFilter.cs" />
+    <Compile Include="NullPublishingErrorHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="PublisherConfigurator.cs" />
@@ -72,16 +75,11 @@
     <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriberBase.cs" />
     <Compile Include="SubscriberConfigurator.cs" />
-    <Compile Include="ZeroMQBus.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Binding\RabbitMQ\RabbitMQ.csproj">
       <Project>{F4B205B9-ABFC-4382-BB46-4130E54ED99D}</Project>
       <Name>RabbitMQ</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Binding\ZeroMQ\ZeroMQ.csproj">
-      <Project>{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}</Project>
-      <Name>ZeroMQ</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.API\Core.API.csproj">
       <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>

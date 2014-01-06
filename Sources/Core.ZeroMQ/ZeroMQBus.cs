@@ -3,9 +3,10 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Xml;
 using MessageBus.Binding.ZeroMQ;
+using MessageBus.Core;
 using MessageBus.Core.API;
 
-namespace MessageBus.Core
+namespace MessageBus.Core.ZeroMQ
 {
     public class ZeroMQBus : Bus
     {
@@ -40,9 +41,11 @@ namespace MessageBus.Core
 
             Uri toAddress = CreateUri();
 
+            IKnownContractCollector collector = new KnownContractCollector();
+
             IOutputChannel outputChannel = _channelFactory.CreateChannel(new EndpointAddress(toAddress));
 
-            return new Publisher(outputChannel, _binding.MessageVersion, configuration.FaultMessageProcessor, BusId);
+            return new Publisher(outputChannel, _binding.MessageVersion, collector, BusId);
         }
 
         private Uri CreateUri()

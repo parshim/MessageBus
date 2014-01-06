@@ -9,16 +9,17 @@ namespace MessageBus.Core
     {
         private readonly ConcurrentDictionary<Type, DataContractKey> _nameMappings = new ConcurrentDictionary<Type, DataContractKey>();
         private readonly IOutputChannel _outputChannel;
+        private readonly IKnownContractCollector _contractCollector;
         private readonly MessageVersion _messageVersion;
-        private readonly FaultMessageProcessor _faultMessageProcessor;
+        
         private readonly string _busId;
 
-        public Publisher(IOutputChannel outputChannel, MessageVersion messageVersion, FaultMessageProcessor faultMessageProcessor, string busId)
+        public Publisher(IOutputChannel outputChannel, MessageVersion messageVersion, IKnownContractCollector contractCollector, string busId)
         {
             _outputChannel = outputChannel;
             _messageVersion = messageVersion;
-            _faultMessageProcessor = faultMessageProcessor;
             _busId = busId;
+            _contractCollector = contractCollector;
 
             _outputChannel.Open();
         }
@@ -39,7 +40,7 @@ namespace MessageBus.Core
 
                 _nameMappings.TryAdd(type, contract.Key);
 
-                _faultMessageProcessor.AddKnownContract(contract);
+                _contractCollector.AddKnownContract(contract);
 
                 contractKey = contract.Key;
             }

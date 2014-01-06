@@ -105,7 +105,9 @@ namespace MessageBus.Core
 
         internal override IPublisher OnCreatePublisher(PublisherConfigurator configurator)
         {
-            FaultMessageProcessor faultMessageProcessor = configurator.FaultMessageProcessor;
+            IKnownContractCollector collector = new KnownContractCollector();
+
+            IFaultMessageProcessor faultMessageProcessor = new FaultMessageProcessor(configurator.ErrorHandler, collector);
 
             RabbitMQTransportOutputChannel outputChannel = CreateOutputChannel(configurator.BufferManager, faultMessageProcessor) as RabbitMQTransportOutputChannel;
 
@@ -114,7 +116,7 @@ namespace MessageBus.Core
                 throw new NoIncomingConnectionAcceptedException();
             }
 
-            return new Publisher(outputChannel, _binding.MessageVersion, faultMessageProcessor, BusId);
+            return new Publisher(outputChannel, _binding.MessageVersion, collector, BusId);
         }
 
         internal override ISubscriber OnCreateSubscriber(SubscriberConfigurator configurator)

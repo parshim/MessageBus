@@ -82,6 +82,10 @@
       <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>
       <Name>Core.API</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Core.ZeroMQ\Core.ZeroMQ.csproj">
+      <Project>{17967D45-C969-44A4-8C33-4588ED94F549}</Project>
+      <Name>Core.ZeroMQ</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{DF6D2F13-9759-40A1-9C75-3B43A31C1745}</Project>
       <Name>Core</Name>
