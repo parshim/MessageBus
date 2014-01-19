@@ -75,9 +75,9 @@ namespace MessageBus.Core
             return _channelFactory.CreateChannel(new EndpointAddress(toAddress));
         }
 
-        protected virtual IInputChannel CreateInputChannel(BufferManager bufferManager)
+        protected virtual IInputChannel CreateInputChannel(BufferManager bufferManager, string queueName)
         {
-            Uri listenUriBaseAddress = new Uri(string.Format("amqp://{0}:{1}/", _host, _port));
+            Uri listenUriBaseAddress = new Uri(string.Format("amqp://{0}:{1}/{2}", _host, _port, queueName));
 
             object[] parameters = CreateParameters(bufferManager);
 
@@ -121,7 +121,7 @@ namespace MessageBus.Core
 
         internal override ISubscriber OnCreateSubscriber(SubscriberConfigurator configurator)
         {
-            RabbitMQTransportInputChannel inputChannel = CreateInputChannel(configurator.BufferManager) as RabbitMQTransportInputChannel;
+            RabbitMQTransportInputChannel inputChannel = CreateInputChannel(configurator.BufferManager, configurator.QueueName) as RabbitMQTransportInputChannel;
 
             if (inputChannel == null)
             {

@@ -15,10 +15,17 @@ namespace MessageBus.Core.API
         ISubscriberConfigurator UseBufferManager(BufferManager bufferManager);
 
         /// <summary>
-        /// 
+        /// Specify error subscriber interface to redirect subscriber errors to
         /// </summary>
         /// <param name="errorSubscriber"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseErrorSubscriber(IErrorSubscriber errorSubscriber);
+
+        /// <summary>
+        /// Specify durable queue name to listen for the messages
+        /// </summary>
+        /// <param name="queueName"></param>
+        /// <returns></returns>
+        ISubscriberConfigurator UseDurableQueue(string queueName);
     }
 }

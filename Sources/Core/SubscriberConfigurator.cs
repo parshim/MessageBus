@@ -7,6 +7,12 @@ namespace MessageBus.Core
     {
         private BufferManager _bufferManager;
         private IErrorSubscriber _errorSubscriber;
+        private string _queueName;
+
+        internal string QueueName
+        {
+            get { return _queueName; }
+        }
 
         internal BufferManager BufferManager
         {
@@ -28,6 +34,13 @@ namespace MessageBus.Core
         public ISubscriberConfigurator UseErrorSubscriber(IErrorSubscriber errorSubscriber)
         {
             _errorSubscriber = errorSubscriber;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseDurableQueue(string queueName)
+        {
+            _queueName = queueName;
 
             return this;
         }

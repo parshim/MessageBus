@@ -56,7 +56,6 @@
     <Compile Include="DataContractKey.cs" />
     <Compile Include="ActionDispatcher.cs" />
     <Compile Include="API\IDispatcher.cs" />
-    <Compile Include="DurableRabbitMQBus.cs" />
     <Compile Include="FaultMessageProcessor.cs" />
     <Compile Include="KnownContractCollector.cs" />
     <Compile Include="MessageFilterInfo.cs" />

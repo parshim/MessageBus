@@ -17,7 +17,15 @@ namespace Core.IntegrationTest
             ImportiantData data = new ImportiantData { Info = "Valuable information" };
 
             // First bus ensures that test queue is created and publishes the message
-            using (var bus = new DurableRabbitMQBus("test"))
+            using (var bus = new RabbitMQBus())
+            {
+                using (bus.CreateSubscriber(configurator => configurator.UseDurableQueue("test")))
+                {
+                }
+            }
+
+            // Dispatch message
+            using (var bus = new RabbitMQBus())
             {
                 using (IPublisher publisher = bus.CreatePublisher())
                 {
@@ -29,9 +37,9 @@ namespace Core.IntegrationTest
             ManualResetEvent ev = new ManualResetEvent(false);
 
             // Second bus subscribes to message after it was dispatched and should receive it
-            using (DurableRabbitMQBus bus = new DurableRabbitMQBus("test"))
+            using (var bus = new RabbitMQBus())
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseDurableQueue("test")))
                 {
                     subscriber.Subscribe<ImportiantData>(p =>
                         {
