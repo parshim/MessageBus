@@ -1,77 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ServiceModel.Channels;
-using System.Xml;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    internal sealed class Subscriber : SubscriberBase
+    internal sealed class Subscriber : SubscriberBase, ISubscriber
     {
-        internal Subscriber(IInputChannel inputChannel, string busId, IErrorSubscriber errorSubscriber, IMessageFilter messageFilter)
-            : base(inputChannel, busId, errorSubscriber, messageFilter)
+        private readonly ICallbackDispatcher _dispatcher;
+
+        internal Subscriber(IInputChannel inputChannel, IMessageFilter messageFilter, ICallbackDispatcher dispatcher)
+            : base(inputChannel, messageFilter, dispatcher)
         {
+            _dispatcher = dispatcher;
+        }
+        
+        public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
+        {
+            return Subscribe(typeof(TData), o => callback((TData)o), hierarchy, receiveSelfPublish, filter);
         }
 
-        protected override void MessagePump()
+        public bool Subscribe(Type dataType, Action<object> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
-            while (_receive)
-            {
-                Message message;
+            ActionHandler actionHandler = new ActionHandler(callback);
 
-                if (!_inputChannel.TryReceive(TimeSpan.FromMilliseconds(100), out message))
-                {
-                    continue;
-                }
+            return _dispatcher.Subscribe(dataType, actionHandler, hierarchy, receiveSelfPublish, filter);
+        }
 
-                using (message)
-                {
-                    MessageSubscribtionInfo messageSubscribtionInfo;
+        public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
+        {
+            return _dispatcher.Subscribe(typeof(TData), new BusMessageHandler<TData>(callback), hierarchy, receiveSelfPublish, filter);
+        }
 
-                    Action<RawBusMessage, XmlDictionaryReader> provider = (msg, reader) =>
-                        {
-                            if (!_registeredTypes.TryGetValue(new DataContractKey(msg.Name, msg.Namespace), out messageSubscribtionInfo))
-                            {
-                                return;
-                            }
-
-                            try
-                            {
-                                msg.Data = messageSubscribtionInfo.Serializer.ReadObject(reader);
-                            }
-                            catch (Exception ex)
-                            {
-                                _errorSubscriber.MessageDeserializeException(msg, ex);
-                            }
-                        };
-
-                    RawBusMessage busMessage = _reader.ReadMessage(message, provider);
-
-                        
-                        
-                    if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageSubscribtionInfo))
-                    {
-                        _errorSubscriber.UnregisteredMessageArrived(busMessage);
-
-                        continue;
-                    }
-
-                    if (!IsMessageSurvivesFilter(messageSubscribtionInfo.FilterInfo, busMessage))
-                    {
-                        _errorSubscriber.MessageFilteredOut(busMessage);
-
-                        continue;
-                    }
-
-                    try
-                    {
-                        messageSubscribtionInfo.Dispatcher.Dispatch(busMessage);
-                    }
-                    catch(Exception ex)
-                    {
-                        _errorSubscriber.MessageDispatchException(busMessage, ex);
-                    }
-                }
-            }
+        public bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
+        {
+            return _dispatcher.Subscribe(dataType, new RawHandler(callback), hierarchy, receiveSelfPublish, filter);
         }
     }
 }

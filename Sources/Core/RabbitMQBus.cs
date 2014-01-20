@@ -130,7 +130,9 @@ namespace MessageBus.Core
 
             var messageFilter = new RabbitMQMessageFilter(inputChannel, _exchange);
 
-            return new Subscriber(inputChannel, BusId, configurator.ErrorSubscriber, messageFilter);
+            ICallbackDispatcher dispatcher = new CallBackBasedDispatcher(configurator.ErrorSubscriber, BusId);
+
+            return new Subscriber(inputChannel, messageFilter, dispatcher);
         }
     }
 }

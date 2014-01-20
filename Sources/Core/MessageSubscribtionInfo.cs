@@ -6,21 +6,21 @@ namespace MessageBus.Core
 {
     internal class MessageSubscribtionInfo
     {
-        private readonly IDispatcher _dispatcher;
+        private readonly ICallHandler _handler;
         private readonly XmlObjectSerializer _serializer;
         private readonly MessageFilterInfo _filterInfo;
 
-        public MessageSubscribtionInfo(DataContractKey contractKey, IDispatcher dispatcher, XmlObjectSerializer serializer, bool receiveSelfPublish, IEnumerable<BusHeader> filterHeaders)
+        public MessageSubscribtionInfo(DataContractKey contractKey, ICallHandler handler, XmlObjectSerializer serializer, bool receiveSelfPublish, IEnumerable<BusHeader> filterHeaders)
         {
-            _dispatcher = dispatcher;
+            _handler = handler;
             _serializer = serializer;
 
             _filterInfo = new MessageFilterInfo(contractKey, receiveSelfPublish, filterHeaders);
         }
 
-        public IDispatcher Dispatcher
+        public ICallHandler Handler
         {
-            get { return _dispatcher; }
+            get { return _handler; }
         }
 
         public XmlObjectSerializer Serializer

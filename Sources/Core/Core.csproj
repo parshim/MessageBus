@@ -49,16 +49,19 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\ICallHandler.cs" />
     <Compile Include="API\IKnownContractCollector.cs" />
     <Compile Include="API\IMessageFilter.cs" />
     <Compile Include="Bus.cs" />
+    <Compile Include="BusMessageHandler.cs" />
+    <Compile Include="CallBackBasedDispatcher.cs" />
     <Compile Include="DataContract.cs" />
     <Compile Include="DataContractKey.cs" />
-    <Compile Include="ActionDispatcher.cs" />
+    <Compile Include="ActionHandler.cs" />
     <Compile Include="API\IDispatcher.cs" />
     <Compile Include="FaultMessageProcessor.cs" />
     <Compile Include="KnownContractCollector.cs" />
-    <Compile Include="MessageFilterInfo.cs" />
+    <Compile Include="API\MessageFilterInfo.cs" />
     <Compile Include="MessageSubscribtionInfo.cs" />
     <Compile Include="MessagingConstancts.cs" />
     <Compile Include="NullErrorSubscriber.cs" />
@@ -71,9 +74,11 @@
     <Compile Include="RabbitMQBusConfigSectionHandler.cs" />
     <Compile Include="RabbitMQMessageFilter.cs" />
     <Compile Include="RawBusMessageReader.cs" />
+    <Compile Include="RawHandler.cs" />
     <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriberBase.cs" />
     <Compile Include="SubscriberConfigurator.cs" />
+    <Compile Include="SubscriptionHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Binding\RabbitMQ\RabbitMQ.csproj">

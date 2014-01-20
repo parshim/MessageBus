@@ -3,7 +3,6 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Xml;
 using MessageBus.Binding.ZeroMQ;
-using MessageBus.Core;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core.ZeroMQ
@@ -74,7 +73,9 @@ namespace MessageBus.Core.ZeroMQ
                 listener.Close();
             }
 
-            return new Subscriber(channel, BusId, configuration.ErrorSubscriber, new NullMessageFilter());
+            ICallbackDispatcher dispatcher = new CallBackBasedDispatcher(configuration.ErrorSubscriber, BusId);
+
+            return new Subscriber(channel, new NullMessageFilter(), dispatcher);
         }
 
         public override void Dispose()

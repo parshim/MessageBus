@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using MessageBus.Core.API;
 
-namespace MessageBus.Core
+namespace MessageBus.Core.API
 {
     public class MessageFilterInfo
     {

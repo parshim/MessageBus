@@ -42,6 +42,7 @@
     <Compile Include="ISubscriberConfigurator.cs" />
     <Compile Include="NoIncomingConnectionAcceptedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SubscribtionAttribute.cs" />
     <Compile Include="SubscribtionClosedException.cs" />
   </ItemGroup>
   <ItemGroup>
