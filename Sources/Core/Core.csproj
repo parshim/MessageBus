@@ -54,11 +54,12 @@
     <Compile Include="API\IMessageFilter.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="BusMessageHandler.cs" />
-    <Compile Include="CallBackBasedDispatcher.cs" />
+    <Compile Include="CallBackDispatcher.cs" />
     <Compile Include="DataContract.cs" />
     <Compile Include="DataContractKey.cs" />
     <Compile Include="ActionHandler.cs" />
     <Compile Include="API\IDispatcher.cs" />
+    <Compile Include="DispatcherBase.cs" />
     <Compile Include="FaultMessageProcessor.cs" />
     <Compile Include="KnownContractCollector.cs" />
     <Compile Include="API\MessageFilterInfo.cs" />
@@ -78,7 +79,8 @@
     <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriberBase.cs" />
     <Compile Include="SubscriberConfigurator.cs" />
-    <Compile Include="SubscriptionHelper.cs" />
+    <Compile Include="Subscribtion.cs" />
+    <Compile Include="SubscriptionDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Binding\RabbitMQ\RabbitMQ.csproj">

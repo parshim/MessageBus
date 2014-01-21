@@ -17,4 +17,9 @@ namespace MessageBus.Core.API
         bool Subscribe(Type dataType, ICallHandler handler, bool receiveSelfPublish, IEnumerable<BusHeader> filter);
         bool SubscribeHierarchy(Type baseType, ICallHandler handler, bool receiveSelfPublish, IEnumerable<BusHeader> filter);
     }
+
+    internal interface ISubscriptionDispatcher : IDispatcher
+    {
+        void RegisterSubscribtion(object instance);
+    }
 }

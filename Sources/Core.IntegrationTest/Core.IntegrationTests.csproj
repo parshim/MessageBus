@@ -62,12 +62,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlobTransferTest.cs" />
+    <Compile Include="BusAnotatedSubscriptionTests.cs" />
     <Compile Include="BusBufferManagerTests.cs" />
     <Compile Include="BusDurableTests.cs" />
     <Compile Include="BusFailedDeliveryTest.cs" />
     <Compile Include="BusMessageTests.cs" />
     <Compile Include="BusPerformanceTests.cs" />
-    <Compile Include="BusSubscribtionsTest.cs" />
+    <Compile Include="BusSubscriberTests.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="ErrorSubscriberTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

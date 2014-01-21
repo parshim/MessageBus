@@ -59,7 +59,7 @@ namespace MessageBus.Core
             return selector(section);
         }
 
-        protected virtual IOutputChannel CreateOutputChannel(BufferManager bufferManager, IFaultMessageProcessor messageProcessor)
+        private IOutputChannel CreateOutputChannel(BufferManager bufferManager, IFaultMessageProcessor messageProcessor)
         {
             if (_channelFactory == null)
             {
@@ -75,7 +75,7 @@ namespace MessageBus.Core
             return _channelFactory.CreateChannel(new EndpointAddress(toAddress));
         }
 
-        protected virtual IInputChannel CreateInputChannel(BufferManager bufferManager, string queueName)
+        private IInputChannel CreateInputChannel(BufferManager bufferManager, string queueName)
         {
             Uri listenUriBaseAddress = new Uri(string.Format("amqp://{0}:{1}/{2}", _host, _port, queueName));
 
@@ -119,20 +119,24 @@ namespace MessageBus.Core
             return new Publisher(outputChannel, _binding.MessageVersion, collector, BusId);
         }
 
-        internal override ISubscriber OnCreateSubscriber(SubscriberConfigurator configurator)
+        internal override IInputChannel OnCreateInputChannel(SubscriberConfigurator configurator)
         {
-            RabbitMQTransportInputChannel inputChannel = CreateInputChannel(configurator.BufferManager, configurator.QueueName) as RabbitMQTransportInputChannel;
+            IInputChannel inputChannel = CreateInputChannel(configurator.BufferManager, configurator.QueueName);
 
             if (inputChannel == null)
             {
                 throw new NoIncomingConnectionAcceptedException();
             }
 
-            var messageFilter = new RabbitMQMessageFilter(inputChannel, _exchange);
-
-            ICallbackDispatcher dispatcher = new CallBackBasedDispatcher(configurator.ErrorSubscriber, BusId);
-
-            return new Subscriber(inputChannel, messageFilter, dispatcher);
+            return inputChannel;
         }
+
+        internal override IMessageFilter OnCreateMessageFilter(IInputChannel channel)
+        {
+            RabbitMQTransportInputChannel inputChannel = channel as RabbitMQTransportInputChannel;
+
+            return new RabbitMQMessageFilter(inputChannel, _exchange);
+        }
+
     }
 }

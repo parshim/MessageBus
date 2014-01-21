@@ -29,12 +29,13 @@ namespace MessageBus.Core
 
         public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
-            return _dispatcher.Subscribe(typeof(TData), new BusMessageHandler<TData>(callback), hierarchy, receiveSelfPublish, filter);
+            return _dispatcher.Subscribe(typeof(TData), new BusMessageHandler<TData>(o => callback((BusMessage<TData>) o)), hierarchy, receiveSelfPublish, filter);
         }
 
         public bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
             return _dispatcher.Subscribe(dataType, new RawHandler(callback), hierarchy, receiveSelfPublish, filter);
         }
+
     }
 }

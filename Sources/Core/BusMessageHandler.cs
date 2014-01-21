@@ -5,9 +5,9 @@ namespace MessageBus.Core
 {
     class BusMessageHandler<TData> : ICallHandler
     {
-        private readonly Action<BusMessage<TData>> _action;
+        private readonly Action<object> _action;
 
-        public BusMessageHandler(Action<BusMessage<TData>> action)
+        public BusMessageHandler(Action<object> action)
         {
             _action = action;
         }

@@ -6,7 +6,7 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    internal abstract class SubscriberBase : IDisposable
+    internal abstract class SubscriberBase : ISubscribtion
     {
         private readonly IDispatcher _dispatcher;
         private readonly IInputChannel _inputChannel;
@@ -42,7 +42,7 @@ namespace MessageBus.Core
             }
         }
 
-        public void StartProcessMessages()
+        public virtual void Open()
         {
             if (_stared) return;
 
@@ -54,6 +54,11 @@ namespace MessageBus.Core
             ApplyFilters();
 
             _receiver.Start();
+        }
+
+        public virtual void Close()
+        {
+            Dispose();
         }
 
         protected void ApplyFilters()

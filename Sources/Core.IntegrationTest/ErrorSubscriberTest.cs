@@ -27,7 +27,7 @@ namespace Core.IntegrationTest
                 {
                     subscriber.Subscribe(delegate(OK ok) {  }, receiveSelfPublish:false);
 
-                    subscriber.StartProcessMessages();
+                    subscriber.Open();
 
                     OK expectation = new OK();
 
@@ -59,7 +59,7 @@ namespace Core.IntegrationTest
                 {
                     subscriber.Subscribe(delegate(ContractToReceive ok) { }, receiveSelfPublish: true);
                     
-                    subscriber.StartProcessMessages();
+                    subscriber.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -92,7 +92,7 @@ namespace Core.IntegrationTest
                 {
                     subscriber.Subscribe(delegate(ContractToSend ok) { throw ex; }, receiveSelfPublish: true);
                     
-                    subscriber.StartProcessMessages();
+                    subscriber.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -121,7 +121,7 @@ namespace Core.IntegrationTest
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
                 {
-                    subscriber.StartProcessMessages();
+                    subscriber.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {

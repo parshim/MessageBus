@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Core.IntegrationTest
 {
     [TestClass]
-    public class BusSubscribtionsTest
+    public class BusSubscriberTests
     {
         [TestMethod]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsFalse_ShouldNotArriveToSubscriber()
@@ -21,7 +21,7 @@ namespace Core.IntegrationTest
                 {
                     subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: false);
                     
-                    subscriber.StartProcessMessages();
+                    subscriber.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -46,8 +46,8 @@ namespace Core.IntegrationTest
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
                     subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: true);
-                    
-                    subscriber.StartProcessMessages();
+
+                    subscriber.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -82,9 +82,9 @@ namespace Core.IntegrationTest
                     subscriberB2.Subscribe<Person>(p => { p.Id *= 2; b2 = p; ev2.Set(); });
                     subscriberC1.Subscribe<Person>(p => { c1 = p; ev3.Set(); });
 
-                    subscriberB1.StartProcessMessages();
-                    subscriberB2.StartProcessMessages();
-                    subscriberC1.StartProcessMessages();
+                    subscriberB1.Open();
+                    subscriberB2.Open();
+                    subscriberC1.Open();
 
                     using (IPublisher publisher = busA.CreatePublisher())
                     {
@@ -139,9 +139,9 @@ namespace Core.IntegrationTest
                     subscriberB2.Subscribe<Person>(p => { b2 = p; ev2.Set(); }, filter: new[] { new BusHeader { Name = header, Value = "T2"} });
                     subscriberC1.Subscribe<Person>(p => { c1 = p; ev3.Set(); }, filter: new[] { new BusHeader { Name = header, Value = "T1" } });
 
-                    subscriberB1.StartProcessMessages();
-                    subscriberB2.StartProcessMessages();
-                    subscriberC1.StartProcessMessages();
+                    subscriberB1.Open();
+                    subscriberB2.Open();
+                    subscriberC1.Open();
 
                     using (IPublisher publisher = busA.CreatePublisher())
                     {

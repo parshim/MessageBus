@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BusMessage.cs" />
+    <Compile Include="HeaderFilterAttribute.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IErrorSubscriber.cs" />
     <Compile Include="IPublisher.cs" />
@@ -40,6 +41,8 @@
     <Compile Include="IPublishingErrorHandler.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="ISubscriberConfigurator.cs" />
+    <Compile Include="ISubscribtion.cs" />
+    <Compile Include="MessageSubscribtionAttribute.cs" />
     <Compile Include="NoIncomingConnectionAcceptedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubscribtionAttribute.cs" />

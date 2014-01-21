@@ -50,8 +50,8 @@ namespace Core.IntegrationTest
 
                     subscriberB.Subscribe((Action<OK>) (data => ev2.Set()));
 
-                    subscriberA.StartProcessMessages();
-                    subscriberB.StartProcessMessages();
+                    subscriberA.Open();
+                    subscriberB.Open();
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
@@ -100,8 +100,8 @@ namespace Core.IntegrationTest
                     subscriberA.Subscribe<Data>(received.Add, true);
 
                     subscriberA.Subscribe(typeof(OK), (Action<object>) (data => ev1.Set()));
-                    
-                    subscriberA.StartProcessMessages();
+
+                    subscriberA.Open();
                     
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {

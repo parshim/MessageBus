@@ -46,13 +46,14 @@ namespace MessageBus.Core.ZeroMQ
 
             return new Publisher(outputChannel, _binding.MessageVersion, collector, BusId);
         }
-
+        
         private Uri CreateUri()
         {
             return new Uri(string.Format("tcp://{0}:{1}", _host, _port));
         }
 
-        internal override ISubscriber OnCreateSubscriber(SubscriberConfigurator configuration)
+
+        internal override IInputChannel OnCreateInputChannel(SubscriberConfigurator configuration)
         {
             Uri listenUriBaseAddress = CreateUri();
 
@@ -73,11 +74,14 @@ namespace MessageBus.Core.ZeroMQ
                 listener.Close();
             }
 
-            ICallbackDispatcher dispatcher = new CallBackBasedDispatcher(configuration.ErrorSubscriber, BusId);
-
-            return new Subscriber(channel, new NullMessageFilter(), dispatcher);
+            return channel;
         }
 
+        internal override IMessageFilter OnCreateMessageFilter(IInputChannel channel)
+        {
+            return new NullMessageFilter();
+        }
+        
         public override void Dispose()
         {
             if (_channelFactory != null)

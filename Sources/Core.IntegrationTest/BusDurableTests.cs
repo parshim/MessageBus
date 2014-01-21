@@ -48,7 +48,7 @@ namespace Core.IntegrationTest
                             ev.Set();
                         });
 
-                    subscriber.StartProcessMessages();
+                    subscriber.Open();
 
                     bool wait = ev.WaitOne(TimeSpan.FromSeconds(5));
 

@@ -48,7 +48,7 @@ namespace Core.IntegrationTest
                 {
                     subscriberA.Subscribe(delegate(Blob blob) { received++; ev1.Set(); });
 
-                    subscriberA.StartProcessMessages();
+                    subscriberA.Open();
 
                     using (IPublisher publisher = entityB.CreatePublisher(configurator => configurator.UseBufferManager(bufferManager)))
                     {

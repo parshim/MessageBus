@@ -6,7 +6,7 @@ namespace MessageBus.Core.API
     /// <summary>
     /// Provides a functionality to subscribe to specific message types and process them in dispatching order.
     /// </summary>
-    public interface ISubscriber : IDisposable
+    public interface ISubscriber : ISubscribtion
     {
         /// <summary>
         /// Subscribe for message type. Specified callback will be called every time message with provided type will received. 
@@ -59,10 +59,5 @@ namespace MessageBus.Core.API
         /// <returns>True if sucessfuly subscribed, otherwise false.</returns>
         /// <exception cref="SubscribtionClosedException"></exception>
         bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy = false, bool receiveSelfPublish = false, IEnumerable<BusHeader> filter = null);
-
-        /// <summary>
-        /// Start process subscribed message types. No more subscribtion possible after that point.
-        /// </summary>
-        void StartProcessMessages();
     }
 }

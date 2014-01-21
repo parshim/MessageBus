@@ -29,7 +29,7 @@ namespace Core.IntegrationTest
                             ev.Set();
                         }, receiveSelfPublish: true);
 
-                    subscriber.StartProcessMessages();
+                    subscriber.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {

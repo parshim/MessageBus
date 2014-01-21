@@ -47,5 +47,23 @@ namespace MessageBus.Core.API
         /// </returns>
         /// <exception cref="NoIncomingConnectionAcceptedException">No incoming connection were accepted.</exception>
         ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null);
+
+        /// <summary>
+        /// Register subscription instance.
+        /// </summary>
+        /// <remarks>
+        /// Subscription instance type should be anotated by SubscribtionAttribute.
+        /// </remarks>
+        /// <remarks>
+        /// Only public methods anotated by MessageSubscribtionAttribute will be subscribed to the messages. These methds shuold have single parameter of message contruct type or BusMessage type.
+        /// </remarks>
+        /// <see cref="SubscribtionAttribute"/>
+        /// <see cref="MessageSubscribtionAttribute"/>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="configure"></param>
+        /// <returns>Disposable subscriber object. It must be disposed to deactivate the subscribtion.</returns>
+        ISubscribtion RegisterSubscribtion<T>(T instance, Action<ISubscriberConfigurator> configure = null);
+        
     }
 }

@@ -30,7 +30,7 @@ namespace Core.IntegrationTest
 
                     subscriberA.Subscribe(typeof(OK), (Action<object>)(data => ev1.Set()));
 
-                    subscriberA.StartProcessMessages();
+                    subscriberA.Open();
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
