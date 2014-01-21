@@ -45,7 +45,7 @@ namespace MessageBus.Core
         }
 
 
-        public ISubscribtion RegisterSubscribtion<T>(T instance, Action<ISubscriberConfigurator> configure = null)
+        public ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null)
         {
             var configurator = CreateConfigurator(configure);
 
@@ -55,7 +55,7 @@ namespace MessageBus.Core
 
             ISubscriptionDispatcher dispatcher = new SubscriptionDispatcher(configurator.ErrorSubscriber, BusId);
 
-            return new Subscribtion(inputChannel, messageFilter, dispatcher, instance);
+            return new Subscription(inputChannel, messageFilter, dispatcher, instance);
         }
 
         private static SubscriberConfigurator CreateConfigurator(Action<ISubscriberConfigurator> configure)

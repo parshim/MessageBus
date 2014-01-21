@@ -6,7 +6,7 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    internal abstract class SubscriberBase : ISubscribtion
+    internal abstract class SubscriberBase : ISubscription
     {
         private readonly IDispatcher _dispatcher;
         private readonly IInputChannel _inputChannel;

@@ -6,7 +6,7 @@ namespace MessageBus.Core.API
     /// <summary>
     /// Provides a functionality to subscribe to specific message types and process them in dispatching order.
     /// </summary>
-    public interface ISubscriber : ISubscribtion
+    public interface ISubscriber : ISubscription
     {
         /// <summary>
         /// Subscribe for message type. Specified callback will be called every time message with provided type will received. 

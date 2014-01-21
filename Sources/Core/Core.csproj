@@ -79,7 +79,7 @@
     <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriberBase.cs" />
     <Compile Include="SubscriberConfigurator.cs" />
-    <Compile Include="Subscribtion.cs" />
+    <Compile Include="Subscription.cs" />
     <Compile Include="SubscriptionDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>

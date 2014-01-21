@@ -19,9 +19,9 @@ namespace Core.IntegrationTest
 
             using (IBus bus = new RabbitMQBus())
             {
-                using (ISubscribtion subscribtion = bus.RegisterSubscribtion(implementation))
+                using (ISubscription subscription = bus.RegisterSubscription(implementation))
                 {
-                    subscribtion.Open();
+                    subscription.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -59,9 +59,9 @@ namespace Core.IntegrationTest
 
             using (IBus bus = new RabbitMQBus())
             {
-                using (ISubscribtion subscribtion = bus.RegisterSubscribtion(implementation))
+                using (ISubscription subscription = bus.RegisterSubscription(implementation))
                 {
-                    subscribtion.Open();
+                    subscription.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -97,9 +97,9 @@ namespace Core.IntegrationTest
 
             using (IBus bus = new RabbitMQBus())
             {
-                using (ISubscribtion subscribtion = bus.RegisterSubscribtion(implementation))
+                using (ISubscription subscription = bus.RegisterSubscription(implementation))
                 {
-                    subscribtion.Open();
+                    subscription.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -133,13 +133,13 @@ namespace Core.IntegrationTest
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            FilterImplementation implementation = new FilterImplementation(ev);
+            MessageBasedImplementation implementation = new MessageBasedImplementation(ev);
 
             using (IBus bus = new RabbitMQBus())
             {
-                using (ISubscribtion subscribtion = bus.RegisterSubscribtion(implementation))
+                using (ISubscription subscription = bus.RegisterSubscription(implementation))
                 {
-                    subscribtion.Open();
+                    subscription.Open();
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
@@ -162,7 +162,10 @@ namespace Core.IntegrationTest
 
                         waitOne.Should().BeTrue();
 
-                        person.ShouldBeEquivalentTo(implementation.Person);
+                        busMessage.ShouldBeEquivalentTo(implementation.Message,
+                                                        options =>
+                                                        options.Excluding(message => message.BusId)
+                                                               .Excluding(message => message.Sent));
                     }
                 }
             }

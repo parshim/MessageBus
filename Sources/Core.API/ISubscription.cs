@@ -2,7 +2,10 @@
 
 namespace MessageBus.Core.API
 {
-    public interface ISubscribtion : IDisposable
+    /// <summary>
+    /// Subscription interface provides basic interface to control receive messages
+    /// </summary>
+    public interface ISubscription : IDisposable
     {
         /// <summary>
         /// Start process subscribed message types.

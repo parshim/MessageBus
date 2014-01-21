@@ -41,7 +41,7 @@
     <Compile Include="IPublishingErrorHandler.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="ISubscriberConfigurator.cs" />
-    <Compile Include="ISubscribtion.cs" />
+    <Compile Include="ISubscription.cs" />
     <Compile Include="MessageSubscribtionAttribute.cs" />
     <Compile Include="NoIncomingConnectionAcceptedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

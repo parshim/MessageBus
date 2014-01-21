@@ -63,7 +63,7 @@ namespace MessageBus.Core.API
         /// <param name="instance"></param>
         /// <param name="configure"></param>
         /// <returns>Disposable subscriber object. It must be disposed to deactivate the subscribtion.</returns>
-        ISubscribtion RegisterSubscribtion<T>(T instance, Action<ISubscriberConfigurator> configure = null);
+        ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null);
         
     }
 }
