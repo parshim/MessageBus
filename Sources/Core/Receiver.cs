@@ -55,7 +55,7 @@ namespace MessageBus.Core
         {
             Message message;
 
-            if (!_inputChannel.TryReceive(TimeSpan.FromMilliseconds(100), out message))
+            if (!_inputChannel.TryReceive(TimeSpan.Zero, out message))
             {
                 return null;
             }
