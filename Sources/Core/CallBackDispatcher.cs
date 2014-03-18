@@ -25,12 +25,12 @@ namespace MessageBus.Core
         {
             DataContract dataContract = new DataContract(dataType);
 
-            return _registeredTypes.TryAdd(dataContract.Key,
+            return RegisterType(dataContract.Key,
                                            new MessageSubscribtionInfo(dataContract.Key, handler,
                                                                        dataContract.Serializer, receiveSelfPublish,
                                                                        filter ?? Enumerable.Empty<BusHeader>()));
         }
-
+        
         public bool SubscribeHierarchy(Type baseType, ICallHandler handler, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
         {
             var types = from type in baseType.Assembly.GetTypes()

@@ -9,6 +9,8 @@ namespace MessageBus.Core.API
         IEnumerable<MessageFilterInfo> GetApplicableFilters();
 
         void Dispatch(Message message);
+
+        RawBusMessage Translate(Message message);
     }
 
     internal interface ICallbackDispatcher : IDispatcher

@@ -39,6 +39,7 @@
     <Compile Include="IPublisher.cs" />
     <Compile Include="IPublisherConfigurator.cs" />
     <Compile Include="IPublishingErrorHandler.cs" />
+    <Compile Include="IReceiver.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="ISubscriberConfigurator.cs" />
     <Compile Include="ISubscription.cs" />

@@ -10,7 +10,7 @@ namespace MessageBus.Core
 {
     internal class DispatcherBase : IDispatcher
     {
-        protected readonly ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo>();
+        private readonly ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo> _registeredTypes = new ConcurrentDictionary<DataContractKey, MessageSubscribtionInfo>();
         
         private readonly RawBusMessageReader _reader = new RawBusMessageReader();
         private readonly IErrorSubscriber _errorSubscriber;
@@ -53,23 +53,9 @@ namespace MessageBus.Core
 
         public void Dispatch(Message message)
         {
-            RawBusMessage busMessage = ReadMessage(message);
-
             MessageSubscribtionInfo messageSubscribtionInfo;
 
-            if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageSubscribtionInfo))
-            {
-                _errorSubscriber.UnregisteredMessageArrived(busMessage);
-
-                return;
-            }
-
-            if (!IsMessageSurvivesFilter(messageSubscribtionInfo.FilterInfo, busMessage))
-            {
-                _errorSubscriber.MessageFilteredOut(busMessage);
-
-                return;
-            }
+            RawBusMessage busMessage = Translate(message, out messageSubscribtionInfo);
 
             try
             {
@@ -79,6 +65,39 @@ namespace MessageBus.Core
             {
                 _errorSubscriber.MessageDispatchException(busMessage, ex);
             }
+        }
+
+        public RawBusMessage Translate(Message message)
+        {
+            MessageSubscribtionInfo messageSubscribtionInfo;
+
+            return Translate(message, out messageSubscribtionInfo);
+        }
+
+        private RawBusMessage Translate(Message message, out MessageSubscribtionInfo messageSubscribtionInfo)
+        {
+            RawBusMessage busMessage = ReadMessage(message);
+            
+            if (!_registeredTypes.TryGetValue(new DataContractKey(busMessage.Name, busMessage.Namespace), out messageSubscribtionInfo))
+            {
+                _errorSubscriber.UnregisteredMessageArrived(busMessage);
+
+                return null;
+            }
+
+            if (!IsMessageSurvivesFilter(messageSubscribtionInfo.FilterInfo, busMessage))
+            {
+                _errorSubscriber.MessageFilteredOut(busMessage);
+
+                return null;
+            }
+
+            return busMessage;
+        }
+
+        protected bool RegisterType(DataContractKey key, MessageSubscribtionInfo messageSubscribtionInfo)
+        {
+            return _registeredTypes.TryAdd(key, messageSubscribtionInfo);
         }
 
         private bool IsMessageSurvivesFilter(MessageFilterInfo filterInfo, RawBusMessage busMessage)

@@ -65,6 +65,7 @@
     <Compile Include="API\MessageFilterInfo.cs" />
     <Compile Include="MessageSubscribtionInfo.cs" />
     <Compile Include="MessagingConstancts.cs" />
+    <Compile Include="NullCallHandler.cs" />
     <Compile Include="NullErrorSubscriber.cs" />
     <Compile Include="NullMessageFilter.cs" />
     <Compile Include="NullPublishingErrorHandler.cs" />
@@ -76,10 +77,12 @@
     <Compile Include="RabbitMQMessageFilter.cs" />
     <Compile Include="RawBusMessageReader.cs" />
     <Compile Include="RawHandler.cs" />
+    <Compile Include="Receiver.cs" />
     <Compile Include="Subscriber.cs" />
-    <Compile Include="SubscriberBase.cs" />
+    <Compile Include="MessagePumpSubscriptionBase.cs" />
     <Compile Include="SubscriberConfigurator.cs" />
-    <Compile Include="Subscription.cs" />
+    <Compile Include="SubscriptionBase.cs" />
+    <Compile Include="TypeSubscription.cs" />
     <Compile Include="SubscriptionDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>

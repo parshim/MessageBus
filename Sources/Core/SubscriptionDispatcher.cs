@@ -73,7 +73,7 @@ namespace MessageBus.Core
                     filters.Add(new BusHeader(filterAttribute.Name, filterAttribute.Value));
                 }
                 
-                _registeredTypes.TryAdd(dataContract.Key,
+                RegisterType(dataContract.Key,
                                         new MessageSubscribtionInfo(dataContract.Key, handler,
                                                                     dataContract.Serializer,
                                                                     messageSubscribtionAttribute.ReceiveSelfPublish,

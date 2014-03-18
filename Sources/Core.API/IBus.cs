@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MessageBus.Core.API
 {
@@ -37,6 +38,12 @@ namespace MessageBus.Core.API
         IPublisher CreatePublisher(Action<IPublisherConfigurator> configure = null);
 
         /// <summary>
+        /// Creates an recevier that will receive messages from the bus on demand
+        /// </summary>
+        /// <returns></returns>
+        IReceiver CreateRecevier(Action<ISubscriberConfigurator> configure = null);
+
+        /// <summary>
         /// Creates subscriber. Subscriber implementation should provide ordered message delivery, i.e. preserve message dispatching order.
         /// </summary>
         /// <remarks>
@@ -64,6 +71,5 @@ namespace MessageBus.Core.API
         /// <param name="configure"></param>
         /// <returns>Disposable subscriber object. It must be disposed to deactivate the subscribtion.</returns>
         ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null);
-        
     }
 }

@@ -31,6 +31,19 @@ namespace MessageBus.Core
             return OnCreatePublisher(configurator);
         }
 
+        public IReceiver CreateRecevier(Action<ISubscriberConfigurator> configure = null)
+        {
+            var configurator = CreateConfigurator(configure);
+
+            IInputChannel inputChannel = OnCreateInputChannel(configurator);
+
+            IMessageFilter messageFilter = OnCreateMessageFilter(inputChannel);
+
+            ICallbackDispatcher dispatcher = new CallBackDispatcher(configurator.ErrorSubscriber, BusId);
+
+            return new Receiver(inputChannel, messageFilter, dispatcher);
+        }
+
         public ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null)
         {
             var configurator = CreateConfigurator(configure);
@@ -55,7 +68,7 @@ namespace MessageBus.Core
 
             ISubscriptionDispatcher dispatcher = new SubscriptionDispatcher(configurator.ErrorSubscriber, BusId);
 
-            return new Subscription(inputChannel, messageFilter, dispatcher, instance);
+            return new TypeSubscription(inputChannel, messageFilter, dispatcher, instance);
         }
 
         private static SubscriberConfigurator CreateConfigurator(Action<ISubscriberConfigurator> configure)

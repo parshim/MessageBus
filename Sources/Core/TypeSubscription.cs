@@ -3,12 +3,12 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    internal sealed class Subscription : SubscriberBase
+    internal sealed class TypeSubscription : MessagePumpSubscriptionBase
     {
         private readonly ISubscriptionDispatcher _dispatcher;
         private readonly object _instance;
 
-        public Subscription(IInputChannel inputChannel, IMessageFilter messageFilter, ISubscriptionDispatcher dispatcher, object instance)
+        public TypeSubscription(IInputChannel inputChannel, IMessageFilter messageFilter, ISubscriptionDispatcher dispatcher, object instance)
             : base(inputChannel, messageFilter, dispatcher)
         {
             _dispatcher = dispatcher;
