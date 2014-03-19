@@ -31,7 +31,7 @@ namespace MessageBus.Core
             return OnCreatePublisher(configurator);
         }
 
-        public IReceiver CreateRecevier(Action<ISubscriberConfigurator> configure = null)
+        public IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null)
         {
             var configurator = CreateConfigurator(configure);
 

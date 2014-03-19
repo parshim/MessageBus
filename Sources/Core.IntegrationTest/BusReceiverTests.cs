@@ -13,7 +13,7 @@ namespace Core.IntegrationTest
         {
             using (RabbitMQBus bus = new RabbitMQBus())
             {
-                using (IReceiver receiver = bus.CreateRecevier())
+                using (IReceiver receiver = bus.CreateReceiver())
                 {
                     receiver.Subscribe<OK>(receiveSelfPublish: false);
 
@@ -37,7 +37,7 @@ namespace Core.IntegrationTest
         {
             using (var bus = new RabbitMQBus())
             {
-                using (IReceiver receiver = bus.CreateRecevier())
+                using (IReceiver receiver = bus.CreateReceiver())
                 {
                     receiver.Subscribe<OK>(receiveSelfPublish: true);
 
@@ -66,7 +66,7 @@ namespace Core.IntegrationTest
 
             using (RabbitMQBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
             {
-                using (IReceiver receiverB1 = busB.CreateRecevier(), receiverB2 = busB.CreateRecevier(), receiverC1 = busC.CreateRecevier())
+                using (IReceiver receiverB1 = busB.CreateReceiver(), receiverB2 = busB.CreateReceiver(), receiverC1 = busC.CreateReceiver())
                 {
                     receiverB1.Subscribe<Person>();
                     receiverB2.Subscribe<Person>();
@@ -114,7 +114,7 @@ namespace Core.IntegrationTest
 
             using (RabbitMQBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
             {
-                using (IReceiver receiverB1 = busB.CreateRecevier(), receiverB2 = busB.CreateRecevier(), receiverC1 = busC.CreateRecevier())
+                using (IReceiver receiverB1 = busB.CreateReceiver(), receiverB2 = busB.CreateReceiver(), receiverC1 = busC.CreateReceiver())
                 {
                     receiverB1.Subscribe<Person>(filter: new[] { new BusHeader { Name = header, Value = "T1" } });
                     receiverB2.Subscribe<Person>(filter: new[] { new BusHeader { Name = header, Value = "T2" } });

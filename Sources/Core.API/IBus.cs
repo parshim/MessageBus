@@ -41,7 +41,7 @@ namespace MessageBus.Core.API
         /// Creates an recevier that will receive messages from the bus on demand
         /// </summary>
         /// <returns></returns>
-        IReceiver CreateRecevier(Action<ISubscriberConfigurator> configure = null);
+        IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null);
 
         /// <summary>
         /// Creates subscriber. Subscriber implementation should provide ordered message delivery, i.e. preserve message dispatching order.
