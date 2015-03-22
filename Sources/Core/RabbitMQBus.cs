@@ -18,6 +18,11 @@ namespace MessageBus.Core
 
         private IChannelFactory<IOutputChannel> _channelFactory;
 
+        public RabbitMQBus() : this(null, null, 0, null, false, MessageFormat.Text, null, false)
+        {
+            
+        }
+
         public RabbitMQBus(string busId = null, string host = null, int port = 0, string exchange = null, 
                             bool exactlyOnce = false, MessageFormat messageFormat = MessageFormat.Text, XmlDictionaryReaderQuotas readerQuotas = null, bool mandatory = false)
             : base(busId)
