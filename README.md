@@ -1,4 +1,4 @@
 MessageBus
 ==========
 
-Message Bus Framework based on .Net WCF Technology with various interchangeable message transports
+Message Bus Framework based on RabbitMQ with intuitive interface and built in Json serialization
