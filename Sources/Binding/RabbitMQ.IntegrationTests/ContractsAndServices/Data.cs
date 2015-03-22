@@ -3,6 +3,7 @@
 namespace RabbitMQ.IntegrationTests.ContractsAndServices
 {
     [DataContract]
+    [KnownType(typeof(ExtraData))]
     public class Data
     {
         [DataMember]
@@ -10,6 +11,13 @@ namespace RabbitMQ.IntegrationTests.ContractsAndServices
         
         [DataMember]
         public string Name { get; set; }
+    }
+
+    [DataContract]
+    public class ExtraData : Data
+    {
+        [DataMember]
+        public int Age { get; set; }
     }
 
     [DataContract]

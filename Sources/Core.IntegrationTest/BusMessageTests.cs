@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using FluentAssertions;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +14,7 @@ namespace Core.IntegrationTest
         {
             const string busId = "Bus";
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId))
+            using (MessageBus.Core.RabbitMQBus bus = new MessageBus.Core.RabbitMQBus(busId))
             {
                 BusMessage<Person> message = new BusMessage<Person>
                     {
@@ -31,13 +30,13 @@ namespace Core.IntegrationTest
                 ManualResetEvent ev = new ManualResetEvent(false);
 
                 DateTime sent;
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.SetReceiveSelfPublish()))
                 {
                     subscriber.Subscribe((Action<BusMessage<Person>>) (m =>
                         {
                             received = m;
                             ev.Set();
-                        }), receiveSelfPublish: true);
+                        }));
 
                     subscriber.Open();
 
@@ -57,7 +56,7 @@ namespace Core.IntegrationTest
                 received.ShouldBeEquivalentTo(message, options => options.Excluding(m => m.BusId).Excluding(m => m.Sent));
 
                 received.BusId.Should().Be(busId);
-                received.Sent.Should().BeCloseTo(sent);
+                received.Sent.Should().BeCloseTo(sent, 1000);
             }
         }
     }

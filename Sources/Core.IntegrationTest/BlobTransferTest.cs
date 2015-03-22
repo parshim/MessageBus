@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
-using System.Xml;
 using FluentAssertions;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -17,28 +15,41 @@ namespace Core.IntegrationTest
             byte[] blob = new byte[10*1024*1024];
             byte[] received = null;
 
+            int counter = 0;
+
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            using (IBus bus = new RabbitMQBus(readerQuotas: new XmlDictionaryReaderQuotas { MaxArrayLength = blob.Length * 2}))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus())
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.SetReceiveSelfPublish()))
                 {
                     subscriber.Subscribe((byte[] bytes) =>
                         {
                             received = bytes;
-                            ev.Set();
-                        }, receiveSelfPublish: true);
+                            counter++;
+                        });
+
+                    subscriber.Subscribe(new Action<OK>(ok => ev.Set()));
 
                     subscriber.Open();
 
+                    const int expected = 200;
+
                     using (IPublisher publisher = bus.CreatePublisher())
                     {
-                        publisher.Send(blob);
+                        for (int i = 0; i < expected; i++)
+                        {
+                            publisher.Send(blob);
+                        }
+                        
+                        publisher.Send(new OK());
                     }
 
-                    bool waitOne = ev.WaitOne(TimeSpan.FromSeconds(15));
+                    bool waitOne = ev.WaitOne(TimeSpan.FromSeconds(60));
 
                     waitOne.Should().BeTrue();
+
+                    counter.Should().Be(expected);
                 }
             }
         }

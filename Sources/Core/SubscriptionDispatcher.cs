@@ -76,7 +76,7 @@ namespace MessageBus.Core
                 RegisterType(dataContract.Key,
                                         new MessageSubscribtionInfo(dataContract.Key, handler,
                                                                     dataContract.Serializer,
-                                                                    messageSubscribtionAttribute.ReceiveSelfPublish,
+                                                                    false,
                                                                     filters));
 
             }

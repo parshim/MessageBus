@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using FluentAssertions;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,9 +10,9 @@ namespace Core.IntegrationTest
     public class BusPerformanceTests
     {
         [TestMethod]
-        public void Bus_SendReceive_1000Messages()
+        public void Bus_SendReceive_BunchOfMessages()
         {
-            using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus entityA = new MessageBus.Core.RabbitMQBus(), entityB = new MessageBus.Core.RabbitMQBus())
             {
                 Data messageA = new Person
                     {
@@ -32,9 +31,11 @@ namespace Core.IntegrationTest
 
                     subscriberA.Open();
 
+                    const int expected = 1000;
+
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
-                        for (int i = 0; i < 1000; i++)
+                        for (int i = 0; i < expected; i++)
                         {
                             publisher.Send(messageA);
                         }
@@ -46,7 +47,7 @@ namespace Core.IntegrationTest
 
                     waitOne.Should().BeTrue("Message not received");
 
-                    counter.Should().Be(1000);
+                    counter.Should().Be(expected);
                 }
             }
         }

@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,11 +10,11 @@ namespace Core.IntegrationTest
         [TestMethod]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsFalse_ShouldNotArriveToReceiver()
         {
-            using (RabbitMQBus bus = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus bus = new MessageBus.Core.RabbitMQBus())
             {
                 using (IReceiver receiver = bus.CreateReceiver())
                 {
-                    receiver.Subscribe<OK>(receiveSelfPublish: false);
+                    receiver.Subscribe<OK>();
 
                     receiver.Open();
 
@@ -26,8 +25,7 @@ namespace Core.IntegrationTest
 
                     OK receive = receiver.Receive<OK>();
 
-                    receive.Should()
-                        .BeNull("Message should not arrive from publisher to subscriber within same bus instance");
+                    receive.Should().BeNull("Message should not arrive from publisher to subscriber within same bus instance");
                 }
             }
         }
@@ -35,11 +33,11 @@ namespace Core.IntegrationTest
         [TestMethod]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsTrue_ShouldArriveToReceiver()
         {
-            using (var bus = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus bus = new MessageBus.Core.RabbitMQBus())
             {
-                using (IReceiver receiver = bus.CreateReceiver())
+                using (IReceiver receiver = bus.CreateReceiver(c => c.SetReceiveSelfPublish()))
                 {
-                    receiver.Subscribe<OK>(receiveSelfPublish: true);
+                    receiver.Subscribe<OK>();
 
                     receiver.Open();
 
@@ -64,7 +62,7 @@ namespace Core.IntegrationTest
                     Id = 5
                 };
 
-            using (RabbitMQBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus busA = new MessageBus.Core.RabbitMQBus(), busB = new MessageBus.Core.RabbitMQBus(), busC = new MessageBus.Core.RabbitMQBus())
             {
                 using (IReceiver receiverB1 = busB.CreateReceiver(), receiverB2 = busB.CreateReceiver(), receiverC1 = busC.CreateReceiver())
                 {
@@ -112,7 +110,7 @@ namespace Core.IntegrationTest
 
             const string header = "type";
 
-            using (RabbitMQBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus busA = new MessageBus.Core.RabbitMQBus(), busB = new MessageBus.Core.RabbitMQBus(), busC = new MessageBus.Core.RabbitMQBus())
             {
                 using (IReceiver receiverB1 = busB.CreateReceiver(), receiverB2 = busB.CreateReceiver(), receiverC1 = busC.CreateReceiver())
                 {

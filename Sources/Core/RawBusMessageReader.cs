@@ -10,13 +10,13 @@ namespace MessageBus.Core
     {
         public RawBusMessage ReadMessage(Message message, Action<RawBusMessage, XmlDictionaryReader> deserializer)
         {
-            string busId = message.Headers.GetHeader<string>(MessagingConstancts.HeaderNames.BusId,
-                                                             MessagingConstancts.Namespace.MessageBus,
-                                                             MessagingConstancts.Actor.Bus);
+            string busId = message.Headers.GetHeader<string>(MessagingConstants.HeaderNames.BusId,
+                                                             MessagingConstants.Namespace.MessageBus,
+                                                             MessagingConstants.Actor.Bus);
 
-            DateTime sent = message.Headers.GetHeader<DateTime>(MessagingConstancts.HeaderNames.SentTime,
-                                                                MessagingConstancts.Namespace.MessageBus,
-                                                                MessagingConstancts.Actor.Bus);
+            DateTime sent = message.Headers.GetHeader<DateTime>(MessagingConstants.HeaderNames.SentTime,
+                                                                MessagingConstants.Namespace.MessageBus,
+                                                                MessagingConstants.Actor.Bus);
 
             RawBusMessage rawBusMessage = new RawBusMessage
                 {
@@ -24,8 +24,8 @@ namespace MessageBus.Core
                     Sent = sent
                 };
 
-            foreach (MessageHeaderInfo headerInfo in message.Headers.Where(info => info.Actor == MessagingConstancts.Actor.User &&
-                                                                                   info.Namespace == MessagingConstancts.Namespace.MessageBus))
+            foreach (MessageHeaderInfo headerInfo in message.Headers.Where(info => info.Actor == MessagingConstants.Actor.User &&
+                                                                                   info.Namespace == MessagingConstants.Namespace.MessageBus))
             {
                 string value = message.Headers.GetHeader<string>(headerInfo.Name, headerInfo.Namespace, headerInfo.Actor);
 

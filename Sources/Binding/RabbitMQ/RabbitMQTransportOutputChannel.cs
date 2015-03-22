@@ -1,11 +1,11 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Transactions;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -112,7 +112,7 @@ namespace MessageBus.Binding.RabbitMQ
             OnClosed();
         }
 
-        private void ModelOnBasicReturn(IModel model, BasicReturnEventArgs args)
+        private void ModelOnBasicReturn(object sender, BasicReturnEventArgs args)
         {
             using (Message message = _encoder.ReadMessage(new MemoryStream(args.Body), int.MaxValue))
             {
@@ -187,7 +187,7 @@ namespace MessageBus.Binding.RabbitMQ
             basicProperties.ContentType = _encoder.ContentType;
             basicProperties.DeliveryMode = _bindingElement.PersistentDelivery ? (byte)2 : (byte)1;
             basicProperties.AppId = _bindingElement.ApplicationId ?? "";
-            basicProperties.Headers = new Hashtable();
+            basicProperties.Headers = new Dictionary<string, object>();
 
             if (!string.IsNullOrEmpty(_bindingElement.TTL))
             {

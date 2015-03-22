@@ -52,12 +52,12 @@ namespace MessageBus.Core.API
         /// <summary>
         /// Message originator Bus Id
         /// </summary>
-        public string BusId { get; internal set; }
+        public string BusId { get; set; }
 
         /// <summary>
         /// Date and time when message were sent
         /// </summary>
-        public DateTime Sent { get; internal set; }
+        public DateTime Sent { get; set; }
 
         /// <summary>
         /// List of headers associated with the message
@@ -85,16 +85,16 @@ namespace MessageBus.Core.API
         /// <summary>
         /// Data payload contact name
         /// </summary>
-        public string Name { get; internal set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Data payload contact namespace name
         /// </summary>
-        public string Namespace { get; internal set; }
+        public string Namespace { get; set; }
 
         /// <summary>
         /// Data payload
         /// </summary>
-        public object Data { get; internal set; }
+        public object Data { get; set; }
     }
 }

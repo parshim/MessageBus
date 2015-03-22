@@ -1,0 +1,144 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using MessageBus.Core.API;
+using RabbitMQ.Client;
+
+namespace MessageBus.Core
+{
+    public class SubscriptionInfo
+    {
+        public ICallHandler Handler { get; set; }
+
+        public MessageFilterInfo FilterInfo { get; set; }
+    }
+
+    public class MessageConsumer : DefaultBasicConsumer, IMessageConsumer
+    {
+        private readonly ConcurrentDictionary<Type, SubscriptionInfo> _subscriptions = new ConcurrentDictionary<Type, SubscriptionInfo>();
+
+        private readonly string _busId;
+        private readonly bool _receiveSelfPublish;
+
+        private readonly TaskScheduler _scheduler;
+
+        private readonly IMessageHelper _messageHelper;
+        private readonly ISerializerHelper _serializerHelper;
+        private readonly IErrorSubscriber _errorSubscriber;
+        
+        public MessageConsumer(IModel model, string busId, IMessageHelper messageHelper, ISerializerHelper serializerHelper, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish) : base(model)
+        {
+            _busId = busId;
+            _messageHelper = messageHelper;
+            _serializerHelper = serializerHelper;
+            _errorSubscriber = errorSubscriber;
+            _scheduler = scheduler;
+            _receiveSelfPublish = receiveSelfPublish;
+        }
+
+        public override void HandleBasicCancel(string consumerTag)
+        {
+            base.HandleBasicCancel(consumerTag);
+
+            Console.WriteLine("HandleBasicCancel");
+        }
+
+        public override void HandleBasicCancelOk(string consumerTag)
+        {
+            base.HandleBasicCancelOk(consumerTag);
+
+            Console.WriteLine("HandleBasicCancelOk");
+        }
+
+        public override void HandleBasicConsumeOk(string consumerTag)
+        {
+            base.HandleBasicConsumeOk(consumerTag);
+
+            Console.WriteLine("HandleBasicConsumeOk");
+        }
+
+        public override void HandleModelShutdown(IModel model, ShutdownEventArgs reason)
+        {
+            base.HandleModelShutdown(model, reason);
+
+            Console.WriteLine("HandleModelShutdown");
+        }
+        
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        {
+            Console.WriteLine("HandleBasicDeliver " + deliveryTag);
+
+            Task.Factory.StartNew(() => ConsumeMessage(properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler)
+                .ContinueWith(task =>
+                {
+                    Console.WriteLine("HandleBasicDeliver Finished" + deliveryTag);
+
+                    if (task.Exception != null)
+                    {
+                        Console.WriteLine("HandleBasicDeliver Error" + deliveryTag + " " + task.Exception.Data.ToString());
+                    }
+                });
+        }
+
+        private void ConsumeMessage(IBasicProperties properties, byte[] body)
+        {
+            DataContractKey dataContractKey = properties.GetDataContractKey();
+
+            var subscription =
+                _subscriptions.Where(p => p.Value.FilterInfo.ContractKey.Equals(dataContractKey)).Select(
+                    pair =>
+                        new
+                        {
+                            DataType = pair.Key,
+                            pair.Value.Handler
+                        }).FirstOrDefault();
+
+            if (subscription == null) return;
+
+            object data;
+
+            try
+            {
+                data = _serializerHelper.Deserialize(dataContractKey, subscription.DataType, body);
+            }
+            catch (Exception ex)
+            {
+                RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)body);
+
+                _errorSubscriber.MessageDeserializeException(rawBusMessage, ex);
+
+                return;
+            }
+            
+            RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
+
+            if (!_receiveSelfPublish && _busId.Equals(message.BusId))
+            {
+                _errorSubscriber.MessageFilteredOut(message);
+
+                return;
+            }
+
+            try
+            {
+                subscription.Handler.Dispatch(message);
+            }
+            catch (Exception ex)
+            {
+                _errorSubscriber.MessageDispatchException(message, ex);
+            }
+        }
+        
+        public bool Register(Type type, MessageFilterInfo filterInfo, ICallHandler handler)
+        {
+            return _subscriptions.TryAdd(type, new SubscriptionInfo
+            {
+                FilterInfo = filterInfo,
+                Handler = handler
+            });
+        }
+    }
+}

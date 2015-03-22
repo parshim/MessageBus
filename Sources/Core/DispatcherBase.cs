@@ -57,6 +57,8 @@ namespace MessageBus.Core
 
             RawBusMessage busMessage = Translate(message, out messageSubscribtionInfo);
 
+            if (busMessage == null) return;
+
             try
             {
                 messageSubscribtionInfo.Handler.Dispatch(busMessage);

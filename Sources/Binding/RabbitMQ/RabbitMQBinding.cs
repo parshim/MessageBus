@@ -57,6 +57,7 @@ namespace MessageBus.Binding.RabbitMQ
             _transport.BrokerProtocol = BrokerProtocol;
             _transport.TransactedReceiveEnabled = ExactlyOnce;
             _transport.TTL = TTL;
+            _transport.AutoDelete = AutoDelete;
             _transport.PersistentDelivery = PersistentDelivery;
             _transport.AutoBindExchange = AutoBindExchange;
             _transport.ReplyToQueue = ReplyToQueue;
@@ -138,6 +139,11 @@ namespace MessageBus.Binding.RabbitMQ
         /// Message time to live
         /// </summary>
         public string TTL { get; set; }
+
+        /// <summary>
+        /// Temporary queue
+        /// </summary>
+        public bool AutoDelete { get; set; }
 
         /// <summary>
         /// ReplyTo queue name for duplex communication

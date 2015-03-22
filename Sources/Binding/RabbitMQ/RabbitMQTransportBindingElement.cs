@@ -24,6 +24,7 @@ namespace MessageBus.Binding.RabbitMQ
             MaxReceivedMessageSize = other.MaxReceivedMessageSize;
             TransactedReceiveEnabled = other.TransactedReceiveEnabled;
             TTL = other.TTL;
+            AutoDelete = other.AutoDelete;
             PersistentDelivery = other.PersistentDelivery;
             AutoBindExchange = other.AutoBindExchange;
             ReplyToQueue = other.ReplyToQueue;
@@ -126,7 +127,12 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get; set;
         }
-        
+
+        /// <summary>
+        /// Temporary queue
+        /// </summary>
+        public bool AutoDelete { get; set; }
+
         /// <summary>
         /// Specifies the version of the AMQP protocol that should be used to 
         /// communicate with the broker

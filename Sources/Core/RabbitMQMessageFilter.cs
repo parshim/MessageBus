@@ -24,10 +24,10 @@ namespace MessageBus.Core
 
             foreach (MessageFilterInfo filter in filters)
             {
-                IDictionary arguments = new Hashtable();
+                IDictionary<string, object> arguments = new Dictionary<string, object>();
 
-                arguments.Add(MessagingConstancts.HeaderNames.Name, filter.ContractKey.Name);
-                arguments.Add(MessagingConstancts.HeaderNames.NameSpace, filter.ContractKey.Ns);
+                arguments.Add(MessagingConstants.HeaderNames.Name, filter.ContractKey.Name);
+                arguments.Add(MessagingConstants.HeaderNames.NameSpace, filter.ContractKey.Ns);
 
                 foreach (BusHeader busHeader in filter.FilterHeaders)
                 {

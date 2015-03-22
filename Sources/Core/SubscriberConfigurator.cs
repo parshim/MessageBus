@@ -1,25 +1,26 @@
 ﻿using System.ServiceModel.Channels;
+using System.Threading.Tasks;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    internal class SubscriberConfigurator : ISubscriberConfigurator
+    public class SubscriberConfigurator : ISubscriberConfigurator
     {
         private BufferManager _bufferManager;
         private IErrorSubscriber _errorSubscriber;
         private string _queueName;
 
-        internal string QueueName
+        public string QueueName
         {
             get { return _queueName; }
         }
 
-        internal BufferManager BufferManager
+        public BufferManager BufferManager
         {
             get { return _bufferManager; }
         }
 
-        internal IErrorSubscriber ErrorSubscriber
+        public IErrorSubscriber ErrorSubscriber
         {
             get { return _errorSubscriber ?? new NullErrorSubscriber(); }
         }
@@ -43,6 +44,21 @@ namespace MessageBus.Core
             _queueName = queueName;
 
             return this;
+        }
+
+        public ISubscriberConfigurator SetReceiveSelfPublish()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ISubscriberConfigurator SetConcurencyLevel(int level)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ISubscriberConfigurator UseTaskScheduler(TaskScheduler scheduler)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

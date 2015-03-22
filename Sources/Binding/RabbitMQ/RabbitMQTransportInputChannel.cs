@@ -153,7 +153,7 @@ namespace MessageBus.Binding.RabbitMQ
 
             _queueName = uri.Endpoint;
 
-            IDictionary args = new Dictionary<String, Object>();
+            IDictionary<String, Object> args = new Dictionary<String, Object>();
 
             int ttl;
             if (!string.IsNullOrEmpty(_bindingElement.TTL) && int.TryParse(_bindingElement.TTL, out ttl))
@@ -162,7 +162,7 @@ namespace MessageBus.Binding.RabbitMQ
             }
 
             //Create a queue for messages destined to this service, bind it to the service URI routing key
-            bool autoDelete = string.IsNullOrEmpty(_queueName);
+            bool autoDelete = string.IsNullOrEmpty(_queueName) || _bindingElement.AutoDelete;
 
             _queueName = _model.QueueDeclare(_queueName ?? "", true, autoDelete, autoDelete, args);
 

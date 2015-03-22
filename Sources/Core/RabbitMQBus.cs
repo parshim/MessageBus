@@ -48,7 +48,7 @@ namespace MessageBus.Core
                     OneWayOnly = true,
                     ExactlyOnce = exactlyOnce,
                     PersistentDelivery = false,
-                    HeaderNamespace = MessagingConstancts.Namespace.MessageBus,
+                    HeaderNamespace = MessagingConstants.Namespace.MessageBus,
                     MessageFormat = messageFormat,
                     ReaderQuotas = readerQuotas,
                     Mandatory = mandatory

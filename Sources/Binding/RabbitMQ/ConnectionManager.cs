@@ -40,6 +40,7 @@ namespace MessageBus.Binding.RabbitMQ
 
             ConnectionFactory connFactory = new ConnectionFactory
                 {
+                    AutomaticRecoveryEnabled = true,
                     HostName = uri.Host,
                     Port = port,
                     Protocol = protocol

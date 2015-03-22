@@ -1,4 +1,5 @@
 ﻿using System.ServiceModel.Channels;
+using System.Threading.Tasks;
 
 namespace MessageBus.Core.API
 {
@@ -27,5 +28,26 @@ namespace MessageBus.Core.API
         /// <param name="queueName"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseDurableQueue(string queueName);
+        
+        /// <summary>
+        /// If set, messages published within bus instance will be received and processed by subscriber.
+        /// <remarks>By default self-published messages are ignored.</remarks>
+        /// </summary>
+        ISubscriberConfigurator SetReceiveSelfPublish();
+
+        /// <summary>
+        /// Specifies concurency level of the subscriber. Level grater then one may cause lose of message order between processing threads.
+        /// <remarks>By default concurency level is 1.</remarks>
+        /// </summary>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        ISubscriberConfigurator SetConcurencyLevel(int level);
+
+        /// <summary>
+        /// Specifies task scheduler that will be used to dispatch received messages to subscriber
+        /// </summary>
+        /// <param name="scheduler"></param>
+        /// <returns></returns>
+        ISubscriberConfigurator UseTaskScheduler(TaskScheduler scheduler);
     }
 }

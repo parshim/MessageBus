@@ -15,12 +15,12 @@ namespace RabbitMQ.UnitTests
             element.ExactlyOnce.Should().BeFalse();
             element.PersistentDelivery.Should().BeFalse();
             element.OneWayOnly.Should().BeTrue();
-            element.TTL.Should().BeBlank();
-            element.ReplyToExchange.Should().BeBlank();
-            element.ReplyToQueue.Should().BeBlank();
-            element.AutoBindExchange.Should().BeBlank();
-            element.ApplicationId.Should().BeBlank();
-            element.HeaderNamespace.Should().BeBlank();
+            element.TTL.Should().BeNull();
+            element.ReplyToExchange.Should().BeNull();
+            element.ReplyToQueue.Should().BeNull();
+            element.AutoBindExchange.Should().BeNull();
+            element.ApplicationId.Should().BeNull();
+            element.HeaderNamespace.Should().BeNull();
             element.MessageFormat.Should().Be(MessageFormat.Text);
             element.ProtocolVersion.Should().Be("DefaultProtocol");
             element.ReaderQuotas.Should().NotBeNull();

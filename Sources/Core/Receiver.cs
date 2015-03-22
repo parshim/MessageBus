@@ -15,10 +15,9 @@ namespace MessageBus.Core
             _callbackDispatcher = dispatcher;
         }
 
-        public bool Subscribe<TData>(bool hierarchy = false, bool receiveSelfPublish = false, IEnumerable<BusHeader> filter = null)
+        public bool Subscribe<TData>(bool hierarchy = false, IEnumerable<BusHeader> filter = null)
         {
-            return _callbackDispatcher.Subscribe(typeof (TData), new NullCallHandler(), hierarchy, receiveSelfPublish,
-                                                 filter);
+            return _callbackDispatcher.Subscribe(typeof (TData), new NullCallHandler(), hierarchy, false, filter);
         }
 
         public TData Receive<TData>()

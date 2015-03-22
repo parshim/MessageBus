@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using FluentAssertions;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -17,11 +16,11 @@ namespace Core.IntegrationTest
         private RawBusMessage _message;
         
         [TestMethod]
-        public void Bus_UndeliveriableMessages_ReturnedToSubscriber()
+        public void Bus_UndeliverableMessages_ReturnedToSubscriber()
         {
-            using (IBus bus = new RabbitMQBus(mandatory: true))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus())
             {
-                using (IPublisher publisher = bus.CreatePublisher(conf => conf.UseErrorHandler(this)))
+                using (IPublisher publisher = bus.CreatePublisher(c => c.SetMandatoryDelivery().UseErrorHandler(this)))
                 {
                     Person person = new Person {Id = 5};
 

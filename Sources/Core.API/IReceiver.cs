@@ -12,11 +12,10 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <typeparam name="TData">Message data contract type.</typeparam>
         /// <param name="hierarchy">Look for derived types and automaticaly register them for the same callback.</param>
-        /// <param name="receiveSelfPublish">If true, messages of this type published whithin bus instance will be received and processed by subscriber. Otherwise ignored.</param>
         /// <param name="filter">Subscribe to message which sent only with specified headers.</param>
         /// <returns>True if sucessfuly subscribed, otherwise false.</returns>
-        /// <exception cref="SubscribtionClosedException"></exception>
-        bool Subscribe<TData>(bool hierarchy = false, bool receiveSelfPublish = false, IEnumerable<BusHeader> filter = null);
+        /// <exception cref="SubscriptionClosedException"></exception>
+        bool Subscribe<TData>(bool hierarchy = false, IEnumerable<BusHeader> filter = null);
 
         /// <summary>
         /// Receives next message in queue

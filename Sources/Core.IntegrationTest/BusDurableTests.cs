@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Runtime.Serialization;
 using FluentAssertions;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,16 +15,19 @@ namespace Core.IntegrationTest
         {
             ImportiantData data = new ImportiantData { Info = "Valuable information" };
 
-            // First bus ensures that test queue is created and publishes the message
-            using (var bus = new RabbitMQBus())
+            // First bus ensures that test queue is created with appropriate bindings
+            const string queueName = "DurableTestQueue";
+
+            using (var bus = new MessageBus.Core.RabbitMQBus())
             {
-                using (bus.CreateSubscriber(configurator => configurator.UseDurableQueue("test")))
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseDurableQueue(queueName)))
                 {
+                    subscriber.Subscribe(new Action<ImportiantData>(d => { }));
                 }
             }
 
             // Dispatch message
-            using (var bus = new RabbitMQBus())
+            using (var bus = new MessageBus.Core.RabbitMQBus())
             {
                 using (IPublisher publisher = bus.CreatePublisher())
                 {
@@ -37,9 +39,9 @@ namespace Core.IntegrationTest
             ManualResetEvent ev = new ManualResetEvent(false);
 
             // Second bus subscribes to message after it was dispatched and should receive it
-            using (var bus = new RabbitMQBus())
+            using (var bus = new MessageBus.Core.RabbitMQBus())
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseDurableQueue("test")))
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseDurableQueue(queueName)))
                 {
                     subscriber.Subscribe<ImportiantData>(p =>
                         {

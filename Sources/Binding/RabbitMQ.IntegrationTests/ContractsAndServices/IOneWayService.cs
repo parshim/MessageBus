@@ -11,4 +11,10 @@ namespace RabbitMQ.IntegrationTests.ContractsAndServices
         [OperationContract(IsOneWay = true, Action = "LargeData")]
         void LargeData(Blob data);
     }
+    [ServiceContract]
+    public interface IOneWayService2
+    {
+        [OperationContract(IsOneWay = true)]
+        void Say2(Data data);
+    }
 }

@@ -4,6 +4,7 @@ using System.ServiceModel.Configuration;
 using System.Reflection;
 using System.Xml;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Framing;
 
 namespace MessageBus.Binding.RabbitMQ
 {  
@@ -78,6 +79,7 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.ReplyToExchange = ReplyToExchange == null ? null : new Uri(ReplyToExchange);
             rabbind.ReplyToQueue = ReplyToQueue;
             rabbind.TTL = TTL;
+            rabbind.AutoDelete = AutoDelete;
             rabbind.ApplicationId = ApplicationId;
             rabbind.MessageFormat = MessageFormat;
             rabbind.HeaderNamespace = HeaderNamespace;
@@ -236,7 +238,7 @@ namespace MessageBus.Binding.RabbitMQ
             get { return ((string)base["autoBindExchange"]); }
             set { base["autoBindExchange"] = value; }
         }
-        
+
         /// <summary>
         /// Specifies message TTL. For client side binding it will be per message TTL, for service side binding it will be per-queue message TTL. Use null or discard to diable message TTL.
         /// </summary>
@@ -245,6 +247,16 @@ namespace MessageBus.Binding.RabbitMQ
         {
             get { return ((string)base["TTL"]); }
             set { base["TTL"] = value; }
+        }
+
+        /// <summary>
+        /// Specifies message TTL. For client side binding it will be per message TTL, for service side binding it will be per-queue message TTL. Use null or discard to diable message TTL.
+        /// </summary>
+        [ConfigurationProperty("AutoDelete", DefaultValue = false)]
+        public bool AutoDelete
+        {
+            get { return ((bool)base["AutoDelete"]); }
+            set { base["AutoDelete"] = value; }
         }
         
         /// <summary>
@@ -284,7 +296,7 @@ namespace MessageBus.Binding.RabbitMQ
 
         private IProtocol GetProtocol() 
         {
-            IProtocol result = Protocols.Lookup(ProtocolVersion);
+            IProtocol result = Protocols.DefaultProtocol;
 
             if (result == null) 
             {

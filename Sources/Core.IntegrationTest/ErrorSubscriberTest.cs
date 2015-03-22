@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using FluentAssertions;
-using MessageBus.Core;
+
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Core.IntegrationTest
 {
@@ -21,11 +23,11 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this)))
                 {
-                    subscriber.Subscribe(delegate(OK ok) {  }, receiveSelfPublish:false);
+                    subscriber.Subscribe((OK ok) => Trace.WriteLine("Received"));
 
                     subscriber.Open();
 
@@ -49,15 +51,15 @@ namespace Core.IntegrationTest
         }
         
         [TestMethod]
-        public void Bus_ErrorSubscriber_MessageDeserializeException()
+        public void Bus_ErrorSubscriber_MessageDeserializedException()
         {
             const string busId = "MyBus";
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this).SetReceiveSelfPublish()))
                 {
-                    subscriber.Subscribe(delegate(ContractToReceive ok) { }, receiveSelfPublish: true);
+                    subscriber.Subscribe(delegate(ContractToReceive ok) { });
                     
                     subscriber.Open();
 
@@ -72,9 +74,9 @@ namespace Core.IntegrationTest
 
                     _busMessage.Name.Should().Be("Data");
                     _busMessage.Namespace.Should().Be("bus.error.test.org");
-                    _busMessage.Data.Should().BeNull();
+                    _busMessage.Data.GetType().Should().Be(typeof(byte[]));
                     _busMessage.BusId.Should().Be(busId);
-                    _exception.Should().BeOfType<SerializationException>();
+                    _exception.Should().BeOfType<JsonSerializationException>();
                 }
             }
         }
@@ -86,11 +88,11 @@ namespace Core.IntegrationTest
 
             Exception ex = new Exception("My process error");
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this).SetReceiveSelfPublish()))
                 {
-                    subscriber.Subscribe(delegate(ContractToSend ok) { throw ex; }, receiveSelfPublish: true);
+                    subscriber.Subscribe(delegate(ContractToSend ok) { throw ex; });
                     
                     subscriber.Open();
 
@@ -117,9 +119,9 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (RabbitMQBus bus = new RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber(configurator => configurator.UseErrorSubscriber(this)))
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this)))
                 {
                     subscriber.Open();
 

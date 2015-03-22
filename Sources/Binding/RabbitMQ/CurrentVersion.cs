@@ -1,8 +1,6 @@
 using System;
 using System.Text;
-
-using RabbitMQ.Client.Framing.v0_9;
-using CommonFraming = RabbitMQ.Client.Framing.v0_9;
+using RabbitMQ.Client.Framing;
 
 namespace MessageBus.Binding.RabbitMQ
 {

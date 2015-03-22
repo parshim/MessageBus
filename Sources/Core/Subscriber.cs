@@ -9,32 +9,32 @@ namespace MessageBus.Core
     {
         private readonly ICallbackDispatcher _callbackDispatcher;
 
-        internal Subscriber(IInputChannel inputChannel, IMessageFilter messageFilter, ICallbackDispatcher dispatcher)
+        public Subscriber(IInputChannel inputChannel, IMessageFilter messageFilter, ICallbackDispatcher dispatcher)
             : base(inputChannel, messageFilter, dispatcher)
         {
             _callbackDispatcher = dispatcher;
         }
         
-        public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
+        public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, IEnumerable<BusHeader> filter)
         {
-            return Subscribe(typeof(TData), o => callback((TData)o), hierarchy, receiveSelfPublish, filter);
+            return Subscribe(typeof(TData), o => callback((TData)o), hierarchy, filter);
         }
 
-        public bool Subscribe(Type dataType, Action<object> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
+        public bool Subscribe(Type dataType, Action<object> callback, bool hierarchy, IEnumerable<BusHeader> filter)
         {
             ActionHandler actionHandler = new ActionHandler(callback);
 
-            return _callbackDispatcher.Subscribe(dataType, actionHandler, hierarchy, receiveSelfPublish, filter);
+            return _callbackDispatcher.Subscribe(dataType, actionHandler, hierarchy, false, filter);
         }
 
-        public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
+        public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, IEnumerable<BusHeader> filter)
         {
-            return _callbackDispatcher.Subscribe(typeof(TData), new BusMessageHandler<TData>(o => callback((BusMessage<TData>) o)), hierarchy, receiveSelfPublish, filter);
+            return _callbackDispatcher.Subscribe(typeof(TData), new BusMessageHandler<TData>(o => callback((BusMessage<TData>) o)), hierarchy, false, filter);
         }
 
-        public bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy, bool receiveSelfPublish, IEnumerable<BusHeader> filter)
+        public bool Subscribe(Type dataType, Action<RawBusMessage> callback, bool hierarchy, IEnumerable<BusHeader> filter)
         {
-            return _callbackDispatcher.Subscribe(dataType, new RawHandler(callback), hierarchy, receiveSelfPublish, filter);
+            return _callbackDispatcher.Subscribe(dataType, new RawHandler(callback), hierarchy, filter);
         }
 
     }

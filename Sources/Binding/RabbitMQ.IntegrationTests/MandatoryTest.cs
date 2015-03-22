@@ -5,7 +5,6 @@ using System.Threading;
 using FluentAssertions;
 using MessageBus.Binding.RabbitMQ;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RabbitMQ.Client.Events;
 
 namespace RabbitMQ.IntegrationTests
 {

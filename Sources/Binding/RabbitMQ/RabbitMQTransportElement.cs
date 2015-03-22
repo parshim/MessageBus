@@ -9,7 +9,6 @@ namespace MessageBus.Binding.RabbitMQ
 {
     public sealed class RabbitMQTransportElement : TransportElement
     {
-
         public override void ApplyConfiguration(BindingElement bindingElement)
         {
             base.ApplyConfiguration(bindingElement);
@@ -28,6 +27,7 @@ namespace MessageBus.Binding.RabbitMQ
             rabbind.PersistentDelivery = PersistentDelivery;
             rabbind.AutoBindExchange = AutoBindExchange;
             rabbind.TTL = TTL;
+            rabbind.AutoDelete = AutoDelete;
             rabbind.BrokerProtocol = Protocol;
             rabbind.TransactedReceiveEnabled = ExactlyOnce;
             rabbind.ReplyToQueue = ReplyToQueue;
@@ -164,6 +164,16 @@ namespace MessageBus.Binding.RabbitMQ
         }
 
         /// <summary>
+        /// Specifies if the queue is temporary.
+        /// </summary>
+        [ConfigurationProperty("AutoDelete", IsRequired = false, DefaultValue = false)]
+        public bool AutoDelete
+        {
+            get { return ((bool)base["AutoDelete"]); }
+            set { base["AutoDelete"] = value; }
+        }
+
+        /// <summary>
         /// Enables transactional message delivery
         /// </summary>
         [ConfigurationProperty("exactlyOnce", IsRequired = false, DefaultValue = false)]
@@ -238,7 +248,7 @@ namespace MessageBus.Binding.RabbitMQ
 
         private IProtocol GetProtocol()
         {
-            IProtocol result = Protocols.Lookup(ProtocolVersion);
+            IProtocol result = Protocols.DefaultProtocol;
 
             if (result == null)
             {

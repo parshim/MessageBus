@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using FluentAssertions;
-using MessageBus.Core;
+
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,11 +15,11 @@ namespace Core.IntegrationTest
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            using (RabbitMQBus bus = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus bus = new MessageBus.Core.RabbitMQBus())
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
-                    subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: false);
+                    subscriber.Subscribe((Action<OK>) (ok => ev.Set()));
                     
                     subscriber.Open();
 
@@ -41,11 +41,11 @@ namespace Core.IntegrationTest
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            using (var bus = new RabbitMQBus())
+            using (var bus = new MessageBus.Core.RabbitMQBus())
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber())
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.SetReceiveSelfPublish()))
                 {
-                    subscriber.Subscribe((Action<OK>) (ok => ev.Set()), receiveSelfPublish: true);
+                    subscriber.Subscribe((Action<OK>) (ok => ev.Set()));
 
                     subscriber.Open();
 
@@ -54,10 +54,9 @@ namespace Core.IntegrationTest
                         publisher.Send(new OK());
                     }
 
-                    bool wait = ev.WaitOne(TimeSpan.FromSeconds(5));
+                    bool wait = ev.WaitOne(TimeSpan.FromSeconds(10));
 
-                    wait.Should()
-                        .BeTrue("Message should not arrive from publisher to subscriber within same bus instance");
+                    wait.Should().BeTrue("Message should not arrive from publisher to subscriber within same bus instance");
                 }
             }
         }
@@ -74,7 +73,7 @@ namespace Core.IntegrationTest
 
             ManualResetEvent ev1 = new ManualResetEvent(false), ev2 = new ManualResetEvent(false), ev3 = new ManualResetEvent(false);
 
-            using (RabbitMQBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus busA = new MessageBus.Core.RabbitMQBus(), busB = new MessageBus.Core.RabbitMQBus(), busC = new MessageBus.Core.RabbitMQBus())
             {
                 using (ISubscriber subscriberB1 = busB.CreateSubscriber(), subscriberB2 = busB.CreateSubscriber(), subscriberC1 = busC.CreateSubscriber())
                 {
@@ -131,7 +130,7 @@ namespace Core.IntegrationTest
 
             ManualResetEvent ev1 = new ManualResetEvent(false), ev2 = new ManualResetEvent(false), ev3 = new ManualResetEvent(false);
 
-            using (RabbitMQBus busA = new RabbitMQBus(), busB = new RabbitMQBus(), busC = new RabbitMQBus())
+            using (MessageBus.Core.RabbitMQBus busA = new MessageBus.Core.RabbitMQBus(), busB = new MessageBus.Core.RabbitMQBus(), busC = new MessageBus.Core.RabbitMQBus())
             {
                 using (ISubscriber subscriberB1 = busB.CreateSubscriber(), subscriberB2 = busB.CreateSubscriber(), subscriberC1 = busC.CreateSubscriber())
                 {

@@ -45,7 +45,7 @@ namespace MessageBus.Core
                 contractKey = contract.Key;
             }
 
-            using (Message message = Message.CreateMessage(_messageVersion, MessagingConstancts.MessageAction.Regular, busMessage.Data))
+            using (Message message = Message.CreateMessage(_messageVersion, MessagingConstants.MessageAction.Regular, busMessage.Data))
             {
                 SetBusHeaders(message, contractKey);
 
@@ -60,24 +60,24 @@ namespace MessageBus.Core
             foreach (BusHeader busHeader in busMessage.Headers)
             {
                 message.Headers.Add(MessageHeader.CreateHeader(busHeader.Name,
-                                                               MessagingConstancts.Namespace.MessageBus,
+                                                               MessagingConstants.Namespace.MessageBus,
                                                                busHeader.Value, false,
-                                                               MessagingConstancts.Actor.User));
+                                                               MessagingConstants.Actor.User));
             }
         }
 
         private void SetBusHeaders(Message message, DataContractKey contractKey)
         {
-            SetBusHeader(message, MessagingConstancts.HeaderNames.Name, contractKey.Name);
-            SetBusHeader(message, MessagingConstancts.HeaderNames.NameSpace, contractKey.Ns);
-            SetBusHeader(message, MessagingConstancts.HeaderNames.BusId, _busId);
-            SetBusHeader(message, MessagingConstancts.HeaderNames.SentTime, DateTime.Now);
+            SetBusHeader(message, MessagingConstants.HeaderNames.Name, contractKey.Name);
+            SetBusHeader(message, MessagingConstants.HeaderNames.NameSpace, contractKey.Ns);
+            SetBusHeader(message, MessagingConstants.HeaderNames.BusId, _busId);
+            SetBusHeader(message, MessagingConstants.HeaderNames.SentTime, DateTime.Now);
         }
 
         private void SetBusHeader(Message message, string name, object value)
         {
-            message.Headers.Add(MessageHeader.CreateHeader(name, MessagingConstancts.Namespace.MessageBus,
-                                                           value, false, MessagingConstancts.Actor.Bus));
+            message.Headers.Add(MessageHeader.CreateHeader(name, MessagingConstants.Namespace.MessageBus,
+                                                           value, false, MessagingConstants.Actor.Bus));
         }
 
         public virtual void Dispose()

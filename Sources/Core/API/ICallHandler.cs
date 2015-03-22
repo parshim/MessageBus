@@ -1,6 +1,6 @@
 ﻿namespace MessageBus.Core.API
 {
-    internal interface ICallHandler
+    public interface ICallHandler
     {
         void Dispatch(RawBusMessage message);
     }

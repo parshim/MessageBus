@@ -3,7 +3,7 @@
 namespace RabbitMQ.IntegrationTests.ContractsAndServices
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single)]
-    public class OneWayService : IOneWayService
+    public class OneWayService : IOneWayService, IOneWayService2
     {
         private readonly IOneWayService _processor;
         private readonly IOneWayService _errorProcessor;
@@ -25,6 +25,11 @@ namespace RabbitMQ.IntegrationTests.ContractsAndServices
         {
             _errorProcessor.LargeData(data);
             _processor.LargeData(data);
+        }
+
+        public void Say2(Data data)
+        {
+            _errorProcessor.Say(data);
         }
     }
 }
