@@ -27,5 +27,17 @@ namespace MessageBus.Core.API
         /// Use UseErrorHandler to register error handler implementation
         /// </summary>
         IPublisherConfigurator SetMandatoryDelivery();
+
+        /// <summary>
+        /// Specify that published messages should be serialized as Soap messages
+        /// </summary>
+        IPublisherConfigurator UseSoapSerializer();
+
+        /// <summary>
+        /// Specify custom serializer for published messages
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        IPublisherConfigurator UseCustomSerializer(ISerializer serializer);
     }
 }

@@ -49,5 +49,12 @@ namespace MessageBus.Core.API
         /// <param name="scheduler"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseTaskScheduler(TaskScheduler scheduler);
+
+        /// <summary>
+        /// Specify custom serializer for received messages
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        ISubscriberConfigurator AddCustomSerializer(ISerializer serializer);
     }
 }

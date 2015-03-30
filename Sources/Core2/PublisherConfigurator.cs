@@ -7,6 +7,7 @@ namespace MessageBus.Core
     {
         private BufferManager _bufferManager;
         private IPublishingErrorHandler _errorHandler;
+        private ISerializer _serializer;
         private bool _mandatoryDelivery;
 
         public BufferManager BufferManager
@@ -27,6 +28,11 @@ namespace MessageBus.Core
             get { return _mandatoryDelivery; }
         }
 
+        public ISerializer Serializer
+        {
+            get { return _serializer ?? new JsonSerializer(); }
+        }
+
         public IPublisherConfigurator UseBufferManager(BufferManager bufferManager)
         {
             _bufferManager = bufferManager;
@@ -44,6 +50,20 @@ namespace MessageBus.Core
         public IPublisherConfigurator SetMandatoryDelivery()
         {
             _mandatoryDelivery = true;
+
+            return this;
+        }
+
+        public IPublisherConfigurator UseSoapSerializer()
+        {
+            _serializer = new SoapSerializer();
+            
+            return this;
+        }
+
+        public IPublisherConfigurator UseCustomSerializer(ISerializer serializer)
+        {
+            _serializer = serializer;
 
             return this;
         }

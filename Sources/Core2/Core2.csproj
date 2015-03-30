@@ -55,13 +55,10 @@
     <Compile Include="ActionHandler.cs" />
     <Compile Include="RabbitMQBus.cs" />
     <Compile Include="BusMessageHandler.cs" />
-    <Compile Include="DataContract.cs" />
-    <Compile Include="DataContractKey.cs" />
     <Compile Include="ICallHandler.cs" />
     <Compile Include="IMessageConsumer.cs" />
     <Compile Include="IMessageHelper.cs" />
     <Compile Include="IMessageRegistry.cs" />
-    <Compile Include="ISerializerHelper.cs" />
     <Compile Include="ISubscriptionHelper.cs" />
     <Compile Include="LimitedConcurrencyLevelTaskScheduler.cs" />
     <Compile Include="MessageConsumer.cs" />
@@ -78,7 +75,8 @@
     <Compile Include="RabbitMQBusConfigSectionHandler.cs" />
     <Compile Include="RawHandler.cs" />
     <Compile Include="Receiver.cs" />
-    <Compile Include="SerializerHelper.cs" />
+    <Compile Include="JsonSerializer.cs" />
+    <Compile Include="SoapSerializer.cs" />
     <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriberBase.cs" />
     <Compile Include="SubscriberConfigurator.cs" />

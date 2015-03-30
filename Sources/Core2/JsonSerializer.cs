@@ -1,21 +1,24 @@
 using System;
 using System.Text;
+using MessageBus.Core.API;
 using Newtonsoft.Json;
 
 namespace MessageBus.Core
 {
-    public class SerializerHelper : ISerializerHelper
+    public class JsonSerializer : ISerializer
     {
         private readonly Encoding _encoding = Encoding.Unicode;
 
-        public byte[] Serialize<TData>(TData data)
+        public string ContentType { get { return "application/json"; } }
+
+        public byte[] Serialize<TData>(DataContractKey contractKey, BusMessage<TData> busMessage)
         {
             if (typeof(TData) == typeof(byte[]))
             {
-                return data as byte[];
+                return busMessage.Data as byte[];
             }
-            
-            string body = JsonConvert.SerializeObject(data, Formatting.None);
+
+            string body = JsonConvert.SerializeObject(busMessage.Data, Formatting.None);
 
             return _encoding.GetBytes(body);
         }

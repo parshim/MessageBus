@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,14 +27,14 @@ namespace MessageBus.Core
         private readonly TaskScheduler _scheduler;
 
         private readonly IMessageHelper _messageHelper;
-        private readonly ISerializerHelper _serializerHelper;
+        private readonly Dictionary<string, ISerializer> _serializers;
         private readonly IErrorSubscriber _errorSubscriber;
         
-        public MessageConsumer(IModel model, string busId, IMessageHelper messageHelper, ISerializerHelper serializerHelper, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish) : base(model)
+        public MessageConsumer(IModel model, string busId, IMessageHelper messageHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish) : base(model)
         {
             _busId = busId;
             _messageHelper = messageHelper;
-            _serializerHelper = serializerHelper;
+            _serializers = serializers;
             _errorSubscriber = errorSubscriber;
             _scheduler = scheduler;
             _receiveSelfPublish = receiveSelfPublish;
@@ -96,13 +97,29 @@ namespace MessageBus.Core
                             pair.Value.Handler
                         }).FirstOrDefault();
 
-            if (subscription == null) return;
+            if (subscription == null)
+            {
+                 RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)body);
+
+                _errorSubscriber.UnregisteredMessageArrived(rawBusMessage);
+
+                return;
+            }
 
             object data;
 
+            if (!_serializers.ContainsKey(properties.ContentType))
+            {
+                RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)body);
+
+                _errorSubscriber.MessageDeserializeException(rawBusMessage, new Exception("Unsupported content type"));
+
+                return;
+            }
+
             try
             {
-                data = _serializerHelper.Deserialize(dataContractKey, subscription.DataType, body);
+                data = _serializers[properties.ContentType].Deserialize(dataContractKey, subscription.DataType, body);
             }
             catch (Exception ex)
             {

@@ -11,15 +11,20 @@ namespace MessageBus.Core
         private readonly IConnection _connection;
 
         private readonly IMessageHelper _messageHelper = new MessageHelper();
-        private readonly ISerializerHelper _serializerHelper = new SerializerHelper();
 
         private readonly string _exchange;
 
         public RabbitMQBus() : this(Guid.NewGuid().ToString()) { }
-        
-        public RabbitMQBus(string busId) : this(busId, "localhost", 5672, "amq.headers") { }
 
-        public RabbitMQBus(string busId, string host, int port, string exchange)
+        public RabbitMQBus(string busId) : this(busId, "localhost", 5672, "guest", "guest", "amq.headers") { }
+
+        public RabbitMQBus(string host, int port, string user, string password)
+            : this(Guid.NewGuid().ToString(), host, port, user, password, "amq.headers")
+        {
+            
+        }
+
+        public RabbitMQBus(string busId, string host, int port, string user, string password, string exchange)
         {
             BusId = busId;
 
@@ -35,7 +40,9 @@ namespace MessageBus.Core
                 HostName = host,
                 Port = port,
                 AutomaticRecoveryEnabled = true,
-                TopologyRecoveryEnabled = true
+                TopologyRecoveryEnabled = true,
+                UserName = user,
+                Password = password
             };
 
             _connection = factory.CreateConnection();
@@ -68,7 +75,7 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            return new Publisher(model, BusId, _exchange, configuration, _messageHelper, _serializerHelper);
+            return new Publisher(model, BusId, _exchange, configuration, _messageHelper);
         }
 
         public IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null)
@@ -79,7 +86,7 @@ namespace MessageBus.Core
 
             QueueDeclareOk queue = CreateQueue(model, configurator);
 
-            return new Receiver(model, BusId, _exchange, queue.QueueName, _messageHelper, _serializerHelper, configurator.ErrorSubscriber, configurator.ReceiveSelfPublish);
+            return new Receiver(model, BusId, _exchange, queue.QueueName, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.ReceiveSelfPublish);
         }
 
         public ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null)
@@ -90,7 +97,7 @@ namespace MessageBus.Core
 
             QueueDeclareOk queue = CreateQueue(model, configurator);
 
-            IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, _serializerHelper, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+            IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
 
             return new Subscriber(model, _exchange, queue, consumer, configurator.ReceiveSelfPublish);
         }
@@ -103,7 +110,7 @@ namespace MessageBus.Core
 
             QueueDeclareOk queue = CreateQueue(model, configurator);
 
-            IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, _serializerHelper, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+            IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
 
             return new Subscription(model, _exchange, queue, consumer, instance, configurator.ReceiveSelfPublish);
         }

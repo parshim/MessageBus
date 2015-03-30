@@ -1,4 +1,5 @@
-﻿using System.ServiceModel.Channels;
+﻿using System.Collections.Generic;
+using System.ServiceModel.Channels;
 using System.Threading.Tasks;
 using MessageBus.Core.API;
 
@@ -11,6 +12,17 @@ namespace MessageBus.Core
         private IErrorSubscriber _errorSubscriber;
         private string _queueName = "";
         private bool _receiveSelfPublish;
+
+        private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
+
+        public SubscriberConfigurator()
+        {
+            ISerializer jsonSerializer = new JsonSerializer();
+            ISerializer soapSerializer = new SoapSerializer();
+
+            _serializers.Add(jsonSerializer.ContentType, jsonSerializer);
+            _serializers.Add(soapSerializer.ContentType, soapSerializer);
+        }
 
         public string QueueName
         {
@@ -30,6 +42,11 @@ namespace MessageBus.Core
         public TaskScheduler TaskScheduler
         {
             get { return _taskScheduler ?? new LimitedConcurrencyLevelTaskScheduler(1); }
+        }
+
+        public Dictionary<string, ISerializer> Serializers
+        {
+            get { return _serializers; }
         }
 
         public bool ReceiveSelfPublish
@@ -78,6 +95,13 @@ namespace MessageBus.Core
         public ISubscriberConfigurator UseTaskScheduler(TaskScheduler scheduler)
         {
             _taskScheduler = scheduler;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator AddCustomSerializer(ISerializer serializer)
+        {
+            _serializers.Add(serializer.ContentType, serializer);
 
             return this;
         }

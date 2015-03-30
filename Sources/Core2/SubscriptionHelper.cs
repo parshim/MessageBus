@@ -27,9 +27,9 @@ namespace MessageBus.Core
 
         public bool Subscribe(Type dataType, ICallHandler handler, IEnumerable<BusHeader> filter)
         {
-            DataContract dataContract = new DataContract(dataType);
+            DataContractKey key = dataType.GetDataContractKey();
 
-            MessageFilterInfo filterInfo = new MessageFilterInfo(dataContract.Key, filter ?? Enumerable.Empty<BusHeader>());
+            MessageFilterInfo filterInfo = new MessageFilterInfo(key, filter ?? Enumerable.Empty<BusHeader>());
 
             return _registrationAction(dataType, filterInfo, handler);
         }

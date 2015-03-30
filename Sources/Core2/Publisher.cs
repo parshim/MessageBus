@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-using MessageBus.Core;
 using MessageBus.Core.API;
 
 using RabbitMQ.Client;
@@ -19,19 +18,17 @@ namespace MessageBus.Core
         private readonly IModel _model;
 
         private readonly IMessageHelper _messageHelper;
-        private readonly ISerializerHelper _serializerHelper;
 
         private readonly string _busId;
         private readonly string _exchange;
         private readonly PublisherConfigurator _configuration;
 
-        public Publisher(IModel model, string busId, string exchange, PublisherConfigurator configuration, IMessageHelper messageHelper, ISerializerHelper serializerHelper)
+        public Publisher(IModel model, string busId, string exchange, PublisherConfigurator configuration, IMessageHelper messageHelper)
         {
             _model = model;
             _exchange = exchange;
             _configuration = configuration;
             _messageHelper = messageHelper;
-            _serializerHelper = serializerHelper;
             _busId = busId;
 
             _model.BasicReturn += ModelOnBasicReturn;
@@ -48,7 +45,7 @@ namespace MessageBus.Core
                 dataContractKey = DataContractKey.BinaryBlob;
             }
 
-            object data = _serializerHelper.Deserialize(dataContractKey, dataType, args.Body);
+            object data = _configuration.Serializer.Deserialize(dataContractKey, dataType, args.Body);
 
             RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, args.BasicProperties, data);
 
@@ -72,20 +69,22 @@ namespace MessageBus.Core
             DataContractKey contractKey;
             Type type = busMessage.Data.GetType();
 
+            busMessage.Sent = DateTime.Now;
+            busMessage.BusId = _busId;
+
             if (!_nameMappings.TryGetValue(type, out contractKey))
             {
-                DataContract contract = new DataContract(busMessage.Data);
+                contractKey = type.GetDataContractKey();
 
-                _nameMappings.TryAdd(type, contract.Key);
-
-                contractKey = contract.Key;
+                _nameMappings.TryAdd(type, contractKey);
             }
 
             BasicProperties basicProperties = new BasicProperties
             {
-                AppId = _busId,
-                Timestamp = DateTime.Now.ToAmqpTimestamp(),
+                AppId = busMessage.BusId,
+                Timestamp = busMessage.Sent.ToAmqpTimestamp(),
                 Type = contractKey.Name,
+                ContentType = _configuration.Serializer.ContentType,
                 Headers = new Dictionary<string, object>
                 {
                     {MessagingConstants.HeaderNames.Name, contractKey.Name},
@@ -98,7 +97,7 @@ namespace MessageBus.Core
                 basicProperties.Headers.Add(header.Name, header.Value);
             }
 
-            byte[] bytes = _serializerHelper.Serialize(busMessage.Data);
+            byte[] bytes = _configuration.Serializer.Serialize(contractKey, busMessage);
             
             _model.BasicPublish(_exchange, "", _configuration.MandatoryDelivery, false, basicProperties, bytes);
         }

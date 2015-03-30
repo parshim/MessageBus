@@ -1,4 +1,4 @@
-﻿namespace MessageBus.Core
+﻿namespace MessageBus.Core.API
 {
     public class DataContractKey
     {

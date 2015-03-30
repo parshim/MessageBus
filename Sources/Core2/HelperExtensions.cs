@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
-using MessageBus.Core;
+
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -44,6 +46,23 @@ namespace MessageBus.Core
         {
             return new DataContractKey(properties.GetHeaderValue(MessagingConstants.HeaderNames.Name),
                                         properties.GetHeaderValue(MessagingConstants.HeaderNames.NameSpace));
+        }
+
+        public static DataContractKey GetDataContractKey(this Type type)
+        {
+            if (typeof (byte[]) == type)
+            {
+                return DataContractKey.BinaryBlob;
+            }
+
+            DataContractAttribute attribute = type.GetCustomAttribute<DataContractAttribute>();
+
+            if (attribute != null)
+            {
+                return new DataContractKey(attribute.Name ?? type.Name, attribute.Namespace ?? type.Namespace);
+            }
+
+            return new DataContractKey(type.Name, type.Namespace);
         }
 
         public static DateTime GetDateTime(this AmqpTimestamp timestamp)

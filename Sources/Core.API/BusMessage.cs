@@ -52,12 +52,12 @@ namespace MessageBus.Core.API
         /// <summary>
         /// Message originator Bus Id
         /// </summary>
-        public string BusId { get; set; }
+        public string BusId { get; internal set; }
 
         /// <summary>
         /// Date and time when message were sent
         /// </summary>
-        public DateTime Sent { get; set; }
+        public DateTime Sent { get; internal set; }
 
         /// <summary>
         /// List of headers associated with the message

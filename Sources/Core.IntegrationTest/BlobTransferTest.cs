@@ -33,7 +33,7 @@ namespace Core.IntegrationTest
 
                     subscriber.Open();
 
-                    const int expected = 200;
+                    const int expected = 5;
 
                     using (IPublisher publisher = bus.CreatePublisher())
                     {

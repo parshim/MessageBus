@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BusMessage.cs" />
+    <Compile Include="DataContractKey.cs" />
     <Compile Include="HeaderFilterAttribute.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IErrorSubscriber.cs" />
@@ -40,6 +41,7 @@
     <Compile Include="IPublisherConfigurator.cs" />
     <Compile Include="IPublishingErrorHandler.cs" />
     <Compile Include="IReceiver.cs" />
+    <Compile Include="ISerializer.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="ISubscriberConfigurator.cs" />
     <Compile Include="ISubscription.cs" />
