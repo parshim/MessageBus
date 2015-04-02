@@ -1,18 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
-        <id>MessageBus.Binding.RabbitMQ</id>
+        <id>MessageBus.Proxy</id>
         <version>2.0.0</version>
         <authors>Michael Parshin</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Message Bus RabbitMQ WCF Binding</description>
+        <description>Message Bus infrastructure based on RabbitMQ message broker</description>
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
-                <dependency id="RabbitMQ.Client" version="3.4.0" />
+                <dependency id="Castle.Core" version="3.1.0" />
+				<dependency id="MessageBus" version="2.0.0-alpha" />
             </group>
         </dependencies>
     </metadata>
     <files>
-		<file src="Binaries\Release\MessageBus.Binding.RabbitMQ.dll" target="lib\net451\MessageBus.Binding.RabbitMQ.dll" />
+        <file src="Binaries\Release\MessageBus.Proxy.dll" target="lib\net451\MessageBus.Proxy.dll" />
     </files>
 </package>

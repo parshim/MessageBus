@@ -41,6 +41,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1ED1A1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core2", "Core2\Core2.csproj", "{0B59193B-0883-4BD6-A66A-47C515EAF014}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Proxy", "Core.Proxy\Core.Proxy.csproj", "{49C94D69-D65F-4A65-B529-C308470B7A5B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{0B59193B-0883-4BD6-A66A-47C515EAF014}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B59193B-0883-4BD6-A66A-47C515EAF014}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B59193B-0883-4BD6-A66A-47C515EAF014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
