@@ -41,14 +41,11 @@
       <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -72,7 +69,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="PublisherConfigurator.cs" />
-    <Compile Include="RabbitMQBusConfigSectionHandler.cs" />
+    <Compile Include="RabbitMQConnectionString.cs" />
     <Compile Include="RawHandler.cs" />
     <Compile Include="Receiver.cs" />
     <Compile Include="JsonSerializer.cs" />

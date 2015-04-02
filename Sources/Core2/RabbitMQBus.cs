@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -16,49 +16,55 @@ namespace MessageBus.Core
 
         public RabbitMQBus() : this(Guid.NewGuid().ToString()) { }
 
-        public RabbitMQBus(string busId) : this(busId, "localhost", 5672, "guest", "guest", "amq.headers") { }
+        public RabbitMQBus(string busId) : this(busId, new RabbitMQConnectionString())
+        {
 
-        public RabbitMQBus(string host, int port, string user, string password)
-            : this(Guid.NewGuid().ToString(), host, port, user, password, "amq.headers")
+        }
+
+        public RabbitMQBus(string busId, Uri uri) : this(busId, new RabbitMQConnectionString(uri))
         {
             
         }
 
-        public RabbitMQBus(string busId, string host, int port, string user, string password, string exchange)
+        public RabbitMQBus(string busId, RabbitMQConnectionString connectionString)
         {
             BusId = busId;
 
-            RabbitMQBusConfigSectionHandler section = ConfigurationManager.GetSection(RabbitMQBusConfigSectionHandler.SectionName) as RabbitMQBusConfigSectionHandler;
+            _exchange = "amq.headers";
+            string username = "guest";
+            string password = "guest";
+            
+            if (!string.IsNullOrEmpty(connectionString.Endpoint))
+            {
+                _exchange = connectionString.Endpoint;
+            }
+            
+            if (!string.IsNullOrEmpty(connectionString.Username))
+            {
+                username = connectionString.Username;
+            }
 
-            host = GetPropertyValue(host, "localhost", section, s => s.BrokerHost);
-            port = GetPropertyValue(port, 5672, section, s => s.Port);
-
-            _exchange = GetPropertyValue(exchange, "amq.headers", section, s => s.Exchange);
-
+            if (!string.IsNullOrEmpty(connectionString.Password))
+            {
+                password = connectionString.Password;
+            }
+            
             ConnectionFactory factory = new ConnectionFactory
             {
-                HostName = host,
-                Port = port,
+                HostName = connectionString.Host,
+                Port = connectionString.Port,
                 AutomaticRecoveryEnabled = true,
                 TopologyRecoveryEnabled = true,
-                UserName = user,
-                Password = password
+                UserName = username,
+                Password = password,
+                VirtualHost = connectionString.VirtualHost
             };
 
             _connection = factory.CreateConnection();
         }
 
         public string BusId { get; private set; }
-
-        protected T GetPropertyValue<T>(T value, T defaultValue, RabbitMQBusConfigSectionHandler section, Func<RabbitMQBusConfigSectionHandler, T> selector)
-        {
-            if (!Equals(value, default(T))) return value;
-
-            if (section == null) return defaultValue;
-
-            return selector(section);
-        }
-
+        
         public void Dispose()
         {
             _connection.Dispose();
