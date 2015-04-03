@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core2", "Core2\Core2.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Proxy", "Core.Proxy\Core.Proxy.csproj", "{49C94D69-D65F-4A65-B529-C308470B7A5B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Proxy.IntegrationTests", "Core.Proxy.IntegrationTests\Core.Proxy.IntegrationTests.csproj", "{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
