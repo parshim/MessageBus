@@ -20,5 +20,11 @@ namespace MessageBus.Core.API
         /// <typeparam name="TData">Data type</typeparam>
         /// <param name="busMessage">Bus message instance</param>
         void Send<TData>(BusMessage<TData> busMessage);
+
+        /// <summary>
+        /// Publish raw bus message
+        /// </summary>
+        /// <param name="busMessage">Bus message instance</param>
+        void Send(RawBusMessage busMessage);
     }
 }

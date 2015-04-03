@@ -61,16 +61,28 @@ namespace MessageBus.Core
 
         public void Send<TData>(TData data)
         {
-            Send(new BusMessage<TData> {Data = data});
+            Send(new RawBusMessage { Data = data });
         }
 
         public void Send<TData>(BusMessage<TData> busMessage)
         {
+            RawBusMessage rawBusMessage = new RawBusMessage
+            {
+                Data = busMessage.Data
+            };
+
+            foreach (BusHeader header in busMessage.Headers)
+            {
+                rawBusMessage.Headers.Add(header);
+            }
+
+            Send(rawBusMessage);
+        }
+
+        public void Send(RawBusMessage busMessage)
+        {
             DataContractKey contractKey;
             Type type = busMessage.Data.GetType();
-
-            busMessage.Sent = DateTime.Now;
-            busMessage.BusId = _busId;
 
             if (!_nameMappings.TryGetValue(type, out contractKey))
             {
@@ -78,6 +90,9 @@ namespace MessageBus.Core
 
                 _nameMappings.TryAdd(type, contractKey);
             }
+
+            busMessage.Sent = DateTime.Now;
+            busMessage.BusId = _busId;
 
             BasicProperties basicProperties = new BasicProperties
             {
@@ -91,14 +106,14 @@ namespace MessageBus.Core
                     {MessagingConstants.HeaderNames.NameSpace, contractKey.Ns}
                 }
             };
-            
+
             foreach (BusHeader header in busMessage.Headers)
             {
                 basicProperties.Headers.Add(header.Name, header.Value);
             }
 
-            byte[] bytes = _configuration.Serializer.Serialize(contractKey, busMessage);
-            
+            byte[] bytes = _configuration.Serializer.Serialize(busMessage);
+
             _model.BasicPublish(_exchange, "", _configuration.MandatoryDelivery, false, basicProperties, bytes);
         }
     }

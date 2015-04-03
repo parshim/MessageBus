@@ -16,6 +16,8 @@ namespace MessageBus.Core
 
         public RabbitMQBus() : this(Guid.NewGuid().ToString()) { }
 
+        public RabbitMQBus(RabbitMQConnectionString connectionString) : this(Guid.NewGuid().ToString(), connectionString) { }
+
         public RabbitMQBus(string busId) : this(busId, new RabbitMQConnectionString())
         {
 

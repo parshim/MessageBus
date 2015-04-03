@@ -65,7 +65,7 @@ namespace Core.IntegrationTest
 
                 ISerializer serializer = A.Fake<ISerializer>();
 
-                A.CallTo(() => serializer.Serialize(new DataContractKey(typeof(Person).Name, typeof(Person).Namespace), A<BusMessage<Person>>._)).Returns(new byte[0]);
+                A.CallTo(() => serializer.Serialize(A<RawBusMessage>._)).Returns(new byte[0]);
                 A.CallTo(() => serializer.Deserialize(new DataContractKey(typeof(Person).Name, typeof(Person).Namespace), typeof(Person), A<byte[]>._)).Returns(person);
                 A.CallTo(() => serializer.ContentType).Returns("Custom");
                 
@@ -90,7 +90,7 @@ namespace Core.IntegrationTest
                     actual.ShouldBeEquivalentTo(person);
                 }
 
-                A.CallTo(() => serializer.Serialize(new DataContractKey(typeof(Person).Name, typeof(Person).Namespace), A<BusMessage<Person>>._)).MustHaveHappened();
+                A.CallTo(() => serializer.Serialize(A<RawBusMessage>._)).MustHaveHappened();
                 A.CallTo(() => serializer.Deserialize(new DataContractKey(typeof(Person).Name, typeof(Person).Namespace), typeof(Person), A<byte[]>._)).MustHaveHappened();
             }
         }

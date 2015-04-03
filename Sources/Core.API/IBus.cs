@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace MessageBus.Core.API
 {
     /// <summary>
     /// Message bus interface provides a way to publishers messages and subscriber for messages.
-    /// All publishers and subsribers will be associated with same bus runtime.
+    /// All publishers and subscribers will be associated with same bus runtime.
     /// </summary>
     /// <example>
     /// IBus bus = new SomeBus()
@@ -31,14 +30,13 @@ namespace MessageBus.Core.API
         string BusId { get; }
 
         /// <summary>
-        /// Creates publisher session. It is recomended to open new session every time there is a need to send messages.
+        /// Creates publisher session. It is recommended to open new session every time there is a need to send messages.
         /// </summary>
-        /// <remarks>Publisher implementation should support transactions. Thus every time there is a need to send multiple messages, which are logically connected, it should be done inside transactio scope.</remarks>
         /// <returns>Publisher instance</returns>
         IPublisher CreatePublisher(Action<IPublisherConfigurator> configure = null);
 
         /// <summary>
-        /// Creates an recevier that will receive messages from the bus on demand
+        /// Creates an receiver that will receive messages from the bus on demand
         /// </summary>
         /// <returns></returns>
         IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null);
@@ -47,29 +45,28 @@ namespace MessageBus.Core.API
         /// Creates subscriber. Subscriber implementation should provide ordered message delivery, i.e. preserve message dispatching order.
         /// </summary>
         /// <remarks>
-        /// To logicaly separate processing of different message types, separate subscriber instances should be created.
+        /// To logically separate processing of different message types, separate subscriber instances should be created.
         /// </remarks>
         /// <returns>
         /// Subscriber instance.
         /// </returns>
         /// <exception cref="NoIncomingConnectionAcceptedException">No incoming connection were accepted.</exception>
         ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null);
-
+        
         /// <summary>
         /// Register subscription instance.
         /// </summary>
         /// <remarks>
-        /// Subscription instance type should be anotated by SubscribtionAttribute.
+        /// Subscription instance type should be annotated by SubscriptionAttribute.
         /// </remarks>
         /// <remarks>
-        /// Only public methods anotated by MessageSubscribtionAttribute will be subscribed to the messages. These methds shuold have single parameter of message contruct type or BusMessage type.
+        /// Only public methods annotated by MessageSubscriptionAttribute will be subscribed to the messages. These methods should have single parameter of message construct type or BusMessage type.
         /// </remarks>
-        /// <see cref="SubscribtionAttribute"/>
-        /// <see cref="MessageSubscribtionAttribute"/>
+        /// <see cref="MessageSubscriptionAttribute"/>
         /// <typeparam name="T"></typeparam>
         /// <param name="instance"></param>
         /// <param name="configure"></param>
-        /// <returns>Disposable subscriber object. It must be disposed to deactivate the subscribtion.</returns>
+        /// <returns>Disposable subscriber object. It must be disposed to deactivate the subscription.</returns>
         ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null);
     }
 }

@@ -10,15 +10,17 @@ namespace MessageBus.Core
         private readonly Encoding _encoding = Encoding.Unicode;
 
         public string ContentType { get { return "application/json"; } }
-
-        public byte[] Serialize<TData>(DataContractKey contractKey, BusMessage<TData> busMessage)
+        
+        public byte[] Serialize(RawBusMessage busMessage)
         {
-            if (typeof(TData) == typeof(byte[]))
+            object data = busMessage.Data;
+
+            if (data.GetType() == typeof(byte[]))
             {
-                return busMessage.Data as byte[];
+                return data as byte[];
             }
 
-            string body = JsonConvert.SerializeObject(busMessage.Data, Formatting.None);
+            string body = JsonConvert.SerializeObject(data, Formatting.None);
 
             return _encoding.GetBytes(body);
         }

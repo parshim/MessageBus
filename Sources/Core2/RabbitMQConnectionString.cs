@@ -48,7 +48,7 @@ namespace MessageBus.Core
         {
             _uriBuilder = new UriBuilder("amqp", host, port);
         }
-
+        
         public RabbitMQConnectionString(string host, int port, string endpoint)
         {
             _uriBuilder = new UriBuilder("amqp", host, port, endpoint);

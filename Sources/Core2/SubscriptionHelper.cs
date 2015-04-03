@@ -63,7 +63,7 @@ namespace MessageBus.Core
 
             foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
-                object[] methodAttributes = method.GetCustomAttributes(typeof (MessageSubscribtionAttribute), false);
+                object[] methodAttributes = method.GetCustomAttributes(typeof (MessageSubscriptionAttribute), false);
 
                 if (methodAttributes.Length == 0)
                 {
@@ -79,7 +79,7 @@ namespace MessageBus.Core
                 }
 
                 ParameterInfo parameterInfo = parameterInfos[0];
-                MessageSubscribtionAttribute messageSubscriptionAttribute = (MessageSubscribtionAttribute) methodAttributes[0];
+                MessageSubscriptionAttribute messageSubscriptionAttribute = (MessageSubscriptionAttribute) methodAttributes[0];
 
                 Type parameterType = parameterInfo.ParameterType;
                 ICallHandler handler;

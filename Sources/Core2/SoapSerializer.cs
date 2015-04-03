@@ -20,12 +20,12 @@ namespace MessageBus.Core
 
             _encoderFactory = element.CreateMessageEncoderFactory();
         }
-
-        public byte[] Serialize<TData>(DataContractKey contractKey, BusMessage<TData> busMessage)
+        
+        public byte[] Serialize(RawBusMessage busMessage)
         {
             using (Message message = Message.CreateMessage(_encoderFactory.MessageVersion, MessagingConstants.MessageAction.Regular, busMessage.Data))
             {
-                SetBusHeaders(busMessage, message, contractKey);
+                SetBusHeaders(busMessage, message);
 
                 SetUserHeaders(busMessage, message);
 
@@ -33,13 +33,13 @@ namespace MessageBus.Core
                 using (MemoryStream str = new MemoryStream())
                 {
                     _encoderFactory.Encoder.WriteMessage(message, str);
-                    
+
                     return str.ToArray();
                 }
             }
         }
 
-        private static void SetUserHeaders<TData>(BusMessage<TData> busMessage, Message message)
+        private static void SetUserHeaders(RawBusMessage busMessage, Message message)
         {
             foreach (BusHeader busHeader in busMessage.Headers)
             {
@@ -56,10 +56,10 @@ namespace MessageBus.Core
                                                            value, false, MessagingConstants.Actor.Bus));
         }
 
-        private void SetBusHeaders<TData>(BusMessage<TData> busMessage, Message message, DataContractKey contractKey)
+        private void SetBusHeaders(RawBusMessage busMessage, Message message)
         {
-            SetBusHeader(message, MessagingConstants.HeaderNames.Name, contractKey.Name);
-            SetBusHeader(message, MessagingConstants.HeaderNames.NameSpace, contractKey.Ns);
+            SetBusHeader(message, MessagingConstants.HeaderNames.Name, busMessage.Name);
+            SetBusHeader(message, MessagingConstants.HeaderNames.NameSpace, busMessage.Namespace);
             SetBusHeader(message, MessagingConstants.HeaderNames.BusId, busMessage.BusId);
             SetBusHeader(message, MessagingConstants.HeaderNames.SentTime, busMessage.Sent);
         }

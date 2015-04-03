@@ -6,7 +6,7 @@ namespace MessageBus.Core.API
     {
         string ContentType { get; }
 
-        byte[] Serialize<TData>(DataContractKey contractKey, BusMessage<TData> data);
+        byte[] Serialize(RawBusMessage data);
 
         object Deserialize(DataContractKey dataContractKey, Type dataType, byte[] body);
     }

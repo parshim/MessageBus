@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using FluentAssertions;
+using MessageBus.Core;
 using MessageBus.Core.API;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,7 +13,7 @@ namespace Core.IntegrationTest
         [TestMethod]
         public void Bus_SendReceive_BunchOfMessages()
         {
-            using (MessageBus.Core.RabbitMQBus entityA = new MessageBus.Core.RabbitMQBus(), entityB = new MessageBus.Core.RabbitMQBus())
+            using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
             {
                 Data messageA = new Person
                     {
@@ -31,7 +32,7 @@ namespace Core.IntegrationTest
 
                     subscriberA.Open();
 
-                    const int expected = 100;
+                    const int expected = 10;
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {

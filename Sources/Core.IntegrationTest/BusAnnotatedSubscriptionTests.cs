@@ -187,7 +187,7 @@ namespace Core.IntegrationTest
             get { return _person; }
         }
 
-        [MessageSubscribtion]
+        [MessageSubscription]
         public void ProcessPerson(Person person)
         {
             _person = person;
@@ -212,7 +212,7 @@ namespace Core.IntegrationTest
             get { return _message; }
         }
 
-        [MessageSubscribtion]
+        [MessageSubscription]
         public void ProcessPerson(BusMessage<Person> message)
         {
             _message = message;
@@ -237,7 +237,7 @@ namespace Core.IntegrationTest
             get { return _person; }
         }
 
-        [MessageSubscribtion]
+        [MessageSubscription]
         public void ProcessPerson([HeaderFilter("Header", "RightValue")]Person person)
         {
             _person = person;
