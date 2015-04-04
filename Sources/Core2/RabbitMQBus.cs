@@ -92,9 +92,9 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            QueueDeclareOk queue = CreateQueue(model, configurator);
+            string queue = CreateQueue(model, configurator);
 
-            return new Receiver(model, BusId, _exchange, queue.QueueName, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.ReceiveSelfPublish);
+            return new Receiver(model, BusId, _exchange, queue, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.ReceiveSelfPublish);
         }
 
         public ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null)
@@ -103,7 +103,7 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            QueueDeclareOk queue = CreateQueue(model, configurator);
+            string queue = CreateQueue(model, configurator);
 
             IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
 
@@ -116,7 +116,7 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            QueueDeclareOk queue = CreateQueue(model, configurator);
+            string queue = CreateQueue(model, configurator);
 
             IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
 
@@ -135,17 +135,16 @@ namespace MessageBus.Core
             return configurator;
         }
 
-        private static QueueDeclareOk CreateQueue(IModel model, SubscriberConfigurator configurator)
+        private static string CreateQueue(IModel model, SubscriberConfigurator configurator)
         {
-            string queueName = configurator.QueueName;
+            if (!string.IsNullOrEmpty(configurator.QueueName))
+            {
+                return configurator.QueueName;
+            }
 
-            bool durable = !string.IsNullOrEmpty(queueName);
-            bool exclusive = !durable;
-            bool autoDelete = !durable;
+            QueueDeclareOk queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
 
-            QueueDeclareOk queueDeclare = model.QueueDeclare(queueName, durable, exclusive, autoDelete, new Dictionary<string, object>());
-
-            return queueDeclare;
+            return queueDeclare.QueueName;
         } 
     }
 }
