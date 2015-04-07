@@ -29,6 +29,11 @@ namespace MessageBus.Core.API
         IPublisherConfigurator SetMandatoryDelivery();
 
         /// <summary>
+        /// Specify that message should be persistent on queue.
+        /// </summary>
+        IPublisherConfigurator SetPersistentDelivery();
+
+        /// <summary>
         /// Specify that published messages should be serialized as Soap messages
         /// </summary>
         IPublisherConfigurator UseSoapSerializer();

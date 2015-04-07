@@ -112,6 +112,11 @@ namespace MessageBus.Core
                 basicProperties.Headers.Add(header.Name, header.Value);
             }
 
+            if (_configuration.PersistentDelivery)
+            {
+                basicProperties.SetPersistent(true);
+            }
+
             byte[] bytes = _configuration.Serializer.Serialize(busMessage);
 
             _model.BasicPublish(_exchange, "", _configuration.MandatoryDelivery, false, basicProperties, bytes);

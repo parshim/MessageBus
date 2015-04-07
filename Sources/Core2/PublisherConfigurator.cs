@@ -9,6 +9,7 @@ namespace MessageBus.Core
         private IPublishingErrorHandler _errorHandler;
         private ISerializer _serializer;
         private bool _mandatoryDelivery;
+        private bool _persistentDelivery;
 
         public BufferManager BufferManager
         {
@@ -26,6 +27,11 @@ namespace MessageBus.Core
         public bool MandatoryDelivery
         {
             get { return _mandatoryDelivery; }
+        }
+
+        public bool PersistentDelivery
+        {
+            get { return _persistentDelivery; }
         }
 
         public ISerializer Serializer
@@ -50,6 +56,13 @@ namespace MessageBus.Core
         public IPublisherConfigurator SetMandatoryDelivery()
         {
             _mandatoryDelivery = true;
+
+            return this;
+        }
+
+        public IPublisherConfigurator SetPersistentDelivery()
+        {
+            _persistentDelivery = true;
 
             return this;
         }

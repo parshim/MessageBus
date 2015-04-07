@@ -13,6 +13,8 @@ namespace Core.IntegrationTest
         [TestMethod]
         public void Bus_SendReceive_BunchOfMessages()
         {
+            //RabbitMQConnectionString connectionString = new RabbitMQConnectionString(new Uri("amqp://rabbit:rabbit@10.0.8.100"));
+
             using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
             {
                 Data messageA = new Person
@@ -32,7 +34,7 @@ namespace Core.IntegrationTest
 
                     subscriberA.Open();
 
-                    const int expected = 10;
+                    const int expected = 100000;
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
