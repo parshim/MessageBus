@@ -105,11 +105,11 @@ namespace MessageBus.Core
 
             string queue = CreateQueue(model, configurator);
 
-            IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+            IMessageConsumer consumer = CreateConsumer(model, configurator);
 
-            return new Subscriber(model, _exchange, queue, consumer, configurator.ReceiveSelfPublish);
+            return new Subscriber(model, _exchange, queue, consumer, configurator);
         }
-
+        
         public ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null)
         {
             SubscriberConfigurator configurator = CreateConfigurator(configure);
@@ -118,9 +118,9 @@ namespace MessageBus.Core
 
             string queue = CreateQueue(model, configurator);
 
-            IMessageConsumer consumer = new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+            IMessageConsumer consumer = CreateConsumer(model, configurator);
 
-            return new Subscription(model, _exchange, queue, consumer, instance, configurator.ReceiveSelfPublish);
+            return new Subscription(model, _exchange, queue, consumer, instance, configurator);
         }
 
         private static SubscriberConfigurator CreateConfigurator(Action<ISubscriberConfigurator> configure)
@@ -145,6 +145,16 @@ namespace MessageBus.Core
             QueueDeclareOk queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
 
             return queueDeclare.QueueName;
-        } 
+        }
+
+        private MessageConsumer CreateConsumer(IModel model, SubscriberConfigurator configurator)
+        {
+            if (configurator.TransactionalDelivery)
+            {
+                return new TransactionalMessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+            }
+
+            return new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+        }
     }
 }

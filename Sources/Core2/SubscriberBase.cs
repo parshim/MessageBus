@@ -9,20 +9,20 @@ namespace MessageBus.Core
         private readonly IModel _model;
         private readonly string _queue;
         private readonly IMessageConsumer _consumer;
-        private readonly bool _receiveSelfPublish;
+        private readonly SubscriberConfigurator _configurator;
 
         private string _consumerTag;
         
         protected readonly ISubscriptionHelper _helper;
 
-        public SubscriberBase(IModel model, string exchange, string queue, IMessageConsumer consumer, bool receiveSelfPublish)
+        public SubscriberBase(IModel model, string exchange, string queue, IMessageConsumer consumer, SubscriberConfigurator configurator)
         {
             _model = model;
 
             _queue = queue;
 
             _consumer = consumer;
-            _receiveSelfPublish = receiveSelfPublish;
+            _configurator = configurator;
 
             _helper = new SubscriptionHelper((type, filterInfo, handler) =>
             {
@@ -44,7 +44,7 @@ namespace MessageBus.Core
 
         public void Open()
         {
-            _consumerTag = _model.BasicConsume(_queue, true, "", !_receiveSelfPublish, false, new Dictionary<string, object>(), _consumer);
+            _consumerTag = _model.BasicConsume(_queue, !_configurator.TransactionalDelivery, "", !_configurator.ReceiveSelfPublish, false, new Dictionary<string, object>(), _consumer);
         }
 
         public void Close()

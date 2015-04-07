@@ -10,13 +10,6 @@ using RabbitMQ.Client;
 
 namespace MessageBus.Core
 {
-    public class SubscriptionInfo
-    {
-        public ICallHandler Handler { get; set; }
-
-        public MessageFilterInfo FilterInfo { get; set; }
-    }
-
     public class MessageConsumer : DefaultBasicConsumer, IMessageConsumer
     {
         private readonly ConcurrentDictionary<Type, SubscriptionInfo> _subscriptions = new ConcurrentDictionary<Type, SubscriptionInfo>();
@@ -70,18 +63,12 @@ namespace MessageBus.Core
         
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
-            Console.WriteLine("HandleBasicDeliver " + deliveryTag);
+            StartConsumerTask(deliveryTag, properties, body);
+        }
 
-            Task.Factory.StartNew(() => ConsumeMessage(properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler)
-                .ContinueWith(task =>
-                {
-                    Console.WriteLine("HandleBasicDeliver Finished" + deliveryTag);
-
-                    if (task.Exception != null)
-                    {
-                        Console.WriteLine("HandleBasicDeliver Error" + deliveryTag + " " + task.Exception.Data.ToString());
-                    }
-                });
+        protected virtual Task StartConsumerTask(ulong deliveryTag, IBasicProperties properties, byte[] body)
+        {
+            return Task.Factory.StartNew(() => ConsumeMessage(properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler);
         }
 
         private void ConsumeMessage(IBasicProperties properties, byte[] body)
@@ -146,6 +133,8 @@ namespace MessageBus.Core
             catch (Exception ex)
             {
                 _errorSubscriber.MessageDispatchException(message, ex);
+
+                throw;
             }
         }
         

@@ -12,9 +12,10 @@ namespace MessageBus.Core
         private IErrorSubscriber _errorSubscriber;
         private string _queueName = "";
         private bool _receiveSelfPublish;
+        private bool _transactionalDelivery;
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
-
+        
         public SubscriberConfigurator()
         {
             ISerializer jsonSerializer = new JsonSerializer();
@@ -27,6 +28,11 @@ namespace MessageBus.Core
         public string QueueName
         {
             get { return _queueName; }
+        }
+
+        public bool TransactionalDelivery
+        {
+            get { return _transactionalDelivery; }
         }
 
         public BufferManager BufferManager
@@ -74,6 +80,13 @@ namespace MessageBus.Core
         public ISubscriberConfigurator UseDurableQueue(string queueName)
         {
             _queueName = queueName;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseTransactionalDelivery()
+        {
+            _transactionalDelivery = true;
 
             return this;
         }

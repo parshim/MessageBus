@@ -28,6 +28,12 @@ namespace MessageBus.Core.API
         /// <param name="queueName"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseDurableQueue(string queueName);
+
+        /// <summary>
+        /// Specify transactional delivery of the messages. If exception will be thrown on subscribed action message will be returned to the queue.
+        /// </summary>
+        /// <returns></returns>
+        ISubscriberConfigurator UseTransactionalDelivery();
         
         /// <summary>
         /// If set, messages published within bus instance will be received and processed by subscriber.

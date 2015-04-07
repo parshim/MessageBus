@@ -9,8 +9,8 @@ namespace MessageBus.Core
 {
     public class Subscriber : SubscriberBase, ISubscriber
     {
-        public Subscriber(IModel model, string exchange, string queue, IMessageConsumer consumer, bool receiveSelfPublish)
-            : base(model, exchange, queue, consumer, receiveSelfPublish)
+        public Subscriber(IModel model, string exchange, string queue, IMessageConsumer consumer, SubscriberConfigurator configurator)
+            : base(model, exchange, queue, consumer, configurator)
         {
         }
 
