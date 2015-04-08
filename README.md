@@ -72,6 +72,6 @@ Thus only this particular message type will arrive to the subscriber.
 
 There are a lot of features inside, most covered by tests and you are welcome to take a look.
 
-I am working to documentation and more use cases to that project.
+I am working on documentation, so stay tuned.
 
 Enjoy!

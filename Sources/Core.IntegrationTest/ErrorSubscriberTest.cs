@@ -18,6 +18,13 @@ namespace Core.IntegrationTest
 
         private readonly ManualResetEvent _ev = new ManualResetEvent(false);
 
+        [SetUp]
+        public void SetUp()
+        {
+            _busMessage = null;
+            _exception = null;
+        }
+
         [Test]
         public void Bus_ErrorSubscriber_MessageFilteredOut()
         {
@@ -50,7 +57,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [Test]
+        [Test, Ignore]
         public void Bus_ErrorSubscriber_MessageDeserializedException()
         {
             const string busId = "MyBus";
@@ -80,8 +87,8 @@ namespace Core.IntegrationTest
                 }
             }
         }
-        
-        [Test]
+
+        [Test, Ignore]
         public void Bus_ErrorSubscriber_MessageDispatchException()
         {
             const string busId = "MyBus";
@@ -113,8 +120,8 @@ namespace Core.IntegrationTest
                 }
             }
         }
-        
-        [Test]
+
+        [Test, Ignore]
         public void Bus_ErrorSubscriber_UnregisteredMessageShouldNotArrive()
         {
             const string busId = "MyBus";
