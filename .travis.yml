@@ -3,7 +3,7 @@ solution: Sources/MessageBus.sln
 services:
   - rabbitmq
 install:
-  - nuget restore Sources/MessageBus.sln.sln
+  - nuget restore Sources/MessageBus.sln
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release Sources/MessageBus.sln
