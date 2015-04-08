@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/parshim/MessageBus.svg)](https://travis-ci.org/parshim/MessageBus)
+
 MessageBus
 ==========
 
