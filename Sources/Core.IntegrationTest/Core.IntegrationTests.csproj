@@ -91,10 +91,6 @@
     <Compile Include="BusTransactionalDelivery.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Binding\RabbitMQ\RabbitMQ.csproj">
-      <Project>{F4B205B9-ABFC-4382-BB46-4130E54ED99D}</Project>
-      <Name>RabbitMQ</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Core.API\Core.API.csproj">
       <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>
       <Name>Core.API</Name>

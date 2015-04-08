@@ -1,2 +1,10 @@
 language: csharp
 solution: Sources/MessageBus.sln
+services:
+  - rabbitmq
+install:
+  - nuget restore Sources/MessageBus.sln.sln
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release Sources/MessageBus.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Sources/Core.IntegrationTest/bin/Release/Core.IntegrationTest.dll
