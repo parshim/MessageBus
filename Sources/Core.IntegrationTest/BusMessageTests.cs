@@ -2,14 +2,14 @@
 using System.Threading;
 using FluentAssertions;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusMessageTests
     {
-        [TestMethod]
+        [Test]
         public void Bus_BusMessage_HeadersAndPropertiesUsage()
         {
             const string busId = "Bus";

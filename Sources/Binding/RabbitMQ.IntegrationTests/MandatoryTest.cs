@@ -4,11 +4,11 @@ using System.ServiceModel.Channels;
 using System.Threading;
 using FluentAssertions;
 using MessageBus.Binding.RabbitMQ;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace RabbitMQ.IntegrationTests
 {
-    [TestClass]
+    [TestFixture]
     public class MandatoryTest : IFaultMessageProcessor
     {
         private IChannelFactory<IOutputChannel> _channelFactory;
@@ -20,7 +20,7 @@ namespace RabbitMQ.IntegrationTests
         private int _code;
         private string _text;
 
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void TestInitialize()
         {
             _ev = new ManualResetEvent(false);
@@ -43,14 +43,14 @@ namespace RabbitMQ.IntegrationTests
             _outputChannel.Open();
         }
 
-        [TestCleanup]
+        [TestFixtureTearDown]
         public virtual void TestCleanup()
         {
             _channelFactory.Close(TimeSpan.FromSeconds(2));
             _outputChannel.Close(TimeSpan.FromSeconds(2));
         }
 
-        [TestMethod]
+        [Test]
         public void RabbitMQBinding_ManadatoryDelivery_UnroutedMessageShouldReturn()
         {
             const string action = "Action";

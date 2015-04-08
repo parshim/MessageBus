@@ -2,11 +2,11 @@
 using System.Threading;
 using FluentAssertions;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusFailedDeliveryTest : IPublishingErrorHandler
     {
         private readonly ManualResetEvent _ev = new ManualResetEvent(false);
@@ -15,7 +15,7 @@ namespace Core.IntegrationTest
         private string _text;
         private RawBusMessage _message;
         
-        [TestMethod]
+        [Test]
         public void Bus_UndeliverableMessages_ReturnedToSubscriber()
         {
             using (IBus bus = new MessageBus.Core.RabbitMQBus())

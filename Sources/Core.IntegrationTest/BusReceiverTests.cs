@@ -1,13 +1,13 @@
 ﻿using FluentAssertions;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusReceiverTests
     {
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsFalse_ShouldNotArriveToReceiver()
         {
             using (MessageBus.Core.RabbitMQBus bus = new MessageBus.Core.RabbitMQBus())
@@ -30,7 +30,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsTrue_ShouldArriveToReceiver()
         {
             using (MessageBus.Core.RabbitMQBus bus = new MessageBus.Core.RabbitMQBus())
@@ -54,7 +54,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_EachReceiverGetsMessageCopy()
         {
             Person actual = new Person
@@ -95,7 +95,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_FilterByHeader()
         {
             Person actualT1 = new Person

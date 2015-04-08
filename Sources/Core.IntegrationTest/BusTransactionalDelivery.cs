@@ -3,14 +3,14 @@ using System.Threading;
 using FluentAssertions;
 using MessageBus.Core;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusTransactionalDelivery
     {
-        [TestMethod]
+        [Test]
         public void MessageProcessFailed_CheckMessageRedelivered()
         {
             using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())

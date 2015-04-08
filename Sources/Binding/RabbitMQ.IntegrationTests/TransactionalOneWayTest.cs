@@ -1,17 +1,35 @@
 ﻿using System;
 using System.ServiceModel;
+using System.Threading;
 using System.Transactions;
 using FakeItEasy;
 using FluentAssertions;
 using MessageBus.Binding.RabbitMQ;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RabbitMQ.IntegrationTests.ContractsAndServices;
 
 namespace RabbitMQ.IntegrationTests
 {
-    [TestClass]
-    public class TransactionalOneWayTest : OneWayDeliveryTestBase
+    [TestFixture]
+    public class TransactionalOneWayTest
     {
+        protected ServiceHost _host;
+        protected ChannelFactory<IOneWayService> _channelFactory;
+        protected readonly ManualResetEventSlim _ev = new ManualResetEventSlim();
+
+        protected IOneWayService _processorFake = A.Fake<IOneWayService>();
+        protected IOneWayService _errorProcessorFake = A.Fake<IOneWayService>();
+
+        [TestFixtureTearDown]
+        public virtual void TestCleanup()
+        {
+            _host.Close(TimeSpan.FromSeconds(2));
+
+            _channelFactory.Close(TimeSpan.FromSeconds(2));
+
+            _ev.Dispose();
+        }
+
         /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
         ///  \_/   \_______________/ \_______/ \__/ \_________/ \_____________/ \______________/
@@ -30,7 +48,7 @@ namespace RabbitMQ.IntegrationTests
         ///scheme  
         /// name                                                    
         /// </summary>
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void TestInitialize()
         {
             _processorFake = A.Fake<IOneWayService>();
@@ -62,7 +80,7 @@ namespace RabbitMQ.IntegrationTests
         }
 
 
-        [TestMethod]
+        [Test]
         public void RabbitMQBinding_TransactionalConsumption()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
@@ -90,7 +108,7 @@ namespace RabbitMQ.IntegrationTests
                 }).MustHaveHappened();
         }
         
-        [TestMethod]
+        [Test]
         public void RabbitMQBinding_TransactionalDispatching_MessagesRollbacked()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
@@ -120,7 +138,7 @@ namespace RabbitMQ.IntegrationTests
             A.CallTo(() => _processorFake.Say(A<Data>._)).MustNotHaveHappened();
         }
         
-        [TestMethod]
+        [Test]
         public void RabbitMQBinding_TransactionalDispatching_MessagesCommited()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
@@ -154,7 +172,7 @@ namespace RabbitMQ.IntegrationTests
             }).MustHaveHappened();
         }
         
-        [TestMethod, ExpectedException(typeof(FaultException))]
+        [Test, ExpectedException(typeof(FaultException))]
         public void RabbitMQBinding_TransactionalDispatching_ExceptionIfTransactionalChannelUsedOutOfTheTransactionScope()
         {
             IOneWayService channel = _channelFactory.CreateChannel();

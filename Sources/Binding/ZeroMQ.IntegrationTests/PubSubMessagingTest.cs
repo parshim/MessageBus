@@ -3,12 +3,12 @@ using System.ServiceModel;
 using System.Threading;
 using FakeItEasy;
 using MessageBus.Binding.ZeroMQ;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using ZeroMQ.IntegrationTests.ServiceInterfaces;
 
 namespace ZeroMQ.IntegrationTests
 {
-    [TestClass]
+    [TestFixture]
     public class PubSubMessagingTest
     {
         private ServiceHost _host;
@@ -16,7 +16,7 @@ namespace ZeroMQ.IntegrationTests
 
         const string Address = "tcp://127.0.0.1:2020";
 
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             _fake = A.Fake<IPublicationService>();
@@ -28,13 +28,13 @@ namespace ZeroMQ.IntegrationTests
             _host.Open();
         }
 
-        [TestCleanup]
+        [TestFixtureTearDown]
         public void CleanUp()
         {
             _host.Close();
         }
 
-        [TestMethod]
+        [Test]
         public void ZMQTcpBinding_Publisher_Subscriber()
         {
             ManualResetEvent ev = new ManualResetEvent(false);

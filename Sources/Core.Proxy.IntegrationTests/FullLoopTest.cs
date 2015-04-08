@@ -5,14 +5,14 @@ using FluentAssertions;
 using MessageBus.Core;
 using MessageBus.Core.API;
 using MessageBus.Core.Proxy;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.Proxy.IntegrationTests
 {
-    [TestClass]
+    [TestFixture]
     public class FullLoopTest
     {
-        [TestMethod]
+        [Test]
         public void Send_Receive_Message()
         {
             using (IBus bus = new RabbitMQBus())

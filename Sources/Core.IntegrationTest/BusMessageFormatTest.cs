@@ -5,14 +5,14 @@ using FluentAssertions;
 using MessageBus.Core;
 using MessageBus.Core.API;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusMessageFormatTest
     {
-        [TestMethod]
+        [Test]
         public void UseSoapFormat_MessageSent_Received()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
@@ -49,7 +49,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void UseCustomFormat_MessageSent_Received()
         {
             ManualResetEvent ev = new ManualResetEvent(false);

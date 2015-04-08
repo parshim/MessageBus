@@ -3,16 +3,16 @@ using System.Threading;
 using System.Runtime.Serialization;
 using FluentAssertions;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusDurableTests
     {
         private const string QueueName = "DurableTestQueue";
 
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void Initialize()
         {
             using (var bus = new MessageBus.Core.RabbitMQBus())
@@ -26,8 +26,8 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestCleanup]
-        public void Celan()
+        [TestFixtureTearDown]
+        public void Clean()
         {
             using (var bus = new MessageBus.Core.RabbitMQBus())
             {
@@ -38,7 +38,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Bus_DurableBus_SubscribesAfterPublishing_MessagesShouldBeReceived()
         {
             ImportiantData data = new ImportiantData { Info = "Valuable information" };

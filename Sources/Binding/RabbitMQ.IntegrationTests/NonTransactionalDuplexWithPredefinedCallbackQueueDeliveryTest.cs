@@ -1,18 +1,36 @@
 ﻿using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
+using System.Threading;
 using FakeItEasy;
 using FluentAssertions;
 using MessageBus.Binding.RabbitMQ;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RabbitMQ.IntegrationTests.ContractsAndServices;
 
 namespace RabbitMQ.IntegrationTests
 {
-    [TestClass]
-    public class NonTransactionalDuplexWithPredefinedCallbackQueueDeliveryTest : DuplexDeliveryTestBase
+    [TestFixture]
+    public class NonTransactionalDuplexWithPredefinedCallbackQueueDeliveryTest
     {
         Data _replyData;
+        ServiceHost _host;
+        ChannelFactory<IDuplexService> _channelFactory;
+        readonly ManualResetEventSlim _ev = new ManualResetEventSlim();
+
+        IDuplexService _processorFake = A.Fake<IDuplexService>();
+        IDuplexService _errorProcessorFake = A.Fake<IDuplexService>();
+        IDuplexService _callbackFake = A.Fake<IDuplexService>();
+
+        [TestFixtureTearDown]
+        public void TestCleanup()
+        {
+            _host.Close(TimeSpan.FromSeconds(2));
+
+            _channelFactory.Close(TimeSpan.FromSeconds(2));
+
+            _ev.Dispose();
+        }
 
         /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
@@ -32,7 +50,7 @@ namespace RabbitMQ.IntegrationTests
         ///scheme  
         /// name                                                    
         /// </summary>
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void TestInitialize()
         {
             _replyData = new Data
@@ -74,7 +92,7 @@ namespace RabbitMQ.IntegrationTests
         }
 
 
-        [TestMethod]
+        [Test]
         public void RabbitMQBinding_NonTransactionalDuplexWithPredefinedCallbackQueueDelivery()
         {
             IDuplexService channel = _channelFactory.CreateChannel();

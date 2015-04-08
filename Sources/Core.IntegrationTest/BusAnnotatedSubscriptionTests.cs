@@ -2,14 +2,14 @@
 using System.Threading;
 using FluentAssertions;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusAnnotatedSubscriptionTests
     {
-        [TestMethod]
+        [Test]
         public void Bus_SimpleSubscription_CallReceivedOnImplementationInstace()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
@@ -49,7 +49,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void Bus_SubscriptionWithFilter_CallFiltered()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
@@ -87,7 +87,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void Bus_SubscriptionWithFilter_CallReceived()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
@@ -127,7 +127,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void Bus_MessageBaseSubscription_CallReceived()
         {
             ManualResetEvent ev = new ManualResetEvent(false);

@@ -1,20 +1,40 @@
 ﻿using System;
 using System.ServiceModel;
+using System.Threading;
 using System.Xml;
 using FakeItEasy;
 using FluentAssertions;
 
 using MessageBus.Binding.RabbitMQ;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RabbitMQ.IntegrationTests.ContractsAndServices;
 
 namespace RabbitMQ.IntegrationTests
 {
-    [TestClass]
-    public class MessageFormatsTest : OneWayDeliveryTestBase
+    [TestFixture]
+    public class MessageFormatsTest
     {
         private ChannelFactory<IOneWayService> _mtomFactory;
         private ChannelFactory<IOneWayService> _binaryFactory;
+        protected ServiceHost _host;
+        protected ChannelFactory<IOneWayService> _channelFactory;
+        protected readonly ManualResetEventSlim _ev = new ManualResetEventSlim();
+
+        protected IOneWayService _processorFake = A.Fake<IOneWayService>();
+        protected IOneWayService _errorProcessorFake = A.Fake<IOneWayService>();
+
+        [TestFixtureTearDown]
+        public void TestCleanup()
+        {
+            _host.Close(TimeSpan.FromSeconds(2));
+
+            _channelFactory.Close(TimeSpan.FromSeconds(2));
+
+            _ev.Dispose();
+            
+            _mtomFactory.Close();
+            _binaryFactory.Close();
+        }
 
             /// <summary>
         /// amqp://username:password@localhost:5672/virtualhost/queueORexchange?routingKey=value
@@ -34,7 +54,7 @@ namespace RabbitMQ.IntegrationTests
         ///scheme  
         /// name                                                    
         /// </summary>
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void TestInitialize()
         {
             _host = new ServiceHost(new OneWayService(_processorFake, _errorProcessorFake));
@@ -80,17 +100,9 @@ namespace RabbitMQ.IntegrationTests
             _channelFactory.Open();
             _mtomFactory.Open();
         }
+        
 
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-
-            _mtomFactory.Close();
-            _binaryFactory.Close();
-        }
-
-
-        [TestMethod]
+        [Test]
         public void RabbitMQBinding_DeliveryMessageInAllSupportedFromats_ReceiveInSingleChannel()
         {
             IOneWayService textChannel = _channelFactory.CreateChannel();

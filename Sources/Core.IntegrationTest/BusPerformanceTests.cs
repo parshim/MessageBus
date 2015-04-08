@@ -3,14 +3,14 @@ using System.Threading;
 using FluentAssertions;
 using MessageBus.Core;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusPerformanceTests
     {
-        [TestMethod]
+        [Test]
         public void Bus_SendReceive_BunchOfMessages()
         {
             //RabbitMQConnectionString connectionString = new RabbitMQConnectionString(new Uri("amqp://rabbit:rabbit@10.0.8.100"));

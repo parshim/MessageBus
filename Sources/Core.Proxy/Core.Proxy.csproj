@@ -41,18 +41,19 @@
     <Reference Include="Castle.Core">
       <HintPath>..\packages\Castle.Core.3.1.0\lib\net40-client\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="MessageBus.Core">
-      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.1-alpha\lib\net451\MessageBus.Core.dll</HintPath>
+    <Reference Include="MessageBus.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.5\lib\net45\MessageBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="MessageBus.Core.API, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.1-alpha\lib\net451\MessageBus.Core.API.dll</HintPath>
+      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.5\lib\net45\MessageBus.Core.API.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client">
+    <Reference Include="RabbitMQ.Client, Version=3.4.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />

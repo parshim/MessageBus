@@ -3,14 +3,14 @@ using System.Threading;
 using FluentAssertions;
 
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusSubscriberTests
     {
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsFalse_ShouldNotArriveToSubscriber()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
@@ -36,7 +36,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_ReceiveSelfPublishIsTrue_ShouldArriveToSubscriber()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
@@ -61,7 +61,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_EachSubscriberGetsMessageCopy()
         {
             Person actual = new Person
@@ -111,7 +111,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Bus_PublishedMessage_FilterByHeader()
         {
             Person actualT1 = new Person

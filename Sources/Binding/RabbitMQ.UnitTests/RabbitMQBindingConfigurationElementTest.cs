@@ -1,13 +1,13 @@
 ﻿using MessageBus.Binding.RabbitMQ;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using NUnit.Framework;
 
 namespace RabbitMQ.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class ConfigurationElementTest
     {
-        [TestMethod]
+        [Test]
         public void RabbitMQBinding_ConfigurationElement_CreateInstance()
         {
             RabbitMQBindingConfigurationElement element = new RabbitMQBindingConfigurationElement("Binding0");

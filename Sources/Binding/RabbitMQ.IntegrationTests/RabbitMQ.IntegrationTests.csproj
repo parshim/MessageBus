@@ -46,7 +46,9 @@
     <Reference Include="FluentAssertions.Core">
       <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net40\FluentAssertions.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="RabbitMQ.Client">
       <HintPath>..\..\packages\RabbitMQ.Client.3.5.0\lib\net40\RabbitMQ.Client.dll</HintPath>
     </Reference>
@@ -74,9 +76,7 @@
     <Compile Include="MandatoryTest.cs" />
     <Compile Include="MessageFormatsTest.cs" />
     <Compile Include="LargeBinaryTransferTest.cs" />
-    <Compile Include="DuplexDeliveryTestBase.cs" />
     <Compile Include="NonTransactionalDuplexWithPredefinedCallbackQueueDeliveryTest.cs" />
-    <Compile Include="OneWayDeliveryTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NonTransactionalOneWayDeliveryTest.cs" />
     <Compile Include="TransactionalOneWayTest.cs" />

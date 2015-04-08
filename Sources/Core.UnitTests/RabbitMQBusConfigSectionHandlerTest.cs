@@ -1,14 +1,14 @@
 ﻿using System.Configuration;
 using FluentAssertions;
 using MessageBus.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class RabbitMQBusConfigSectionHandlerTest
     {
-        [TestMethod]
+        [Test]
         public void TestConfiguration()
         {
             RabbitMQBusConfigSectionHandler section = (RabbitMQBusConfigSectionHandler) ConfigurationManager.GetSection(RabbitMQBusConfigSectionHandler.SectionName);

@@ -3,25 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using FluentAssertions;
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class BusFullCycleTests
     {
-        [TestInitialize]
-        public void TestInitialize()
-        {
-
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-        }
-        
-        [TestMethod]
+        [Test]
         public void RabbitMQBus_Dialog_WithOrderedDelivery_AllSubscriptionTypes()
         {
             using (MessageBus.Core.RabbitMQBus entityA = new MessageBus.Core.RabbitMQBus(), entityB = new MessageBus.Core.RabbitMQBus())

@@ -46,15 +46,18 @@
     </Reference>
     <Reference Include="MessageBus.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.1-alpha\lib\net451\MessageBus.Core.dll</HintPath>
+      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.5\lib\net45\MessageBus.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="MessageBus.Core.API, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.1-alpha\lib\net451\MessageBus.Core.API.dll</HintPath>
+      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.5\lib\net45\MessageBus.Core.API.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.4.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -71,11 +74,7 @@
         <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
-      </ItemGroup>
-    </Otherwise>
+    <Otherwise />
   </Choose>
   <ItemGroup>
     <Compile Include="FullLoopTest.cs" />
@@ -88,6 +87,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

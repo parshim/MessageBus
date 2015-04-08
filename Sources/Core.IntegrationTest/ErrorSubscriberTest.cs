@@ -4,13 +4,13 @@ using System.Threading;
 using FluentAssertions;
 
 using MessageBus.Core.API;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Core.IntegrationTest
 {
-    [TestClass]
+    [TestFixture]
     public class ErrorSubscriberTest : IErrorSubscriber
     {
         private RawBusMessage _busMessage;
@@ -18,7 +18,7 @@ namespace Core.IntegrationTest
 
         private readonly ManualResetEvent _ev = new ManualResetEvent(false);
 
-        [TestMethod]
+        [Test]
         public void Bus_ErrorSubscriber_MessageFilteredOut()
         {
             const string busId = "MyBus";
@@ -50,7 +50,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void Bus_ErrorSubscriber_MessageDeserializedException()
         {
             const string busId = "MyBus";
@@ -81,7 +81,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void Bus_ErrorSubscriber_MessageDispatchException()
         {
             const string busId = "MyBus";
@@ -114,7 +114,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [TestMethod]
+        [Test]
         public void Bus_ErrorSubscriber_UnregisteredMessageShouldNotArrive()
         {
             const string busId = "MyBus";
