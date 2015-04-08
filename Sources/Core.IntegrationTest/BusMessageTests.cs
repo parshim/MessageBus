@@ -9,7 +9,7 @@ namespace Core.IntegrationTest
     [TestFixture]
     public class BusMessageTests
     {
-        [Test, Ignore("Fails on mono - need investigation")]
+        [Test]
         public void Bus_BusMessage_HeadersAndPropertiesUsage()
         {
             const string busId = "Bus";
