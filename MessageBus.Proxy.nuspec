@@ -6,6 +6,7 @@
         <authors>Michael Parshin</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Message Bus infrastructure based on RabbitMQ message broker</description>
+		<projectUrl>https://github.com/parshim/MessageBus</projectUrl>
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="Castle.Core" version="3.1.0" />
@@ -14,6 +15,6 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="Binaries\Release\MessageBus.Proxy.dll" target="lib\net451\MessageBus.Proxy.dll" />
+        <file src="Binaries\Release\MessageBus.Proxy.dll" target="lib\net45\MessageBus.Proxy.dll" />
     </files>
 </package>

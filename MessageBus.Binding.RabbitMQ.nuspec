@@ -6,6 +6,7 @@
         <authors>Michael Parshin</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Message Bus RabbitMQ WCF Binding</description>
+		<projectUrl>https://github.com/parshim/MessageBus</projectUrl>
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="RabbitMQ.Client" version="3.4.0" />
@@ -13,6 +14,6 @@
         </dependencies>
     </metadata>
     <files>
-		<file src="Binaries\Release\MessageBus.Binding.RabbitMQ.dll" target="lib\net451\MessageBus.Binding.RabbitMQ.dll" />
+		<file src="Binaries\Release\MessageBus.Binding.RabbitMQ.dll" target="lib\net45\MessageBus.Binding.RabbitMQ.dll" />
     </files>
 </package>

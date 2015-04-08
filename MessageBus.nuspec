@@ -6,6 +6,7 @@
         <authors>Michael Parshin</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Message Bus infrastructure based on RabbitMQ message broker</description>
+		<projectUrl>https://github.com/parshim/MessageBus</projectUrl>
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="RabbitMQ.Client" version="3.4.0" />
@@ -14,7 +15,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="Binaries\Release\MessageBus.Core.API.dll" target="lib\net451\MessageBus.Core.API.dll" />
-        <file src="Binaries\Release\MessageBus.Core.dll" target="lib\net451\MessageBus.Core.dll" />
+        <file src="Binaries\Release\MessageBus.Core.API.dll" target="lib\net45\MessageBus.Core.API.dll" />
+        <file src="Binaries\Release\MessageBus.Core.dll" target="lib\net45\MessageBus.Core.dll" />
     </files>
 </package>
