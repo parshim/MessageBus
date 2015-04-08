@@ -44,8 +44,6 @@ namespace Core.IntegrationTest
                     {
                         sent = DateTime.Now;
                         publisher.Send(message);
-
-                        Thread.Sleep(10000);
                     }
 
                     bool wait = ev.WaitOne(TimeSpan.FromSeconds(5));
