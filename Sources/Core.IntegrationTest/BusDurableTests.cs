@@ -10,22 +10,39 @@ namespace Core.IntegrationTest
     [TestClass]
     public class BusDurableTests
     {
+        private const string QueueName = "DurableTestQueue";
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            using (var bus = new MessageBus.Core.RabbitMQBus())
+            {
+                using (IRouteManager routeManager = bus.CreateRouteManager())
+                {
+                    routeManager.CreateQueue(QueueName, true, false, CreateQueueSettings.Default);
+                    
+                    routeManager.QueueBindMessage<ImportiantData>(QueueName);
+                }
+            }
+        }
+
+        [TestCleanup]
+        public void Celan()
+        {
+            using (var bus = new MessageBus.Core.RabbitMQBus())
+            {
+                using (IRouteManager routeManager = bus.CreateRouteManager())
+                {
+                    routeManager.DeleteQueue(QueueName);
+                }
+            }
+        }
+
         [TestMethod]
         public void Bus_DurableBus_SubscribesAfterPublishing_MessagesShouldBeReceived()
         {
             ImportiantData data = new ImportiantData { Info = "Valuable information" };
-
-            // First bus ensures that test queue is created with appropriate bindings
-            const string queueName = "DurableTestQueue";
-
-            using (var bus = new MessageBus.Core.RabbitMQBus())
-            {
-                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseDurableQueue(queueName)))
-                {
-                    subscriber.Subscribe(new Action<ImportiantData>(d => { }));
-                }
-            }
-
+            
             // Dispatch message
             using (var bus = new MessageBus.Core.RabbitMQBus())
             {
@@ -41,7 +58,7 @@ namespace Core.IntegrationTest
             // Second bus subscribes to message after it was dispatched and should receive it
             using (var bus = new MessageBus.Core.RabbitMQBus())
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseDurableQueue(queueName)))
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseDurableQueue(QueueName)))
                 {
                     subscriber.Subscribe<ImportiantData>(p =>
                         {

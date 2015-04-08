@@ -63,12 +63,7 @@ namespace MessageBus.Core
 
         public bool Subscribe<TData>(bool hierarchy = false, IEnumerable<BusHeader> filter = null)
         {
-            if (hierarchy)
-            {
-                return _helper.SubscribeHierarchy(typeof(TData), null, filter);
-            }
-            
-            return _helper.Subscribe(typeof (TData), null, filter);
+            return _helper.Subscribe(typeof (TData), null, hierarchy, filter);
         }
 
         public TData Receive<TData>()

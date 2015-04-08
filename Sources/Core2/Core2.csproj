@@ -73,6 +73,7 @@
     <Compile Include="RawHandler.cs" />
     <Compile Include="Receiver.cs" />
     <Compile Include="JsonSerializer.cs" />
+    <Compile Include="RouteManager.cs" />
     <Compile Include="SoapSerializer.cs" />
     <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriberBase.cs" />

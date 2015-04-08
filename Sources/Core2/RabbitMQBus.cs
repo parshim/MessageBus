@@ -123,6 +123,13 @@ namespace MessageBus.Core
             return new Subscription(model, _exchange, queue, consumer, instance, configurator);
         }
 
+        public IRouteManager CreateRouteManager()
+        {
+            IModel model = _connection.CreateModel();
+
+            return new RouteManager(model, _exchange);
+        }
+
         private static SubscriberConfigurator CreateConfigurator(Action<ISubscriberConfigurator> configure)
         {
             SubscriberConfigurator configurator = new SubscriberConfigurator();
