@@ -23,7 +23,7 @@ Message Bus Framework based on RabbitMQ with intuitive interface and built in Js
 ##### Messages are just POCOs
 
 ```c#
-public class Person : Data
+public class Person
 {
     public int Id { get; set; }
 }
