@@ -18,7 +18,7 @@ Connection Strings
     |           |                                           |
     |  rabbit mq user info, if absent guest:guest is used   |
     |                                                       |   
-  scheme  name                                         exchange name used for dispatching messages (optional)
+  schema name                                         exchange name used for dispatching messages (optional)
 ```
 
 ##### Optional values

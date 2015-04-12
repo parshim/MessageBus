@@ -9,14 +9,16 @@ Message Bus Framework based on RabbitMQ with intuitive interface and built in Js
 ## Features
 
  * Publish\Subscribe
- * Workers
- * Transactional delivery
- * Message persistence
+ * Worker Queues
  * POCO messages support
- * Subscription for individual messages	
- * Message headers and header based subscription filter
- * Connection string support
+ * Subscription based on message types	
+ * Message headers support
+ * Header based message subscription filter
+ * Connection strings support
  * Most RabbitMQ features are supported and provided via convenient and user friendly API
+ 	- Transactional delivery
+ 	- Message persistence
+    - TTL
  * Fast binary data transfer (pass through without serialization)
  
 ## Example
