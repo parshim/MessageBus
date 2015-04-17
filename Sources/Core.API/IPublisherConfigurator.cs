@@ -3,21 +3,21 @@
 namespace MessageBus.Core.API
 {
     /// <summary>
-    /// Interface to configure the requested publisher
+    /// Interface to configure the requested publisher.
     /// </summary>
     public interface IPublisherConfigurator
     {
         /// <summary>
-        /// Specify buffer manager to be used for message transfer
+        /// Specify buffer manager to be used for message transfer.
         /// </summary>
         /// <param name="bufferManager"></param>
         /// <returns></returns>
         IPublisherConfigurator UseBufferManager(BufferManager bufferManager);
 
         /// <summary>
-        /// Specify callback for messages which failed to be delivered
+        /// Specify callback for messages which failed to be delivered.
         /// </summary>
-        /// <param name="errorHandler">Callback to be called upon successful message delivery</param>
+        /// <param name="errorHandler">Callback to be called upon successful message delivery.</param>
         /// <returns></returns>
         IPublisherConfigurator UseErrorHandler(IPublishingErrorHandler errorHandler);
 
@@ -34,15 +34,25 @@ namespace MessageBus.Core.API
         IPublisherConfigurator SetPersistentDelivery();
 
         /// <summary>
-        /// Specify that published messages should be serialized as Soap messages
+        /// Specifies that published messages should be serialized as Soap envelopes.
         /// </summary>
         IPublisherConfigurator UseSoapSerializer();
 
         /// <summary>
-        /// Specify custom serializer for published messages
+        /// Specify custom serializer for published messages.
         /// </summary>
         /// <param name="serializer"></param>
         /// <returns></returns>
         IPublisherConfigurator UseCustomSerializer(ISerializer serializer);
+
+        /// <summary>
+        /// Specify exchange messages should be published to.
+        /// </summary>
+        IPublisherConfigurator SetExchange(string exchange);
+
+        /// <summary>
+        /// Specify routing key for published messages.
+        /// </summary>
+        IPublisherConfigurator SetRoutingKey(string routingKey);
     }
 }

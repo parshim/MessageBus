@@ -24,22 +24,22 @@ namespace MessageBus.Core
         private readonly string _queue;
         private readonly string _busId;
 
-        public Receiver(IModel model, string busId, string exchange, string queue, IMessageHelper messageHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, bool receiveSelfPublish)
+        public Receiver(IModel model, string busId, string queue, IMessageHelper messageHelper, SubscriberConfigurator configurator)
         {
             _model = model;
             _busId = busId;
 
             _queue = queue;
             _messageHelper = messageHelper;
-            _serializers = serializers;
-            _errorSubscriber = errorSubscriber;
-            _receiveSelfPublish = receiveSelfPublish;
+            _serializers = configurator.Serializers;
+            _errorSubscriber = configurator.ErrorSubscriber;
+            _receiveSelfPublish = configurator.ReceiveSelfPublish;
 
             _helper = new SubscriptionHelper((type, filterInfo, handler) =>
             {
                 if (_nameMappings.TryAdd(type, filterInfo))
                 {
-                    _model.QueueBind(_queue, exchange, filterInfo);
+                    _model.QueueBind(_queue, configurator.Exchange, configurator.RoutingKey, filterInfo);
 
                     return true;
                 }

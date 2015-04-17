@@ -9,21 +9,21 @@ namespace MessageBus.Core.API
     public interface ISubscriberConfigurator
     {
         /// <summary>
-        /// Specify buffer manager to be used for message transfer
+        /// Specify buffer manager to be used for message transfer.
         /// </summary>
         /// <param name="bufferManager"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseBufferManager(BufferManager bufferManager);
 
         /// <summary>
-        /// Specify error subscriber interface to redirect subscriber errors to
+        /// Specify error subscriber interface to redirect subscriber errors to.
         /// </summary>
         /// <param name="errorSubscriber"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseErrorSubscriber(IErrorSubscriber errorSubscriber);
 
         /// <summary>
-        /// Specify durable queue name to listen for the messages
+        /// Specify durable queue name to listen for the messages.
         /// </summary>
         /// <param name="queueName"></param>
         /// <returns></returns>
@@ -50,17 +50,27 @@ namespace MessageBus.Core.API
         ISubscriberConfigurator SetConcurencyLevel(int level);
 
         /// <summary>
-        /// Specifies task scheduler that will be used to dispatch received messages to subscriber
+        /// Specifies task scheduler that will be used to dispatch received messages to subscriber.
         /// </summary>
         /// <param name="scheduler"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseTaskScheduler(TaskScheduler scheduler);
 
         /// <summary>
-        /// Specify custom serializer for received messages
+        /// Specify custom serializer for received messages.
         /// </summary>
         /// <param name="serializer"></param>
         /// <returns></returns>
         ISubscriberConfigurator AddCustomSerializer(ISerializer serializer);
+
+        /// <summary>
+        /// Specify exchange messages subscriptions should be bound to.
+        /// </summary>
+        ISubscriberConfigurator SetExchange(string exchange);
+
+        /// <summary>
+        /// Specify routing key for messages bindings.
+        /// </summary>
+        ISubscriberConfigurator SetRoutingKey(string routingKey);
     }
 }

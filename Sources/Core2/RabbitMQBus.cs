@@ -12,6 +12,9 @@ namespace MessageBus.Core
 
         private readonly IMessageHelper _messageHelper = new MessageHelper();
 
+        private readonly Func<Action<ISubscriberConfigurator>, SubscriberConfigurator> _createSubscriberConfigurator;
+        private readonly Func<Action<IPublisherConfigurator>, PublisherConfigurator> _createPublisherConfigurator;
+
         private readonly string _exchange;
 
         public RabbitMQBus() : this(Guid.NewGuid().ToString()) { }
@@ -33,6 +36,7 @@ namespace MessageBus.Core
             BusId = busId;
 
             _exchange = "amq.headers";
+
             string username = "guest";
             string password = "guest";
             
@@ -63,6 +67,30 @@ namespace MessageBus.Core
             };
 
             _connection = factory.CreateConnection();
+
+            _createSubscriberConfigurator = configure =>
+            {
+                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange);
+
+                if (configure != null)
+                {
+                    configure(configurator);
+                }
+
+                return configurator;
+            };
+
+            _createPublisherConfigurator = configure =>
+            {
+                PublisherConfigurator configurator = new PublisherConfigurator(_exchange);
+
+                if (configure != null)
+                {
+                    configure(configurator);
+                }
+
+                return configurator;
+            };
         }
 
         public string BusId { get; private set; }
@@ -74,32 +102,27 @@ namespace MessageBus.Core
         
         public IPublisher CreatePublisher(Action<IPublisherConfigurator> configure = null)
         {
-            PublisherConfigurator configuration = new PublisherConfigurator();
-
-            if (configure != null)
-            {
-                configure(configuration);
-            }
+            PublisherConfigurator configuration = _createPublisherConfigurator(configure);
 
             IModel model = _connection.CreateModel();
 
-            return new Publisher(model, BusId, _exchange, configuration, _messageHelper);
+            return new Publisher(model, BusId, configuration, _messageHelper);
         }
 
         public IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null)
         {
-            SubscriberConfigurator configurator = CreateConfigurator(configure);
+            SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
 
             IModel model = _connection.CreateModel();
 
             string queue = CreateQueue(model, configurator);
 
-            return new Receiver(model, BusId, _exchange, queue, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.ReceiveSelfPublish);
+            return new Receiver(model, BusId, queue, _messageHelper, configurator);
         }
 
         public ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null)
         {
-            SubscriberConfigurator configurator = CreateConfigurator(configure);
+            SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
 
             IModel model = _connection.CreateModel();
 
@@ -107,12 +130,12 @@ namespace MessageBus.Core
 
             IMessageConsumer consumer = CreateConsumer(model, configurator);
 
-            return new Subscriber(model, _exchange, queue, consumer, configurator);
+            return new Subscriber(model, queue, consumer, configurator);
         }
         
         public ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null)
         {
-            SubscriberConfigurator configurator = CreateConfigurator(configure);
+            SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
 
             IModel model = _connection.CreateModel();
 
@@ -120,7 +143,7 @@ namespace MessageBus.Core
 
             IMessageConsumer consumer = CreateConsumer(model, configurator);
 
-            return new Subscription(model, _exchange, queue, consumer, instance, configurator);
+            return new Subscription(model, queue, consumer, instance, configurator);
         }
 
         public IRouteManager CreateRouteManager()
@@ -128,18 +151,6 @@ namespace MessageBus.Core
             IModel model = _connection.CreateModel();
 
             return new RouteManager(model, _exchange);
-        }
-
-        private static SubscriberConfigurator CreateConfigurator(Action<ISubscriberConfigurator> configure)
-        {
-            SubscriberConfigurator configurator = new SubscriberConfigurator();
-
-            if (configure != null)
-            {
-                configure(configurator);
-            }
-
-            return configurator;
         }
 
         private static string CreateQueue(IModel model, SubscriberConfigurator configurator)

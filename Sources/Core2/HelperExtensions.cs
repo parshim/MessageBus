@@ -11,7 +11,7 @@ namespace MessageBus.Core
 {
     public static class HelperExtensions
     {
-        public static void QueueBind(this IModel model, string queue, string exchange, MessageFilterInfo filterInfo)
+        public static void QueueBind(this IModel model, string queue, string exchange, string routingKey, MessageFilterInfo filterInfo)
         {
             IDictionary<string, object> arguments = new Dictionary<string, object>();
 
@@ -23,7 +23,7 @@ namespace MessageBus.Core
                 arguments.Add(header.Name, header.Value);
             }
 
-            model.QueueBind(queue, exchange, "", arguments);
+            model.QueueBind(queue, exchange, routingKey, arguments);
         }
 
         public static string GetHeaderValue(this IBasicProperties basicProperties, string key)

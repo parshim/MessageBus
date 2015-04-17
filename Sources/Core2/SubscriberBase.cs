@@ -15,7 +15,7 @@ namespace MessageBus.Core
         
         protected readonly ISubscriptionHelper _helper;
 
-        public SubscriberBase(IModel model, string exchange, string queue, IMessageConsumer consumer, SubscriberConfigurator configurator)
+        public SubscriberBase(IModel model, string queue, IMessageConsumer consumer, SubscriberConfigurator configurator)
         {
             _model = model;
 
@@ -28,7 +28,7 @@ namespace MessageBus.Core
             {
                 if (_consumer.Register(type, filterInfo, handler))
                 {
-                    _model.QueueBind(_queue, exchange, filterInfo);
+                    _model.QueueBind(_queue, configurator.Exchange, configurator.RoutingKey, filterInfo);
 
                     return true;
                 }

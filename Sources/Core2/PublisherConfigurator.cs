@@ -11,6 +11,14 @@ namespace MessageBus.Core
         private bool _mandatoryDelivery;
         private bool _persistentDelivery;
 
+        private string _exchange;
+        private string _routingKey = "";
+
+        public PublisherConfigurator(string exchange)
+        {
+            _exchange = exchange;
+        }
+
         public BufferManager BufferManager
         {
             get { return _bufferManager; }
@@ -37,6 +45,16 @@ namespace MessageBus.Core
         public ISerializer Serializer
         {
             get { return _serializer ?? new JsonSerializer(); }
+        }
+
+        public string Exchange
+        {
+            get { return _exchange; }
+        }
+
+        public string RoutingKey
+        {
+            get { return _routingKey; }
         }
 
         public IPublisherConfigurator UseBufferManager(BufferManager bufferManager)
@@ -77,6 +95,20 @@ namespace MessageBus.Core
         public IPublisherConfigurator UseCustomSerializer(ISerializer serializer)
         {
             _serializer = serializer;
+
+            return this;
+        }
+
+        public IPublisherConfigurator SetExchange(string exchange)
+        {
+            _exchange = exchange;
+
+            return this;
+        }
+
+        public IPublisherConfigurator SetRoutingKey(string routingKey)
+        {
+            _routingKey = routingKey;
 
             return this;
         }

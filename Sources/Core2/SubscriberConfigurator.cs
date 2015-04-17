@@ -13,11 +13,15 @@ namespace MessageBus.Core
         private string _queueName = "";
         private bool _receiveSelfPublish;
         private bool _transactionalDelivery;
+        private string _exchange;
+        private string _routingKey = "";
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
         
-        public SubscriberConfigurator()
+        public SubscriberConfigurator(string exchange)
         {
+            _exchange = exchange;
+
             ISerializer jsonSerializer = new JsonSerializer();
             ISerializer soapSerializer = new SoapSerializer();
 
@@ -28,6 +32,14 @@ namespace MessageBus.Core
         public string QueueName
         {
             get { return _queueName; }
+        }
+        public string Exchange
+        {
+            get { return _exchange; }
+        }
+        public string RoutingKey
+        {
+            get { return _routingKey; }
         }
 
         public bool TransactionalDelivery
@@ -115,6 +127,20 @@ namespace MessageBus.Core
         public ISubscriberConfigurator AddCustomSerializer(ISerializer serializer)
         {
             _serializers.Add(serializer.ContentType, serializer);
+
+            return this;
+        }
+
+        public ISubscriberConfigurator SetExchange(string exchange)
+        {
+            _exchange = exchange;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator SetRoutingKey(string routingKey)
+        {
+            _routingKey = routingKey;
 
             return this;
         }

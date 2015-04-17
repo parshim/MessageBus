@@ -89,6 +89,7 @@
     <Compile Include="BusFullCycleTests.cs" />
     <Compile Include="BusMessageFormatTest.cs" />
     <Compile Include="BusTransactionalDelivery.cs" />
+    <Compile Include="BusRoutingKeyTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.API\Core.API.csproj">

@@ -18,7 +18,7 @@ namespace MessageBus.Core.API
         /// <returns>Name of the created queue</returns>
         string CreateQueue(string queueName, bool durable, bool autoDelete, CreateQueueSettings settings);
 
-        void QueueBindMessage<T>(string queueName, bool hierarchy = false, IEnumerable<BusHeader> filter = null);
+        void QueueBindMessage<T>(string queueName, string routingKey = "", bool hierarchy = false, IEnumerable<BusHeader> filter = null);
 
         /// <summary>
         /// Deletes queue. All messages in deleted queue are lost.

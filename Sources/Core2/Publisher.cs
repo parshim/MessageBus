@@ -20,13 +20,12 @@ namespace MessageBus.Core
         private readonly IMessageHelper _messageHelper;
 
         private readonly string _busId;
-        private readonly string _exchange;
+
         private readonly PublisherConfigurator _configuration;
 
-        public Publisher(IModel model, string busId, string exchange, PublisherConfigurator configuration, IMessageHelper messageHelper)
+        public Publisher(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper)
         {
             _model = model;
-            _exchange = exchange;
             _configuration = configuration;
             _messageHelper = messageHelper;
             _busId = busId;
@@ -116,10 +115,10 @@ namespace MessageBus.Core
             {
                 basicProperties.SetPersistent(true);
             }
-
+            
             byte[] bytes = _configuration.Serializer.Serialize(busMessage);
 
-            _model.BasicPublish(_exchange, "", _configuration.MandatoryDelivery, false, basicProperties, bytes);
+            _model.BasicPublish(_configuration.Exchange, _configuration.RoutingKey, _configuration.MandatoryDelivery, false, basicProperties, bytes);
         }
     }
 }

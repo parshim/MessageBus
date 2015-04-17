@@ -65,11 +65,11 @@ namespace MessageBus.Core
             return declareOk.QueueName;
         }
 
-        public void QueueBindMessage<T>(string queueName, bool hierarchy, IEnumerable<BusHeader> filter)
+        public void QueueBindMessage<T>(string queueName, string routingKey, bool hierarchy, IEnumerable<BusHeader> filter)
         {
             var helper = new SubscriptionHelper((type, filterInfo, handler) =>
             {
-                _model.QueueBind(queueName, _exchange, filterInfo);
+                _model.QueueBind(queueName, _exchange, routingKey, filterInfo);
 
                 return true;
             });
