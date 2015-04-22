@@ -17,60 +17,53 @@ namespace MessageBus.Core
 
         private readonly string _exchange;
 
-        public RabbitMQBus() : this(Guid.NewGuid().ToString()) { }
-
-        public RabbitMQBus(RabbitMQConnectionString connectionString) : this(Guid.NewGuid().ToString(), connectionString) { }
-
-        public RabbitMQBus(string busId) : this(busId, new RabbitMQConnectionString())
+        public RabbitMQBus(Action<IBusConfigurator> busConfigurator = null)
         {
+            BusConfigurator busConfiguration = new BusConfigurator();
 
-        }
+            if (busConfigurator != null)
+            {
+                busConfigurator(busConfiguration);
+            }
 
-        public RabbitMQBus(string busId, Uri uri) : this(busId, new RabbitMQConnectionString(uri))
-        {
-            
-        }
-
-        public RabbitMQBus(string busId, RabbitMQConnectionString connectionString)
-        {
-            BusId = busId;
+            BusId = busConfiguration.BusId;
 
             _exchange = "amq.headers";
 
             string username = "guest";
             string password = "guest";
-            
-            if (!string.IsNullOrEmpty(connectionString.Endpoint))
+
+            if (!string.IsNullOrEmpty(busConfiguration.ConnectionString.Endpoint))
             {
-                _exchange = connectionString.Endpoint;
-            }
-            
-            if (!string.IsNullOrEmpty(connectionString.Username))
-            {
-                username = connectionString.Username;
+                _exchange = busConfiguration.ConnectionString.Endpoint;
             }
 
-            if (!string.IsNullOrEmpty(connectionString.Password))
+            if (!string.IsNullOrEmpty(busConfiguration.ConnectionString.Username))
             {
-                password = connectionString.Password;
+                username = busConfiguration.ConnectionString.Username;
+            }
+
+            if (!string.IsNullOrEmpty(busConfiguration.ConnectionString.Password))
+            {
+                password = busConfiguration.ConnectionString.Password;
             }
             
             ConnectionFactory factory = new ConnectionFactory
             {
-                HostName = connectionString.Host,
-                Port = connectionString.Port,
+                HostName = busConfiguration.ConnectionString.Host,
+                Port = busConfiguration.ConnectionString.Port,
                 AutomaticRecoveryEnabled = true,
                 TopologyRecoveryEnabled = true,
                 UserName = username,
                 Password = password,
-                VirtualHost = connectionString.VirtualHost
+                VirtualHost = busConfiguration.ConnectionString.VirtualHost
             };
 
             _connection = factory.CreateConnection();
 
             _createSubscriberConfigurator = configure =>
             {
-                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange);
+                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ErrorSubscriber);
 
                 if (configure != null)
                 {
@@ -82,7 +75,7 @@ namespace MessageBus.Core
 
             _createPublisherConfigurator = configure =>
             {
-                PublisherConfigurator configurator = new PublisherConfigurator(_exchange);
+                PublisherConfigurator configurator = new PublisherConfigurator(_exchange, busConfiguration.ErrorHandler);
 
                 if (configure != null)
                 {

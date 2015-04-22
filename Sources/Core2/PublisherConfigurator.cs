@@ -14,9 +14,10 @@ namespace MessageBus.Core
         private string _exchange;
         private string _routingKey = "";
 
-        public PublisherConfigurator(string exchange)
+        public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler)
         {
             _exchange = exchange;
+            _errorHandler = errorHandler;
         }
 
         public BufferManager BufferManager
@@ -28,7 +29,7 @@ namespace MessageBus.Core
         {
             get
             {
-                return _errorHandler ?? new NullPublishingErrorHandler();
+                return _errorHandler;
             }
         }
 

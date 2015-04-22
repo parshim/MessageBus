@@ -37,6 +37,7 @@
     <Compile Include="DataContractKey.cs" />
     <Compile Include="HeaderFilterAttribute.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="IBusConfigurator.cs" />
     <Compile Include="IErrorSubscriber.cs" />
     <Compile Include="IPublisher.cs" />
     <Compile Include="IPublisherConfigurator.cs" />

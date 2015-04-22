@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MessageBus.Core;
 using MessageBus.Core.API;
@@ -20,7 +19,7 @@ namespace Core.SignalR
         public RabbitMessageBus(IDependencyResolver resolver, RabbitScaleoutConfiguration configuration)
             : base(resolver, configuration)
         {
-            _bus = new RabbitMQBus(new RabbitMQConnectionString(new Uri(configuration.ConnectionString)));
+            _bus = new RabbitMQBus(c => c.UseConnectionString(configuration.ConnectionString));
 
             ScaleoutMessageSerializer serializer = new ScaleoutMessageSerializer();
 

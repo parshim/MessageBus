@@ -17,16 +17,18 @@ namespace MessageBus.Core
         private string _routingKey = "";
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
-        
-        public SubscriberConfigurator(string exchange)
+
+        public SubscriberConfigurator(string exchange, IErrorSubscriber errorSubscriber)
         {
             _exchange = exchange;
+            _errorSubscriber = errorSubscriber;
 
             ISerializer jsonSerializer = new JsonSerializer();
             ISerializer soapSerializer = new SoapSerializer();
 
             _serializers.Add(jsonSerializer.ContentType, jsonSerializer);
             _serializers.Add(soapSerializer.ContentType, soapSerializer);
+
         }
 
         public string QueueName
@@ -54,7 +56,7 @@ namespace MessageBus.Core
 
         public IErrorSubscriber ErrorSubscriber
         {
-            get { return _errorSubscriber ?? new NullErrorSubscriber(); }
+            get { return _errorSubscriber; }
         }
 
         public TaskScheduler TaskScheduler

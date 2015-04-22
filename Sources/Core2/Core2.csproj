@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionHandler.cs" />
+    <Compile Include="BusConfigurator.cs" />
     <Compile Include="RabbitMQBus.cs" />
     <Compile Include="BusMessageHandler.cs" />
     <Compile Include="ICallHandler.cs" />

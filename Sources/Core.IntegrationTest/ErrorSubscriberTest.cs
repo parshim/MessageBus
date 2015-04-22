@@ -30,7 +30,7 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(c => c.SetBusId(busId)))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this)))
                 {
@@ -62,7 +62,7 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(c => c.SetBusId(busId)))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this).SetReceiveSelfPublish()))
                 {
@@ -95,7 +95,7 @@ namespace Core.IntegrationTest
 
             Exception ex = new Exception("My process error");
 
-            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(c => c.SetBusId(busId)))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this).SetReceiveSelfPublish()))
                 {
@@ -126,7 +126,7 @@ namespace Core.IntegrationTest
         {
             const string busId = "MyBus";
 
-            using (IBus bus = new MessageBus.Core.RabbitMQBus(busId))
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(c => c.SetBusId(busId)))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this)))
                 {
