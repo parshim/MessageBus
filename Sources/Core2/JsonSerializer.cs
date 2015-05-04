@@ -7,7 +7,7 @@ namespace MessageBus.Core
 {
     public class JsonSerializer : ISerializer
     {
-        private readonly Encoding _encoding = Encoding.Unicode;
+        private readonly Encoding _encoding = Encoding.UTF8;
 
         public string ContentType { get { return "application/json"; } }
         
