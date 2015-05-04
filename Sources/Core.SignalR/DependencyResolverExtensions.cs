@@ -1,5 +1,5 @@
 ﻿using System;
-using MessageBus.Core;
+
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Messaging;
 
