@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MessageBus.Core;
 using MessageBus.Core.API;
@@ -15,6 +18,10 @@ namespace Core.SignalR
 
         private readonly IPublisher _publisher;
         private readonly ISubscriber _subscriber;
+        
+        private const string StreamIndexHeader = "streamIndex";
+
+        private static long _payloadId;
 
         public RabbitMessageBus(IDependencyResolver resolver, RabbitScaleoutConfiguration configuration)
             : base(resolver, configuration)
@@ -35,12 +42,32 @@ namespace Core.SignalR
 
         protected override Task Send(int streamIndex, IList<Message> messages)
         {
-            return Task.Factory.StartNew(() => _publisher.Send(new ScaleoutMessage(messages)));
+            return Task.Factory.StartNew(() =>
+            {
+                var busMessage = new BusMessage<ScaleoutMessage>
+                {
+                    Data = new ScaleoutMessage(messages)
+                };
+
+                busMessage.Headers.Add(new BusHeader
+                {
+                    Name = StreamIndexHeader,
+                    Value = streamIndex.ToString()
+                });
+
+                _publisher.Send(busMessage);
+            });
         }
 
-        private void OnMessage(ScaleoutMessage message)
+        private void OnMessage(BusMessage<ScaleoutMessage> message)
         {
-            OnReceived(0, 0, message);
+            string sIndex = message.Headers.Where(h => h.Name == StreamIndexHeader).Select(h => h.Value).FirstOrDefault();
+
+            int streamIndex;
+
+            Int32.TryParse(sIndex, out streamIndex);
+
+            OnReceived(streamIndex, (ulong)Interlocked.Increment(ref _payloadId), message.Data);
         }
 
         protected override void Dispose(bool disposing)
