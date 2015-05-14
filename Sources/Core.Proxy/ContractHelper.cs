@@ -22,7 +22,6 @@ namespace MessageBus.Core.Proxy
         {
             ServiceContractAttribute attribute = type.GetCustomAttribute<ServiceContractAttribute>();
 
-            string ns;
             string name;
 
             if (attribute == null || string.IsNullOrEmpty(attribute.Name))
@@ -34,15 +33,8 @@ namespace MessageBus.Core.Proxy
                 name = attribute.Name;
             }
 
-            if (attribute == null || string.IsNullOrEmpty(attribute.Namespace))
-            {
-                ns = type.Namespace;
-            }
-            else
-            {
-                ns = attribute.Namespace;
-            }
-
+            string ns = type.Namespace;
+            
             return ns + "." + name;
         }
     }

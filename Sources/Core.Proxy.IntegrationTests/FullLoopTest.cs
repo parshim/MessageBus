@@ -47,7 +47,7 @@ namespace Core.Proxy.IntegrationTests
         }
     }
 
-    [ServiceContract]
+    [ServiceContract(Namespace = "http://www.test.org")]
     public interface ITestContract
     {
         [OperationContract]
