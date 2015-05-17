@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>MessageBus.Binding.RabbitMQ</id>
-        <version>2.0.0</version>
+        <version>2.2.0</version>
         <authors>Michael Parshin</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Message Bus RabbitMQ WCF Binding</description>
 		<projectUrl>https://github.com/parshim/MessageBus</projectUrl>
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
-                <dependency id="RabbitMQ.Client" version="3.4.0" />
+                <dependency id="RabbitMQ.Client" version="3.5.2" />
             </group>
         </dependencies>
     </metadata>
