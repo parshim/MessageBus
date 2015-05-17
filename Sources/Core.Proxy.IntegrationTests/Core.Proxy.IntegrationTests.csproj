@@ -44,24 +44,16 @@
     <Reference Include="FluentAssertions.Core">
       <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
-    <Reference Include="MessageBus.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.5\lib\net45\MessageBus.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MessageBus.Core.API, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RabbitMQ.MessageBus.2.0.5\lib\net45\MessageBus.Core.API.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client, Version=3.4.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+    <Reference Include="RabbitMQ.Client, Version=3.5.2.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
+      <HintPath>..\packages\RabbitMQ.Client.3.5.2\lib\net40\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Private>True</Private>
@@ -89,9 +81,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core.API\Core.API.csproj">
+      <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>
+      <Name>Core.API</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.Proxy\Core.Proxy.csproj">
       <Project>{49c94d69-d65f-4a65-b529-c308470b7a5b}</Project>
       <Name>Core.Proxy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core2\Core2.csproj">
+      <Project>{0B59193B-0883-4BD6-A66A-47C515EAF014}</Project>
+      <Name>Core2</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

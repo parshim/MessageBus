@@ -33,7 +33,7 @@ namespace MessageBus.Core
             _model.BasicReturn += ModelOnBasicReturn;
         }
 
-        private void ModelOnBasicReturn(IModel model, BasicReturnEventArgs args)
+        private void ModelOnBasicReturn(object sender, BasicReturnEventArgs args)
         {
             DataContractKey dataContractKey = args.BasicProperties.GetDataContractKey();
 

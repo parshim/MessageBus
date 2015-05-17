@@ -54,13 +54,13 @@ namespace MessageBus.Core
             Console.WriteLine("HandleBasicConsumeOk");
         }
 
-        public override void HandleModelShutdown(IModel model, ShutdownEventArgs reason)
+        public override void HandleModelShutdown(object model, ShutdownEventArgs reason)
         {
             base.HandleModelShutdown(model, reason);
 
             Console.WriteLine("HandleModelShutdown");
         }
-        
+
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
             StartConsumerTask(deliveryTag, properties, body);

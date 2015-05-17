@@ -62,7 +62,7 @@ namespace RabbitMQ.IntegrationTests
                     AutoBindExchange = "amq.direct", // If not null, queue will be automatically binded to the exchange using provided routingKey (if any)
                     ExactlyOnce = true, // Transactional consumption,
                     OneWayOnly = true, // Use False only if calback communication required
-                    //TTL = 1000, // Message time to leave in miliseconds
+                    //TTL = 1000, // Message time to leave in milliseconds
                     //PersistentDelivery = true // If true, every message will be written to disk on rabbitMQ broker side before dispatching to the destination(s)
                 }, serviceAddress);
 
