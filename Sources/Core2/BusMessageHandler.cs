@@ -21,7 +21,7 @@ namespace MessageBus.Core
                     Data = (TData)message.Data
                 };
 
-            foreach (BusHeader header in message.Headers)
+            foreach (var header in message.Headers)
             {
                 busMessage.Headers.Add(header);
             }

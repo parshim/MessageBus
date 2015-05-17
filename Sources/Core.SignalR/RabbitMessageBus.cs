@@ -61,7 +61,7 @@ namespace Core.SignalR
 
         private void OnMessage(BusMessage<ScaleoutMessage> message)
         {
-            string sIndex = message.Headers.Where(h => h.Name == StreamIndexHeader).Select(h => h.Value).FirstOrDefault();
+            string sIndex = message.Headers.OfType<BusHeader>().Where(h => h.Name == StreamIndexHeader).Select(h => h.Value).FirstOrDefault();
 
             int streamIndex;
 

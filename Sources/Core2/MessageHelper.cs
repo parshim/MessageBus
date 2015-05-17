@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text;
-using MessageBus.Core;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -19,12 +18,7 @@ namespace MessageBus.Core
                 Namespace = dataContractKey.Ns
             };
 
-            foreach (KeyValuePair<string, object> header in properties.Headers)
-            {
-                object o = header.Value;
-
-                message.Headers.Add(new BusHeader(header.Key, Encoding.ASCII.GetString((byte[])o)));
-            }
+            ConstructHeaders(message, properties);
 
             return message;
         }
@@ -38,14 +32,49 @@ namespace MessageBus.Core
                 Sent = properties.Timestamp.GetDateTime()
             };
 
+            ConstructHeaders(message, properties);
+
+            return message;
+        }
+
+        private void ConstructHeaders(BusMessage message, IBasicProperties properties)
+        {
             foreach (KeyValuePair<string, object> header in properties.Headers)
             {
                 object o = header.Value;
 
-                message.Headers.Add(new BusHeader(header.Key, Encoding.ASCII.GetString((byte[])o)));
-            }
+                if (header.Key == "x-death")
+                {
+                    List<object> list = (List<object>) o;
 
-            return message;
-        }
+                    Dictionary<string, object> values = (Dictionary<string, object>)list[0];
+
+                    byte[] reason = (byte[])values["reason"];
+                    byte[] queue = (byte[])values["queue"];
+                    AmqpTimestamp time = (AmqpTimestamp)values["time"];
+                    byte[] exchange = (byte[])values["exchange"];
+                    List<object> routingKeys = (List<object>)values["routing-keys"];
+
+                    XDeadHeader xDeadHeader = new XDeadHeader
+                    {
+                        Reason = Encoding.ASCII.GetString(reason),
+                        Queue = Encoding.ASCII.GetString(queue),
+                        Exchange = Encoding.ASCII.GetString(exchange),
+                        Time = time.GetDateTime()
+                    };
+
+                    foreach (var routingKey in routingKeys)
+                    {
+                        xDeadHeader.RoutingKeys.Add(Encoding.ASCII.GetString((byte[])routingKey));
+                    }
+
+                    message.Headers.Add(xDeadHeader);
+                }
+                else
+                {
+                    message.Headers.Add(new BusHeader(header.Key, Encoding.ASCII.GetString((byte[])o)));
+                }
+            }
+        } 
     }
 }

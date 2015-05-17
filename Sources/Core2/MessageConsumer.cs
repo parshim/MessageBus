@@ -63,15 +63,10 @@ namespace MessageBus.Core
 
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
-            StartConsumerTask(deliveryTag, properties, body);
+            Task.Factory.StartNew(() => ConsumeMessage(redelivered, deliveryTag, properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler);
         }
-
-        protected virtual Task StartConsumerTask(ulong deliveryTag, IBasicProperties properties, byte[] body)
-        {
-            return Task.Factory.StartNew(() => ConsumeMessage(properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler);
-        }
-
-        private void ConsumeMessage(IBasicProperties properties, byte[] body)
+        
+        private void ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
 
@@ -128,14 +123,17 @@ namespace MessageBus.Core
 
             try
             {
-                subscription.Handler.Dispatch(message);
+                HandleMessage(subscription.Handler, message, redelivered, deliveryTag);
             }
             catch (Exception ex)
             {
                 _errorSubscriber.MessageDispatchException(message, ex);
-
-                throw;
             }
+        }
+
+        protected virtual void HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
+        {
+            handler.Dispatch(message);
         }
         
         public bool Register(Type type, MessageFilterInfo filterInfo, ICallHandler handler)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MessageBus.Core.API;
@@ -49,7 +50,7 @@ namespace Core.IntegrationTest
                     _message.Sent.Should().BeCloseTo(DateTime.Now, 2000);
                     _message.Data.Should().BeOfType<Person>();
 
-                    _message.Headers.Should().OnlyContain(header => header.Name == "Header" && header.Value == "Value");
+                    _message.Headers.OfType<BusHeader>().Should().OnlyContain(header => header.Name == "Header" && header.Value == "Value");
 
                     person.ShouldBeEquivalentTo(_message.Data);
                 }

@@ -6,7 +6,7 @@ namespace MessageBus.Core.API
     /// <summary>
     /// Bus message header
     /// </summary>
-    public class BusHeader
+    public class BusHeader : BusHeaderBase
     {
         public BusHeader()
         {
@@ -18,11 +18,6 @@ namespace MessageBus.Core.API
             Value = value;
         }
 
-        /// <summary>
-        /// Header name
-        /// </summary>
-        public string Name { get; set; }
-        
         /// <summary>
         /// Header value
         /// </summary>
@@ -36,17 +31,17 @@ namespace MessageBus.Core.API
     {
         internal BusMessage()
         {
-            Headers = new List<BusHeader>();
+            Headers = new List<BusHeaderBase>();
         }
 
         internal BusMessage(params BusHeader[] headers)
         {
-            Headers = new List<BusHeader>(headers);
+            Headers = new List<BusHeaderBase>(headers);
         }
 
         internal BusMessage(IEnumerable<BusHeader> headers)
         {
-            Headers = new List<BusHeader>(headers);
+            Headers = new List<BusHeaderBase>(headers);
         }
 
         /// <summary>
@@ -62,7 +57,7 @@ namespace MessageBus.Core.API
         /// <summary>
         /// List of headers associated with the message
         /// </summary>
-        public IList<BusHeader> Headers { get; private set; }
+        public IList<BusHeaderBase> Headers { get; private set; }
     }
 
     /// <summary>

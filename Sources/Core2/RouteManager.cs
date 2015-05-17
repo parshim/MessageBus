@@ -67,14 +67,19 @@ namespace MessageBus.Core
 
         public void QueueBindMessage<T>(string queueName, string routingKey, bool hierarchy, IEnumerable<BusHeader> filter)
         {
+            QueueBindMessage<T>(queueName, _exchange, routingKey, hierarchy, filter);
+        }
+
+        public void QueueBindMessage<T>(string queueName, string exchange, string routingKey = "", bool hierarchy = false, IEnumerable<BusHeader> filter = null)
+        {
             var helper = new SubscriptionHelper((type, filterInfo, handler) =>
             {
-                _model.QueueBind(queueName, _exchange, routingKey, filterInfo);
+                _model.QueueBind(queueName, exchange, routingKey, filterInfo);
 
                 return true;
             });
 
-            helper.Subscribe(typeof (T), new NullCallHandler(), hierarchy, filter);
+            helper.Subscribe(typeof(T), new NullCallHandler(), hierarchy, filter);
         }
 
         public void DeleteQueue(string name)

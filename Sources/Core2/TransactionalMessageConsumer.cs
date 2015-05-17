@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MessageBus.Core.API;
@@ -11,21 +12,28 @@ namespace MessageBus.Core
         {
         }
 
-        protected override Task StartConsumerTask(ulong deliveryTag, IBasicProperties properties, byte[] body)
+        protected override void HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
         {
-            Task task = base.StartConsumerTask(deliveryTag, properties, body);
-
-            return task.ContinueWith(t =>
+            try
             {
-                if (t.Exception == null)
-                {
-                    Model.BasicAck(deliveryTag, false);
-                }
-                else
-                {
-                    Model.BasicNack(deliveryTag, false, true);
-                }
-            });
+                base.HandleMessage(handler, message, redelivered, deliveryTag);
+            }
+            catch (RejectMessageException)
+            {
+                // If reject message exception is thrown -> reject message without requeue it. 
+                // Message will be lost or transfered to dead letter exchange by broker
+                Model.BasicReject(deliveryTag, false);
+
+                return;
+            }
+            catch (Exception)
+            {
+                Model.BasicReject(deliveryTag, true);
+
+                throw;
+            }
+
+            Model.BasicAck(deliveryTag, false);
         }
     }
 }
