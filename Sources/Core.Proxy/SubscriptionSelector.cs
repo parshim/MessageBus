@@ -42,7 +42,7 @@ namespace MessageBus.Core.Proxy
             }, filter: filterHeaders);
         }
 
-        public void Subscribe<TData>(Expression<Func<T, Action>> methodSelector, Action notificationCallback, params BusHeader[] filterHeaders)
+        public void Subscribe(Expression<Func<T, Action>> methodSelector, Action notificationCallback, params BusHeader[] filterHeaders)
         {
             MethodInfo methodInfo = GetMethodInfo(methodSelector);
 
@@ -82,7 +82,7 @@ namespace MessageBus.Core.Proxy
             }, filter: filterHeaders);
         }
 
-        public void Subscribe<TData>(Expression<Func<T, Action>> methodSelector, Action<IEnumerable<BusHeader>> notificationCallback, params BusHeader[] filterHeaders)
+        public void Subscribe(Expression<Func<T, Action>> methodSelector, Action<IEnumerable<BusHeader>> notificationCallback, params BusHeader[] filterHeaders)
         {
             MethodInfo methodInfo = GetMethodInfo(methodSelector);
 
