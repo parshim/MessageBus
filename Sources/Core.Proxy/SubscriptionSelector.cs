@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MessageBus.Core.API;
@@ -54,6 +56,46 @@ namespace MessageBus.Core.Proxy
             Type messageType = _messageFactory.GetMessageType(methodInfo);
 
             _subscriber.Subscribe(messageType, (object o) => notificationCallback(), filter: filterHeaders);
+        }
+
+        public void Subscribe<TData>(Expression<Func<T, Action<TData>>> methodSelector, Action<TData, IEnumerable<BusHeader>> notificationCallback, params BusHeader[] filterHeaders)
+        {
+            MethodInfo methodInfo = GetMethodInfo(methodSelector);
+
+            ParameterInfo[] parameters = methodInfo.GetParameters();
+
+            if (parameters.Length != 1)
+            {
+                throw new ArgumentOutOfRangeException("methodSelector", "Parameter number missmatch");
+            }
+
+            Type messageType = _messageFactory.GetMessageType(methodInfo);
+
+            FieldInfo fieldInfo = _messageFactory.GetMessageFieldInfo(methodInfo, parameters[0].Name);
+
+            _subscriber.Subscribe(messageType, m =>
+            {
+                object value = fieldInfo.GetValue(m.Data);
+
+                notificationCallback((TData)value, m.Headers.OfType<BusHeader>());
+
+            }, filter: filterHeaders);
+        }
+
+        public void Subscribe<TData>(Expression<Func<T, Action>> methodSelector, Action<IEnumerable<BusHeader>> notificationCallback, params BusHeader[] filterHeaders)
+        {
+            MethodInfo methodInfo = GetMethodInfo(methodSelector);
+
+            ParameterInfo[] parameters = methodInfo.GetParameters();
+
+            if (parameters.Length != 0)
+            {
+                throw new ArgumentOutOfRangeException("methodSelector", "Parameter number missmatch");
+            }
+
+            Type messageType = _messageFactory.GetMessageType(methodInfo);
+
+            _subscriber.Subscribe(messageType, m => notificationCallback(m.Headers.OfType<BusHeader>()), filter: filterHeaders);
         }
 
         public void Dispose()

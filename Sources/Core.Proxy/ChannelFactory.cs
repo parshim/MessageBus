@@ -22,7 +22,12 @@ namespace MessageBus.Core.Proxy
 
         public T CreateChannel(params BusHeader[] headers) 
         {
-            return _generator.CreateInterfaceProxyWithoutTarget<T>(new PublishInterceptor(_messageFactory, _publisher, headers));
+            return CreateChannel(new DefaultHeadersProvider(headers));
+        }
+
+        public T CreateChannel(IHeadersProvider headersProvider)
+        {
+            return _generator.CreateInterfaceProxyWithoutTarget<T>(new PublishInterceptor(_messageFactory, _publisher, headersProvider));
         }
 
         public void Dispose()

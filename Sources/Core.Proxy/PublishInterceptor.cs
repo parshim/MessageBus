@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Castle.DynamicProxy;
 
 using MessageBus.Core.API;
@@ -10,13 +11,13 @@ namespace MessageBus.Core.Proxy
 
         private readonly IPublisher _publisher;
 
-        private readonly BusHeader[] _headers;
+        private readonly IHeadersProvider _headersProvider;
 
-        public PublishInterceptor(IMessageFactory messageFactory, IPublisher publisher, BusHeader[] headers)
+        public PublishInterceptor(IMessageFactory messageFactory, IPublisher publisher, IHeadersProvider headersProvider)
         {
             _messageFactory = messageFactory;
             _publisher = publisher;
-            _headers = headers;
+            _headersProvider = headersProvider;
         }
 
         public void Intercept(IInvocation invocation)
@@ -28,7 +29,9 @@ namespace MessageBus.Core.Proxy
                 Data = data,
             };
 
-            foreach (BusHeader header in _headers)
+            IEnumerable<BusHeader> headers = _headersProvider.GetMessageHeaders();
+
+            foreach (BusHeader header in headers)
             {
                 message.Headers.Add(header);
             }

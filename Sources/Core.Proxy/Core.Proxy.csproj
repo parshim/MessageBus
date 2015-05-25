@@ -62,7 +62,9 @@
   <ItemGroup>
     <Compile Include="ChannelFactory.cs" />
     <Compile Include="ContractHelper.cs" />
+    <Compile Include="DefaultHeadersProvider.cs" />
     <Compile Include="IChannelFactory.cs" />
+    <Compile Include="IHeadersProvider.cs" />
     <Compile Include="IMessageFactory.cs" />
     <Compile Include="ISubscriptionFactory.cs" />
     <Compile Include="ISubscriptionSelector.cs" />

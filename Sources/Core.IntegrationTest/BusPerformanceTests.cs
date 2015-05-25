@@ -34,7 +34,7 @@ namespace Core.IntegrationTest
 
                     subscriberA.Open();
 
-                    const int expected = 10;
+                    const int expected = 1000;
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
