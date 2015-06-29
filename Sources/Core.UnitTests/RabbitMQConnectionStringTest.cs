@@ -1,13 +1,13 @@
 ﻿using System;
 using MessageBus.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Core.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class RabbitMQConnectionStringTest
     {
-        [TestMethod]
+        [Test]
         public void FullUrl_AllValuesExtracted()
         {
             var cs = new RabbitMQConnectionString(new Uri("amqp://u:p@2.2.2.2:2020/vHost/exch?routingKey=key"));
@@ -20,8 +20,8 @@ namespace Core.UnitTests
             Assert.AreEqual("p", cs.Password);
             Assert.AreEqual("key", cs.RoutingKey);
         }
-        
-        [TestMethod]
+
+        [Test]
         public void OnlyHostAndPort_AllValuesExtracted()
         {
             var cs = new RabbitMQConnectionString(new Uri("amqp://2.2.2.2:2020"));
@@ -32,7 +32,7 @@ namespace Core.UnitTests
             Assert.AreEqual("", cs.Endpoint);
         }
 
-        [TestMethod]
+        [Test]
         public void OnlyHost_AllValuesExtracted()
         {
             var cs = new RabbitMQConnectionString(new Uri("amqp://2.2.2.2"));
