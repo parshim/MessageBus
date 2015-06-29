@@ -15,6 +15,8 @@ namespace Core.SignalR.IntegrationTests
             });
 
             GlobalHost.ConnectionManager.GetHubContext<TestHub>().Clients.All.updateData("Hello, World!");
+
+            GlobalHost.ConnectionManager.GetHubContext<TestHub>().Clients.Group("G").updateData("Hello, World!");
         }
     }
 

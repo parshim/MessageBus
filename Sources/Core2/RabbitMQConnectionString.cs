@@ -144,7 +144,7 @@ namespace MessageBus.Core
                 }
 
                 // If there is more then one actual segment first will always be virtual host and second queue or exchange name
-                return segments[2];
+                return segments[1];
             }
         }
 

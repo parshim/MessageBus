@@ -54,10 +54,6 @@
       <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>
       <Name>Core.API</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Core\Core.csproj">
-      <Project>{DF6D2F13-9759-40A1-9C75-3B43A31C1745}</Project>
-      <Name>Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
