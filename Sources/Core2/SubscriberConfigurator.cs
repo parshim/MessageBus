@@ -18,10 +18,11 @@ namespace MessageBus.Core
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
 
-        public SubscriberConfigurator(string exchange, IErrorSubscriber errorSubscriber)
+        public SubscriberConfigurator(string exchange, IErrorSubscriber errorSubscriber, bool receiveSelfPublish)
         {
             _exchange = exchange;
             _errorSubscriber = errorSubscriber;
+            _receiveSelfPublish = receiveSelfPublish;
 
             ISerializer jsonSerializer = new JsonSerializer();
             ISerializer soapSerializer = new SoapSerializer();
@@ -105,9 +106,9 @@ namespace MessageBus.Core
             return this;
         }
 
-        public ISubscriberConfigurator SetReceiveSelfPublish()
+        public ISubscriberConfigurator SetReceiveSelfPublish(bool receive)
         {
-            _receiveSelfPublish = true;
+            _receiveSelfPublish = receive;
 
             return this;
         }

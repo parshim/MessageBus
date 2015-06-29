@@ -32,5 +32,11 @@
         /// <param name="errorHandler">Callback to be called upon successful message delivery.</param>
         /// <returns></returns>
         IBusConfigurator UseErrorHandler(IPublishingErrorHandler errorHandler);
+
+        /// <summary>
+        /// If set, messages published within bus instance will be received and processed by subscriber.
+        /// <remarks>By default self-published messages are ignored.</remarks>
+        /// </summary>
+        IBusConfigurator SetReceiveSelfPublish();
     }
 }

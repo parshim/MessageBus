@@ -39,7 +39,7 @@ namespace MessageBus.Core.API
         /// If set, messages published within bus instance will be received and processed by subscriber.
         /// <remarks>By default self-published messages are ignored.</remarks>
         /// </summary>
-        ISubscriberConfigurator SetReceiveSelfPublish();
+        ISubscriberConfigurator SetReceiveSelfPublish(bool receive = true);
 
         /// <summary>
         /// Specifies concurency level of the subscriber. Level grater then one may cause lose of message order between processing threads.

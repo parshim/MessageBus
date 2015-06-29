@@ -63,7 +63,7 @@ namespace MessageBus.Core
 
             _createSubscriberConfigurator = configure =>
             {
-                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ErrorSubscriber);
+                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish);
 
                 if (configure != null)
                 {

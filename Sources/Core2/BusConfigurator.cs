@@ -9,6 +9,7 @@ namespace MessageBus.Core
         private IPublishingErrorHandler _errorHandler;
         private IErrorSubscriber _errorSubscriber;
         private RabbitMQConnectionString _connectionString;
+        private bool _receiveSelfPublish;
 
         public string BusId
         {
@@ -27,6 +28,14 @@ namespace MessageBus.Core
             get
             {
                 return _errorSubscriber ?? new NullErrorSubscriber();
+            }
+        }
+
+        public bool ReceiveSelfPublish
+        {
+            get
+            {
+                return _receiveSelfPublish;
             }
         }
 
@@ -59,6 +68,13 @@ namespace MessageBus.Core
         public IBusConfigurator UseErrorHandler(IPublishingErrorHandler errorHandler)
         {
             _errorHandler = errorHandler;
+
+            return this;
+        }
+
+        public IBusConfigurator SetReceiveSelfPublish()
+        {
+            _receiveSelfPublish = true;
 
             return this;
         }
