@@ -43,6 +43,7 @@ namespace Core.IntegrationTest
                 using (IRouteManager routeManager = bus.CreateRouteManager())
                 {
                     routeManager.DeleteQueue(QueueName);
+                    routeManager.DeleteQueue(DeadLetterQueueName);
                 }
             }
         }
