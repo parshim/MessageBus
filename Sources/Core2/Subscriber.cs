@@ -9,9 +9,12 @@ namespace MessageBus.Core
 {
     public class Subscriber : SubscriberBase, ISubscriber
     {
-        public Subscriber(IModel model, string queue, IMessageConsumer consumer, SubscriberConfigurator configurator)
+        private readonly ISubscriptionHelper _helper;
+
+        public Subscriber(IModel model, string queue, IMessageConsumer consumer, ISubscriptionHelper helper, SubscriberConfigurator configurator)
             : base(model, queue, consumer, configurator)
         {
+            _helper = helper;
         }
 
         public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, IEnumerable<BusHeader> filter)

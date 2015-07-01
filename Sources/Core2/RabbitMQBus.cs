@@ -141,7 +141,9 @@ namespace MessageBus.Core
 
             IMessageConsumer consumer = CreateConsumer(model, configurator);
 
-            return new Subscriber(model, queue, consumer, configurator);
+            var helper = CreateSubscriptionHelper(consumer, model, queue, configurator);
+
+            return new Subscriber(model, queue, consumer, helper, configurator);
         }
         
         public ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null)
@@ -154,7 +156,9 @@ namespace MessageBus.Core
 
             IMessageConsumer consumer = CreateConsumer(model, configurator);
 
-            return new Subscription(model, queue, consumer, instance, configurator);
+            ISubscriptionHelper helper = CreateSubscriptionHelper(consumer, model, queue, configurator);
+
+            return new Subscription(model, queue, consumer, instance, configurator, helper);
         }
 
         public IRouteManager CreateRouteManager()
@@ -162,6 +166,21 @@ namespace MessageBus.Core
             IModel model = _connection.CreateModel();
 
             return new RouteManager(model, _exchange);
+        }
+
+        public ISubscription CreateMonitor(Action<RawBusMessage> monitor)
+        {
+            SubscriberConfigurator configurator = _createSubscriberConfigurator(null);
+            
+            IModel model = _connection.CreateModel();
+
+            string queue = CreateQueue(model, configurator);
+
+            model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey);
+
+            var consumer = new MessageMonitorConsumer(_messageHelper, monitor);
+
+            return new MessageMonitor(model, queue, consumer, configurator);
         }
 
         private static string CreateQueue(IModel model, SubscriberConfigurator configurator)
@@ -174,6 +193,22 @@ namespace MessageBus.Core
             QueueDeclareOk queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
 
             return queueDeclare.QueueName;
+        }
+
+        private static ISubscriptionHelper CreateSubscriptionHelper(IMessageConsumer consumer, IModel model, string queue, SubscriberConfigurator configurator)
+        {
+            ISubscriptionHelper helper = new SubscriptionHelper((type, filterInfo, handler) =>
+            {
+                if (consumer.Register(type, filterInfo, handler))
+                {
+                    model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey, filterInfo);
+
+                    return true;
+                }
+
+                return false;
+            });
+            return helper;
         }
 
         private MessageConsumer CreateConsumer(IModel model, SubscriberConfigurator configurator)

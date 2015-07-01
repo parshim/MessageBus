@@ -32,35 +32,7 @@ namespace MessageBus.Core
             _scheduler = scheduler;
             _receiveSelfPublish = receiveSelfPublish;
         }
-
-        public override void HandleBasicCancel(string consumerTag)
-        {
-            base.HandleBasicCancel(consumerTag);
-
-            Console.WriteLine("HandleBasicCancel");
-        }
-
-        public override void HandleBasicCancelOk(string consumerTag)
-        {
-            base.HandleBasicCancelOk(consumerTag);
-
-            Console.WriteLine("HandleBasicCancelOk");
-        }
-
-        public override void HandleBasicConsumeOk(string consumerTag)
-        {
-            base.HandleBasicConsumeOk(consumerTag);
-
-            Console.WriteLine("HandleBasicConsumeOk");
-        }
-
-        public override void HandleModelShutdown(object model, ShutdownEventArgs reason)
-        {
-            base.HandleModelShutdown(model, reason);
-
-            Console.WriteLine("HandleModelShutdown");
-        }
-
+        
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
             Task.Factory.StartNew(() => ConsumeMessage(redelivered, deliveryTag, properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler);

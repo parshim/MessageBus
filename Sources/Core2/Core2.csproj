@@ -52,6 +52,8 @@
     <Compile Include="ActionHandler.cs" />
     <Compile Include="BusConfigurator.cs" />
     <Compile Include="ConfirmPublisher.cs" />
+    <Compile Include="MessageMonitor.cs" />
+    <Compile Include="MessageMonitorConsumer.cs" />
     <Compile Include="RabbitMQBus.cs" />
     <Compile Include="BusMessageHandler.cs" />
     <Compile Include="ICallHandler.cs" />

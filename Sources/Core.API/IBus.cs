@@ -86,5 +86,11 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <returns></returns>
         IRouteManager CreateRouteManager();
+
+        /// <summary>
+        /// Create monitor instance
+        /// </summary>
+        /// <returns></returns>
+        ISubscription CreateMonitor(Action<RawBusMessage> monitor);
     }
 }

@@ -4,10 +4,10 @@ namespace MessageBus.Core
 {
     public class Subscription : SubscriberBase
     {
-        public Subscription(IModel model, string queue, IMessageConsumer consumer, object instance, SubscriberConfigurator configurator)
+        public Subscription(IModel model, string queue, IMessageConsumer consumer, object instance, SubscriberConfigurator configurator, ISubscriptionHelper helper)
             : base(model, queue, consumer, configurator)
         {
-            _helper.RegisterSubscription(instance);
+            helper.RegisterSubscription(instance);
         }
     }
 }

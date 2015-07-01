@@ -8,14 +8,12 @@ namespace MessageBus.Core
     {
         private readonly IModel _model;
         private readonly string _queue;
-        private readonly IMessageConsumer _consumer;
+        private readonly IBasicConsumer _consumer;
         private readonly SubscriberConfigurator _configurator;
 
         private string _consumerTag;
         
-        protected readonly ISubscriptionHelper _helper;
-
-        public SubscriberBase(IModel model, string queue, IMessageConsumer consumer, SubscriberConfigurator configurator)
+        public SubscriberBase(IModel model, string queue, IBasicConsumer consumer, SubscriberConfigurator configurator)
         {
             _model = model;
 
@@ -23,18 +21,6 @@ namespace MessageBus.Core
 
             _consumer = consumer;
             _configurator = configurator;
-
-            _helper = new SubscriptionHelper((type, filterInfo, handler) =>
-            {
-                if (_consumer.Register(type, filterInfo, handler))
-                {
-                    _model.QueueBind(_queue, configurator.Exchange, configurator.RoutingKey, filterInfo);
-
-                    return true;
-                }
-
-                return false;
-            });
         }
 
         public void Dispose()
