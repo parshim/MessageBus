@@ -17,23 +17,21 @@ namespace MessageBus.Core
             try
             {
                 base.HandleMessage(handler, message, redelivered, deliveryTag);
+                
+                Model.BasicAck(deliveryTag, false);
             }
             catch (RejectMessageException)
             {
                 // If reject message exception is thrown -> reject message without requeue it. 
                 // Message will be lost or transfered to dead letter exchange by broker
-                Model.BasicReject(deliveryTag, false);
-
-                return;
+                Model.BasicNack(deliveryTag, false, false);
             }
             catch (Exception)
             {
-                Model.BasicReject(deliveryTag, true);
+                Model.BasicNack(deliveryTag, false, true);
 
                 throw;
             }
-
-            Model.BasicAck(deliveryTag, false);
         }
     }
 }
