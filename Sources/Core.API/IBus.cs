@@ -30,10 +30,22 @@ namespace MessageBus.Core.API
         string BusId { get; }
 
         /// <summary>
-        /// Creates publisher session. It is recommended to open new session every time there is a need to send messages.
+        /// Creates publisher session. Publishers cannot be shared between threads.
         /// </summary>
         /// <returns>Publisher instance</returns>
         IPublisher CreatePublisher(Action<IPublisherConfigurator> configure = null);
+
+        /// <summary>
+        /// Creates transactional publisher session. Publishers cannot be shared between threads.
+        /// </summary>
+        /// <returns>Publisher instance</returns>
+        ITransactionalPublisher CreateTransactionalPublisher(Action<IPublisherConfigurator> configure = null);
+
+        /// <summary>
+        /// Creates confirmational publisher session. Publishers cannot be shared between threads.
+        /// </summary>
+        /// <returns>Publisher instance</returns>
+        IConfirmPublisher CreateConfirmPublisher(Action<IPublisherConfigurator> configure = null);
 
         /// <summary>
         /// Creates an receiver that will receive messages from the bus on demand

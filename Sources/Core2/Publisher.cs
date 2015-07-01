@@ -15,7 +15,7 @@ namespace MessageBus.Core
     {
         private readonly ConcurrentDictionary<Type, DataContractKey> _nameMappings = new ConcurrentDictionary<Type, DataContractKey>();
 
-        private readonly IModel _model;
+        protected readonly IModel _model;
 
         private readonly IMessageHelper _messageHelper;
 
@@ -120,5 +120,6 @@ namespace MessageBus.Core
 
             _model.BasicPublish(_configuration.Exchange, _configuration.RoutingKey, _configuration.MandatoryDelivery, false, basicProperties, bytes);
         }
+
     }
 }

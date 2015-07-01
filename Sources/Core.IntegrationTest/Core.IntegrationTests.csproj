@@ -92,6 +92,7 @@
     <Compile Include="BusFailedDeliveryTest.cs" />
     <Compile Include="BusMessageTests.cs" />
     <Compile Include="BusPerformanceTests.cs" />
+    <Compile Include="BusPublisherTest.cs" />
     <Compile Include="BusReceiverTests.cs" />
     <Compile Include="BusSubscriberTests.cs" />
     <Compile Include="Data.cs" />

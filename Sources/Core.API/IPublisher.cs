@@ -3,7 +3,8 @@
 namespace MessageBus.Core.API
 {
     /// <summary>
-    /// Publishes messages to the bus
+    /// Publishes messages to the bus. 
+    /// Publisher instances are not thread safe and therefor can not be shared between threads! Create new publisher for every publishing thread.
     /// </summary>
     public interface IPublisher : IDisposable
     {
@@ -26,5 +27,6 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <param name="busMessage">Bus message instance</param>
         void Send(RawBusMessage busMessage);
+
     }
 }

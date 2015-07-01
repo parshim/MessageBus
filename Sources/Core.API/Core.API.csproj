@@ -39,6 +39,7 @@
     <Compile Include="HeaderFilterAttribute.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IBusConfigurator.cs" />
+    <Compile Include="IConfirmPublisher.cs" />
     <Compile Include="IErrorSubscriber.cs" />
     <Compile Include="IPublisher.cs" />
     <Compile Include="IPublisherConfigurator.cs" />
@@ -49,6 +50,7 @@
     <Compile Include="ISubscriber.cs" />
     <Compile Include="ISubscriberConfigurator.cs" />
     <Compile Include="ISubscription.cs" />
+    <Compile Include="ITransactionalPublisher.cs" />
     <Compile Include="MessageSubscribtionAttribute.cs" />
     <Compile Include="NoIncomingConnectionAcceptedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

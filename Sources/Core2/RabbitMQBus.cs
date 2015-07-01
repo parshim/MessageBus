@@ -102,6 +102,24 @@ namespace MessageBus.Core
             return new Publisher(model, BusId, configuration, _messageHelper);
         }
 
+        public ITransactionalPublisher CreateTransactionalPublisher(Action<IPublisherConfigurator> configure = null)
+        {
+            PublisherConfigurator configuration = _createPublisherConfigurator(configure);
+
+            IModel model = _connection.CreateModel();
+
+            return new TransactionalPublisher(model, BusId, configuration, _messageHelper);
+        }
+
+        public IConfirmPublisher CreateConfirmPublisher(Action<IPublisherConfigurator> configure = null)
+        {
+            PublisherConfigurator configuration = _createPublisherConfigurator(configure);
+
+            IModel model = _connection.CreateModel();
+
+            return new ConfirmPublisher(model, BusId, configuration, _messageHelper);
+        }
+
         public IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null)
         {
             SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
