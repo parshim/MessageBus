@@ -8,3 +8,4 @@ install:
 script:
   - xbuild /p:Configuration=Debug Sources/MessageBus.sln
   - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Sources/Core.IntegrationTest/bin/Debug/Core.IntegrationTest.dll
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Sources/Core.UnitTests/bin/Debug/Core.UnitTests.dll
