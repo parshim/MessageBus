@@ -37,7 +37,7 @@ Optionally, message classes may be annotated with DataContract and DataMemebr at
 ##### Publish your first message	
 	
 ```c#
-using (IBus bus = new RabbitMQBus(busId))
+using (IBus bus = new RabbitMQBus())
 {
 	using (IPublisher publisher = bus.CreatePublisher())
     {
@@ -53,7 +53,7 @@ All messages are sent by default to amq.headers exchange with two headers: Name 
 ##### Subscribe for messages
 
 ```c#
-using (IBus bus = new RabbitMQBus(busId))
+using (IBus bus = new RabbitMQBus())
 {
 	using (ISubscriber subscriber = bus.CreateSubscriber())
     {
