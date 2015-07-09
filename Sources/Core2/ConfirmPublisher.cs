@@ -6,8 +6,8 @@ namespace MessageBus.Core
 {
     public class ConfirmPublisher : Publisher, IConfirmPublisher
     {
-        public ConfirmPublisher(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper)
-            : base(model, busId, configuration, messageHelper)
+        public ConfirmPublisher(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper)
+            : base(model, busId, configuration, messageHelper, sendHelper)
         {
             _model.ConfirmSelect();
         }

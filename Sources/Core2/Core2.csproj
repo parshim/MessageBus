@@ -51,11 +51,16 @@
   <ItemGroup>
     <Compile Include="ActionHandler.cs" />
     <Compile Include="BusConfigurator.cs" />
+    <Compile Include="BusMessageProcedureHandler.cs" />
     <Compile Include="ConfirmPublisher.cs" />
+    <Compile Include="FunctionHandler.cs" />
+    <Compile Include="IRpcConsumer.cs" />
+    <Compile Include="ISendHelper.cs" />
     <Compile Include="MessageMonitor.cs" />
     <Compile Include="MessageMonitorConsumer.cs" />
+    <Compile Include="PublisherBase.cs" />
     <Compile Include="RabbitMQBus.cs" />
-    <Compile Include="BusMessageHandler.cs" />
+    <Compile Include="BusMessageCallHandler.cs" />
     <Compile Include="ICallHandler.cs" />
     <Compile Include="IMessageConsumer.cs" />
     <Compile Include="IMessageHelper.cs" />
@@ -78,6 +83,9 @@
     <Compile Include="Receiver.cs" />
     <Compile Include="JsonSerializer.cs" />
     <Compile Include="RouteManager.cs" />
+    <Compile Include="RpcConsumer.cs" />
+    <Compile Include="RpcPublisher.cs" />
+    <Compile Include="SendHelper.cs" />
     <Compile Include="SoapSerializer.cs" />
     <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriberBase.cs" />

@@ -11,6 +11,7 @@ namespace MessageBus.Core
         private readonly IConnection _connection;
 
         private readonly IMessageHelper _messageHelper = new MessageHelper();
+        private readonly ISendHelper _sendHelper = new SendHelper();
 
         private readonly Func<Action<ISubscriberConfigurator>, SubscriberConfigurator> _createSubscriberConfigurator;
         private readonly Func<Action<IPublisherConfigurator>, PublisherConfigurator> _createPublisherConfigurator;
@@ -99,7 +100,7 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            return new Publisher(model, BusId, configuration, _messageHelper);
+            return new Publisher(model, BusId, configuration, _messageHelper, _sendHelper);
         }
 
         public ITransactionalPublisher CreateTransactionalPublisher(Action<IPublisherConfigurator> configure = null)
@@ -108,7 +109,7 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            return new TransactionalPublisher(model, BusId, configuration, _messageHelper);
+            return new TransactionalPublisher(model, BusId, configuration, _messageHelper, _sendHelper);
         }
 
         public IConfirmPublisher CreateConfirmPublisher(Action<IPublisherConfigurator> configure = null)
@@ -117,7 +118,21 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            return new ConfirmPublisher(model, BusId, configuration, _messageHelper);
+            return new ConfirmPublisher(model, BusId, configuration, _messageHelper, _sendHelper);
+        }
+
+        public IRpcPublisher CreateRpcPublisher(Action<IPublisherConfigurator> configure = null)
+        {
+            PublisherConfigurator configuration = _createPublisherConfigurator(configure);
+
+            IModel model = _connection.CreateModel();
+
+            IRpcConsumer consumer = new RpcConsumer(model, _messageHelper, new Dictionary<string, ISerializer>
+            {
+                { configuration.Serializer.ContentType, configuration.Serializer }
+            });
+
+            return new RpcPublisher(model, BusId, configuration, _messageHelper, _sendHelper, consumer);
         }
 
         public IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null)
@@ -215,10 +230,10 @@ namespace MessageBus.Core
         {
             if (configurator.TransactionalDelivery)
             {
-                return new TransactionalMessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
             }
 
-            return new MessageConsumer(model, BusId, _messageHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
+            return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish);
         }
     }
 }

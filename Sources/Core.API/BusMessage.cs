@@ -22,6 +22,11 @@ namespace MessageBus.Core.API
         /// Header value
         /// </summary>
         public string Value { get; set; }
+
+        public override object GetValue()
+        {
+            return Value;
+        }
     }
 
     /// <summary>
@@ -43,6 +48,11 @@ namespace MessageBus.Core.API
         {
             Headers = new List<BusHeaderBase>(headers);
         }
+
+        /// <summary>
+        /// Message unique identifier
+        /// </summary>
+        public string CorrelationId { get; internal set; } 
 
         /// <summary>
         /// Message originator Bus Id

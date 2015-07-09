@@ -5,8 +5,8 @@ namespace MessageBus.Core
 {
     public class TransactionalPublisher : Publisher, ITransactionalPublisher
     {
-        public TransactionalPublisher(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper)
-            : base(model, busId, configuration, messageHelper)
+        public TransactionalPublisher(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper)
+            : base(model, busId, configuration, messageHelper, sendHelper)
         {
             _model.TxSelect();
         }
@@ -16,7 +16,7 @@ namespace MessageBus.Core
             _model.TxCommit();
         }
 
-        public void Rallback()
+        public void Rollback()
         {
             _model.TxRollback();
         }

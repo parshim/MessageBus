@@ -20,10 +20,11 @@ namespace MessageBus.Core
         private readonly TaskScheduler _scheduler;
 
         private readonly IMessageHelper _messageHelper;
+        private readonly ISendHelper _sendHelper;
         private readonly Dictionary<string, ISerializer> _serializers;
         private readonly IErrorSubscriber _errorSubscriber;
         
-        public MessageConsumer(IModel model, string busId, IMessageHelper messageHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish) : base(model)
+        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish) : base(model)
         {
             _busId = busId;
             _messageHelper = messageHelper;
@@ -31,6 +32,7 @@ namespace MessageBus.Core
             _errorSubscriber = errorSubscriber;
             _scheduler = scheduler;
             _receiveSelfPublish = receiveSelfPublish;
+            _sendHelper = sendHelper;
         }
         
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
@@ -71,9 +73,13 @@ namespace MessageBus.Core
                 return;
             }
 
+            ISerializer serializer;
+            
             try
             {
-                data = _serializers[properties.ContentType].Deserialize(dataContractKey, subscription.DataType, body);
+                serializer = _serializers[properties.ContentType];
+                
+                data = serializer.Deserialize(dataContractKey, subscription.DataType, body);
             }
             catch (Exception ex)
             {
@@ -93,19 +99,50 @@ namespace MessageBus.Core
                 return;
             }
 
+            RawBusMessage reply;
+
             try
             {
-                HandleMessage(subscription.Handler, message, redelivered, deliveryTag);
+                reply = HandleMessage(subscription.Handler, message, redelivered, deliveryTag);
+            }
+            catch (RejectMessageException)
+            {
+                reply = new RawBusMessage();
+                
+                reply.Headers.Add(new RejectedHeader());
             }
             catch (Exception ex)
             {
                 _errorSubscriber.MessageDispatchException(message, ex);
+
+                reply = new RawBusMessage();
+
+                reply.Headers.Add(new ExceptionHeader
+                {
+                    Message = ex.Message
+                });
+            }
+
+            if (properties.IsReplyToPresent())
+            {
+                _sendHelper.Send(new SendParams
+                {
+                    BusId = _busId,
+                    BusMessage = reply,
+                    Model = Model,
+                    CorrelationId = properties.IsCorrelationIdPresent() ? properties.CorrelationId : "",
+                    Exchange = "",
+                    RoutingKey = properties.ReplyTo,
+                    Serializer = serializer,
+                    MandatoryDelivery = false,
+                    PersistentDelivery = false
+                });
             }
         }
-
-        protected virtual void HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
+        
+        protected virtual RawBusMessage HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
         {
-            handler.Dispatch(message);
+            return handler.Dispatch(message);
         }
         
         public bool Register(Type type, MessageFilterInfo filterInfo, ICallHandler handler)
@@ -117,4 +154,5 @@ namespace MessageBus.Core
             });
         }
     }
+
 }

@@ -41,11 +41,11 @@ namespace MessageBus.Core
 
         private static void SetUserHeaders(RawBusMessage busMessage, Message message)
         {
-            foreach (BusHeader busHeader in busMessage.Headers)
+            foreach (BusHeaderBase busHeader in busMessage.Headers)
             {
                 message.Headers.Add(MessageHeader.CreateHeader(busHeader.Name,
                                                                MessagingConstants.Namespace.MessageBus,
-                                                               busHeader.Value, false,
+                                                               busHeader.GetValue(), false,
                                                                MessagingConstants.Actor.User));
             }
         }

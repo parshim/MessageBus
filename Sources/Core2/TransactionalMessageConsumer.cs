@@ -8,23 +8,28 @@ namespace MessageBus.Core
 {
     public class TransactionalMessageConsumer : MessageConsumer
     {
-        public TransactionalMessageConsumer(IModel model, string busId, IMessageHelper messageHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish) : base(model, busId, messageHelper, serializers, errorSubscriber, scheduler, receiveSelfPublish)
+        public TransactionalMessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish)
+            : base(busId, model, messageHelper, sendHelper, serializers, errorSubscriber, scheduler, receiveSelfPublish)
         {
         }
 
-        protected override void HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
+        protected override RawBusMessage HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
         {
             try
             {
-                base.HandleMessage(handler, message, redelivered, deliveryTag);
-                
+                RawBusMessage replyMessage = base.HandleMessage(handler, message, redelivered, deliveryTag);
+
                 Model.BasicAck(deliveryTag, false);
+
+                return replyMessage;
             }
             catch (RejectMessageException)
             {
                 // If reject message exception is thrown -> reject message without requeue it. 
                 // Message will be lost or transfered to dead letter exchange by broker
                 Model.BasicNack(deliveryTag, false, false);
+
+                throw;
             }
             catch (Exception)
             {

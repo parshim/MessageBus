@@ -27,6 +27,5 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <param name="busMessage">Bus message instance</param>
         void Send(RawBusMessage busMessage);
-
     }
 }

@@ -12,9 +12,11 @@ namespace MessageBus.Core
             _action = action;
         }
 
-        public void Dispatch(RawBusMessage message)
+        public RawBusMessage Dispatch(RawBusMessage message)
         {
             _action(message);
+
+            return null;
         }
     }
 }

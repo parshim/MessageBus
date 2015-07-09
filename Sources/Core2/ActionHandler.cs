@@ -3,18 +3,20 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class ActionHandler : ICallHandler
+    public class ActionHandler<TData> : ICallHandler
     {
-        private readonly Action<object> _action;
+        private readonly Action<TData> _action;
 
-        public ActionHandler(Action<object> action)
+        public ActionHandler(Action<TData> action)
         {
             _action = action;
         }
 
-        public void Dispatch(RawBusMessage message)
+        public RawBusMessage Dispatch(RawBusMessage message)
         {
-            _action(message.Data);
+            _action((TData)message.Data);
+
+            return null;
         }
     }
 }

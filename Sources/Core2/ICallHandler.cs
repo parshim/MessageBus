@@ -4,6 +4,7 @@ namespace MessageBus.Core
 {
     public interface ICallHandler
     {
-        void Dispatch(RawBusMessage message);
+        RawBusMessage Dispatch(RawBusMessage message);
     }
+
 }

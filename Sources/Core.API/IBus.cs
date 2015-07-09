@@ -42,10 +42,17 @@ namespace MessageBus.Core.API
         ITransactionalPublisher CreateTransactionalPublisher(Action<IPublisherConfigurator> configure = null);
 
         /// <summary>
-        /// Creates confirmational publisher session. Publishers cannot be shared between threads.
+        /// Creates confirmation publisher session. Publishers cannot be shared between threads.
         /// </summary>
         /// <returns>Publisher instance</returns>
         IConfirmPublisher CreateConfirmPublisher(Action<IPublisherConfigurator> configure = null);
+
+        /// <summary>
+        /// Creates RPC publisher. Publishers cannot be shared between threads.
+        /// </summary>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        IRpcPublisher CreateRpcPublisher(Action<IPublisherConfigurator> configure = null);
 
         /// <summary>
         /// Creates an receiver that will receive messages from the bus on demand
@@ -92,5 +99,6 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <returns></returns>
         ISubscription CreateMonitor(Action<RawBusMessage> monitor);
+
     }
 }

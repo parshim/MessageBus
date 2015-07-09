@@ -75,7 +75,7 @@ namespace MessageBus.Core
                 if (parameterInfos.Length != 1)
                 {
                     throw new Exception(
-                        "Method annotated by MessageSubscribtionAttribute must have exactly one parameter");
+                        "Method annotated by MessageSubscriptionAttribute must have exactly one parameter");
                 }
 
                 ParameterInfo parameterInfo = parameterInfos[0];
@@ -94,7 +94,7 @@ namespace MessageBus.Core
 
                     dataType = genericArguments[0];
 
-                    Type handlerType = typeof (BusMessageHandler<>).MakeGenericType(genericArguments);
+                    Type handlerType = typeof (BusMessageCallHandler<>).MakeGenericType(genericArguments);
 
                     handler = (ICallHandler) Activator.CreateInstance(handlerType, action);
                 }
@@ -102,7 +102,7 @@ namespace MessageBus.Core
                 {
                     dataType = parameterType;
 
-                    handler = new ActionHandler(action);
+                    handler = new ActionHandler<object>(action);
                 }
 
                 List<BusHeader> filters = new List<BusHeader>();

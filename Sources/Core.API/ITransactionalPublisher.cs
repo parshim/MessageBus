@@ -11,6 +11,6 @@
         /// <summary>
         /// Rallback message delivery
         /// </summary>
-        void Rallback();
+        void Rollback();
     }
 }

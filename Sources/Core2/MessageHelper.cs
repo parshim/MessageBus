@@ -18,6 +18,11 @@ namespace MessageBus.Core
                 Namespace = dataContractKey.Ns
             };
 
+            if (properties.IsCorrelationIdPresent())
+            {
+                message.CorrelationId = properties.CorrelationId;
+            }
+
             ConstructHeaders(message, properties);
 
             return message;
@@ -32,6 +37,11 @@ namespace MessageBus.Core
                 Sent = properties.Timestamp.GetDateTime()
             };
 
+            if (properties.IsCorrelationIdPresent())
+            {
+                message.CorrelationId = properties.CorrelationId;
+            }
+
             ConstructHeaders(message, properties);
 
             return message;
@@ -43,7 +53,7 @@ namespace MessageBus.Core
             {
                 object o = header.Value;
 
-                if (header.Key == "x-death")
+                if (header.Key == XDeadHeader.WellknownName)
                 {
                     List<object> list = (List<object>) o;
 
@@ -69,6 +79,17 @@ namespace MessageBus.Core
                     }
 
                     message.Headers.Add(xDeadHeader);
+                }
+                else if (header.Key == RejectedHeader.WellknownName)
+                {
+                    message.Headers.Add(new RejectedHeader());
+                }
+                else if (header.Key == ExceptionHeader.WellknownName)
+                {
+                    message.Headers.Add(new ExceptionHeader
+                    {
+                        Message = Encoding.ASCII.GetString((byte[])o)
+                    });
                 }
                 else
                 {
