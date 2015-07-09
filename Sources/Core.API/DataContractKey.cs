@@ -6,6 +6,7 @@
         private readonly string _namespace;
 
         public static readonly DataContractKey BinaryBlob = new DataContractKey("base64Binary", "http://schemas.microsoft.com/2003/10/Serialization/");
+        public static readonly DataContractKey Void = new DataContractKey("", "");
 
         public DataContractKey(string name, string ns)
         {

@@ -28,7 +28,7 @@ namespace MessageBus.Core
 
             _action(busMessage);
 
-            return null;
+            return new RawBusMessage();
         }
     }
 }

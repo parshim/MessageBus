@@ -28,7 +28,36 @@ namespace MessageBus.Core
             return Send<TData, TReplyData>(new BusMessage<TData> { Data = data }, timeOut).Data;
         }
 
+        public void Send<TData>(TData data, TimeSpan timeOut)
+        {
+            Send(new BusMessage<TData> {Data = data}, timeOut);
+        }
+
+        public void Send<TData>(BusMessage<TData> busMessage, TimeSpan timeOut)
+        {
+            SendAndWaitForReply(busMessage, timeOut, null);
+        }
+
         public BusMessage<TReplyData> Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut)
+        {
+            RawBusMessage replyMessage = SendAndWaitForReply(busMessage, timeOut, typeof(TReplyData));
+
+            BusMessage<TReplyData> busReplyMessage = new BusMessage<TReplyData>
+            {
+                BusId = replyMessage.BusId,
+                Sent = replyMessage.Sent,
+                Data = (TReplyData) replyMessage.Data
+            };
+
+            foreach (var header in replyMessage.Headers)
+            {
+                busMessage.Headers.Add(header);
+            }
+
+            return busReplyMessage;
+        }
+
+        private RawBusMessage SendAndWaitForReply<TData>(BusMessage<TData> busMessage, TimeSpan timeOut, Type replyType)
         {
             string id = GenerateCorrelationId();
 
@@ -37,7 +66,7 @@ namespace MessageBus.Core
                 RawBusMessage replyMessage = null;
                 Exception exception = null;
 
-                _consumer.RegisterCallback(id, typeof(TReplyData), (r, ex) =>
+                _consumer.RegisterCallback(id, replyType, (r, ex) =>
                 {
                     replyMessage = r;
                     exception = ex;
@@ -46,7 +75,9 @@ namespace MessageBus.Core
                     {
                         ev.Set();
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 });
 
                 RawBusMessage rawBusMessage = new RawBusMessage
@@ -85,22 +116,10 @@ namespace MessageBus.Core
                     throw exception;
                 }
 
-                BusMessage<TReplyData> busReplyMessage = new BusMessage<TReplyData>
-                {
-                    BusId = replyMessage.BusId,
-                    Sent = replyMessage.Sent,
-                    Data = (TReplyData)replyMessage.Data
-                };
-
-                foreach (var header in replyMessage.Headers)
-                {
-                    busMessage.Headers.Add(header);
-                }
-
-                return busReplyMessage;
+                return replyMessage;
             }
         }
-
+        
         private static string GenerateCorrelationId()
         {
             string id = Convert.ToBase64String(Guid.NewGuid().ToByteArray());

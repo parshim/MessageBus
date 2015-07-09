@@ -43,6 +43,70 @@ namespace Core.IntegrationTest
                 }
             }
         }
+
+        [Test]
+        public void Bus_MakeRpcVoidCall_SubscriberReturnData()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber())
+                {
+                    RequestMessage actual = null;
+
+                    subscriber.Subscribe((RequestMessage m) =>
+                    {
+                        actual = m;
+
+                        return new ResponseMessage();
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    {
+                        var expected = new RequestMessage
+                        {
+                            Data = "Hello, world!"
+                        };
+
+                        rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+
+                        actual.ShouldBeEquivalentTo(expected);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_MakeRpcVoidCall_SubscriberDoNotReturnData()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber())
+                {
+                    RequestMessage actual = null;
+
+                    subscriber.Subscribe((RequestMessage m) =>
+                    {
+                        actual = m;
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    {
+                        var expected = new RequestMessage
+                        {
+                            Data = "Hello, world!"
+                        };
+
+                        rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+
+                        actual.ShouldBeEquivalentTo(expected);
+                    }
+                }
+            }
+        }
         
         [Test]
         public void Bus_MakeRpcCall_ExceptionOnHandler()

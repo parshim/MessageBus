@@ -69,7 +69,10 @@ namespace MessageBus.Core
 
             if (_callbacksDictionary.TryRemove(properties.CorrelationId, out info))
             {
-                var rejectHeader = properties.Headers.Where(pair => pair.Key == RejectedHeader.WellknownName).Select(pair => pair.Value).FirstOrDefault();
+                var rejectHeader =
+                    properties.Headers.Where(pair => pair.Key == RejectedHeader.WellknownName)
+                        .Select(pair => pair.Value)
+                        .FirstOrDefault();
 
                 if (rejectHeader != null)
                 {
@@ -78,7 +81,10 @@ namespace MessageBus.Core
                     return;
                 }
 
-                var exceptionHeader = properties.Headers.Where(pair => pair.Key == ExceptionHeader.WellknownName).Select(pair => pair.Value).FirstOrDefault();
+                var exceptionHeader =
+                    properties.Headers.Where(pair => pair.Key == ExceptionHeader.WellknownName)
+                        .Select(pair => pair.Value)
+                        .FirstOrDefault();
 
                 if (exceptionHeader != null)
                 {
@@ -87,35 +93,47 @@ namespace MessageBus.Core
                     return;
                 }
 
-                DataContractKey dataContractKey = properties.GetDataContractKey();
-                
-                if (!_serializers.ContainsKey(properties.ContentType))
-                {
-                    info.Callback(null, new RpcCallException(RpcFailureReason.SerializationError, string.Format("Unsupported content type {0}", properties.ContentType)));
-                    
-                    return;
-                }
-
+                DataContractKey dataContractKey;
                 object data;
-                
-                try
-                {
-                    ISerializer serializer = _serializers[properties.ContentType];
 
-                    data = serializer.Deserialize(dataContractKey, info.ReplyType, body);
-                }
-                catch (Exception ex)
+                if (body.Length == 0 || info.ReplyType == null)
                 {
-                    info.Callback(null, new RpcCallException(RpcFailureReason.SerializationError, ex));
-                    
-                    return;
+                    // Void reply or sender not interested in reply data, but only interested to be notified that work is done
+
+                    dataContractKey = DataContractKey.Void;
+                    data = null;
+                }
+                else
+                {
+                    dataContractKey = properties.GetDataContractKey();
+
+                    if (!_serializers.ContainsKey(properties.ContentType))
+                    {
+                        info.Callback(null,
+                            new RpcCallException(RpcFailureReason.SerializationError,
+                                string.Format("Unsupported content type {0}", properties.ContentType)));
+
+                        return;
+                    }
+
+                    try
+                    {
+                        ISerializer serializer = _serializers[properties.ContentType];
+
+                        data = serializer.Deserialize(dataContractKey, info.ReplyType, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        info.Callback(null, new RpcCallException(RpcFailureReason.SerializationError, ex));
+
+                        return;
+                    }
                 }
 
                 RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
-                
+
                 info.Callback(message, null);
             }
-
         }
 
         public override void HandleModelShutdown(object model, ShutdownEventArgs reason)

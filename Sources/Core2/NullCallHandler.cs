@@ -6,7 +6,7 @@ namespace MessageBus.Core
     {
         public RawBusMessage Dispatch(RawBusMessage message)
         {
-            return null;
+            return new RawBusMessage();
         }
     }
 }

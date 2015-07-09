@@ -16,7 +16,7 @@ namespace MessageBus.Core
         {
             _action((TData)message.Data);
 
-            return null;
+            return new RawBusMessage();
         }
     }
 }
