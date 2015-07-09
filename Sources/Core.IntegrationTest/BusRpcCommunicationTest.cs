@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MessageBus.Core;
@@ -29,19 +30,136 @@ namespace Core.IntegrationTest
 
                     using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
                     {
-                        ResponseMessage response;
-                        
-                        bool res = rpcPublisher.Send(new RequestMessage
+                        ResponseMessage response = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                         {
                             Data = "Hello, world!"
-                        }, TimeSpan.FromSeconds(10), out response);
-
-                        res.Should().BeTrue();
-
+                        }, TimeSpan.FromSeconds(10));
+                        
                         response.ShouldBeEquivalentTo(new ResponseMessage
                         {
                             Code = 13
                         });
+                    }
+                }
+            }
+        }
+        
+        [Test]
+        public void Bus_MakeRpcCall_ExceptionOnHandler()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber())
+                {
+                    subscriber.Subscribe((RequestMessage m) => {
+                                                                   throw new Exception("ooops");
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    {
+                        try
+                        {
+                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            {
+                                Data = "Hello, world!"
+                            }, TimeSpan.FromSeconds(10));
+
+                            Assert.Fail("No exception");
+                        }
+                        catch (RpcCallException ex)
+                        {
+                            ex.Reason.Should().Be(RpcFailureReason.HandlerError);
+                        }
+                    }
+                }
+            }
+        }
+        
+        [Test]
+        public void Bus_MakeRpcCall_RejectedByHandler()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseTransactionalDelivery()))
+                {
+                    subscriber.Subscribe((RequestMessage m) => {
+                                                                   throw new RejectMessageException();
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    {
+                        try
+                        {
+                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            {
+                                Data = "Hello, world!"
+                            }, TimeSpan.FromSeconds(10));
+
+                            Assert.Fail("No exception");
+                        }
+                        catch (RpcCallException ex)
+                        {
+                            ex.Reason.Should().Be(RpcFailureReason.Reject);
+                        }
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_MakeRpcCall_TimeOutOnReply()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber())
+                {
+                    subscriber.Subscribe((RequestMessage m) => Thread.Sleep(TimeSpan.FromSeconds(20)));
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    {
+                        try
+                        {
+                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            {
+                                Data = "Hello, world!"
+                            }, TimeSpan.FromSeconds(10));
+
+                            Assert.Fail("No exception");
+                        }
+                        catch (RpcCallException ex)
+                        {
+                            ex.Reason.Should().Be(RpcFailureReason.TimeOut);
+                        }
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_MakeRpcCall_NotRoutedToAnySubscriber()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                {
+                    try
+                    {
+                        rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        {
+                            Data = "Hello, world!"
+                        }, TimeSpan.FromSeconds(10));
+
+                        Assert.Fail("No exception");
+                    }
+                    catch (RpcCallException ex)
+                    {
+                        ex.Reason.Should().Be(RpcFailureReason.NotRouted);
                     }
                 }
             }
@@ -71,17 +189,13 @@ namespace Core.IntegrationTest
                         {
                             for (int i = 0; i < calls; i++)
                             {
-                                ResponseMessage response;
+                                ResponseMessage response =
+                                    rpcPublisher1.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                                    {
+                                        Data = "1"
+                                    }, TimeSpan.FromSeconds(10));
 
-                                bool res = rpcPublisher1.Send(new RequestMessage
-                                {
-                                    Data = "1"
-                                }, TimeSpan.FromSeconds(10), out response);
-
-                                if (res)
-                                {
-                                    c1Responses.Add(response);
-                                }
+                                c1Responses.Add(response);
                             }
                         });
                         
@@ -89,17 +203,14 @@ namespace Core.IntegrationTest
                         {
                             for (int i = 0; i < calls; i++)
                             {
-                                ResponseMessage response;
+                                ResponseMessage response =
+                                    rpcPublisher2.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                                    {
+                                        Data = "2"
+                                    }, TimeSpan.FromSeconds(10));
 
-                                bool res = rpcPublisher2.Send(new RequestMessage
-                                {
-                                    Data = "2"
-                                }, TimeSpan.FromSeconds(10), out response);
 
-                                if (res)
-                                {
-                                    c2Responses.Add(response);
-                                }
+                                c2Responses.Add(response);
                             }
                         });
 

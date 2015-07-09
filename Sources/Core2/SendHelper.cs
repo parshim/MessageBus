@@ -13,10 +13,6 @@ namespace MessageBus.Core
         
         public void Send(SendParams sendParams)
         {
-            Type type = sendParams.BusMessage.Data.GetType();
-
-            DataContractKey contractKey = _nameMappings.GetOrAdd(type, t => t.GetDataContractKey());
-            
             sendParams.BusMessage.Sent = DateTime.Now;
             sendParams.BusMessage.BusId = sendParams.BusId;
 
@@ -24,15 +20,28 @@ namespace MessageBus.Core
             {
                 AppId = sendParams.BusMessage.BusId,
                 Timestamp = sendParams.BusMessage.Sent.ToAmqpTimestamp(),
-                Type = contractKey.Name,
                 ContentType = sendParams.Serializer.ContentType,
-                Headers = new Dictionary<string, object>
-                {
-                    {MessagingConstants.HeaderNames.Name, contractKey.Name},
-                    {MessagingConstants.HeaderNames.NameSpace, contractKey.Ns}
-                }
+                Headers = new Dictionary<string, object>()
             };
 
+            byte[] bytes;
+            
+            if (sendParams.BusMessage.Data != null)
+            {
+                Type type = sendParams.BusMessage.Data.GetType();
+                DataContractKey contractKey = _nameMappings.GetOrAdd(type, t => t.GetDataContractKey());
+
+                basicProperties.Type = contractKey.Name;
+                basicProperties.Headers.Add(MessagingConstants.HeaderNames.Name, contractKey.Name);
+                basicProperties.Headers.Add(MessagingConstants.HeaderNames.NameSpace, contractKey.Ns);
+
+                bytes = sendParams.Serializer.Serialize(sendParams.BusMessage);
+            }
+            else
+            {
+                bytes = new byte[0];
+            }
+            
             foreach (BusHeaderBase header in sendParams.BusMessage.Headers)
             {
                 basicProperties.Headers.Add(header.Name, header.GetValue());
@@ -52,8 +61,6 @@ namespace MessageBus.Core
             {
                 basicProperties.CorrelationId = sendParams.CorrelationId;
             }
-
-            byte[] bytes = sendParams.Serializer.Serialize(sendParams.BusMessage);
 
             sendParams.Model.BasicPublish(sendParams.Exchange, sendParams.RoutingKey, sendParams.MandatoryDelivery, false, basicProperties, bytes);
         }

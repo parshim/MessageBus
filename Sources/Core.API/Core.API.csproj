@@ -56,6 +56,7 @@
     <Compile Include="NoIncomingConnectionAcceptedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RejectMessageException.cs" />
+    <Compile Include="RpcCallException.cs" />
     <Compile Include="SubscribtionAttribute.cs" />
     <Compile Include="SubscriptionClosedException.cs" />
     <Compile Include="XDeadHeader.cs" />

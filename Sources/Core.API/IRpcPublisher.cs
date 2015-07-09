@@ -13,10 +13,9 @@ namespace MessageBus.Core.API
         /// <typeparam name="TData"></typeparam>
         /// <typeparam name="TReplyData"></typeparam>
         /// <param name="data"></param>
-        /// <param name="timeOut">Specify for how long wait for reply message</param>
-        /// <param name="reply">Reply data</param>
-        /// <returns>True when reply were received</returns>
-        bool Send<TData, TReplyData>(TData data, TimeSpan timeOut, out TReplyData reply);
+        /// <param name="timeOut">Specify for how long wait for reply message. If message not received within specified time timeout exception will be thrown.</param>
+        /// <returns>Reply data</returns>
+        TReplyData Send<TData, TReplyData>(TData data, TimeSpan timeOut);
 
         /// <summary>
         /// Publish data message and waits for response data message on same channel
@@ -24,9 +23,8 @@ namespace MessageBus.Core.API
         /// <typeparam name="TData"></typeparam>
         /// <typeparam name="TReplyData"></typeparam>
         /// <param name="message"></param>
-        /// <param name="timeOut">Specify for how long wait for reply message</param>
-        /// <param name="reply">Reply message</param>
-        /// <returns>True when reply were received</returns>
-        bool Send<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut, out BusMessage<TReplyData> reply);
+        /// <param name="timeOut">Specify for how long wait for reply message. If message not received within specified time timeout exception will be thrown.</param>
+        /// <returns>Reply message</returns>
+        BusMessage<TReplyData> Send<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut);
     }
 }

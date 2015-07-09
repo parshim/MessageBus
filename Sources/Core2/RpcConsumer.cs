@@ -18,7 +18,7 @@ namespace MessageBus.Core
             _replyType = replyType;
         }
 
-        public Action<RawBusMessage, Exception> Callback
+        public Action<RawBusMessage, RpcCallException> Callback
         {
             get { return _callback; }
         }
@@ -54,12 +54,11 @@ namespace MessageBus.Core
 
             if (_callbacksDictionary.TryRemove(correlationId, out info))
             {
-                info.Callback(null, new Exception(string.Format("Message not routed. Error code: {0}, reply: {1}", replyCode, replyText)));
+                info.Callback(null, new RpcCallException(RpcFailureReason.NotRouted, string.Format("Message not routed. Error code: {0}, reply: {1}", replyCode, replyText)));
             }
         }
 
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange,
-            string routingKey, IBasicProperties properties, byte[] body)
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
             if (!properties.IsCorrelationIdPresent())
             {
@@ -70,17 +69,35 @@ namespace MessageBus.Core
 
             if (_callbacksDictionary.TryRemove(properties.CorrelationId, out info))
             {
-                DataContractKey dataContractKey = properties.GetDataContractKey();
+                var rejectHeader = properties.Headers.Where(pair => pair.Key == RejectedHeader.WellknownName).Select(pair => pair.Value).FirstOrDefault();
 
+                if (rejectHeader != null)
+                {
+                    info.Callback(null, new RpcCallException(RpcFailureReason.Reject));
+
+                    return;
+                }
+
+                var exceptionHeader = properties.Headers.Where(pair => pair.Key == ExceptionHeader.WellknownName).Select(pair => pair.Value).FirstOrDefault();
+
+                if (exceptionHeader != null)
+                {
+                    info.Callback(null, new RpcCallException(RpcFailureReason.HandlerError, exceptionHeader.ToString()));
+
+                    return;
+                }
+
+                DataContractKey dataContractKey = properties.GetDataContractKey();
+                
                 if (!_serializers.ContainsKey(properties.ContentType))
                 {
-                    info.Callback(null, new Exception(string.Format("Unsupported content type {0}", properties.ContentType)));
+                    info.Callback(null, new RpcCallException(RpcFailureReason.SerializationError, string.Format("Unsupported content type {0}", properties.ContentType)));
                     
                     return;
                 }
 
                 object data;
-
+                
                 try
                 {
                     ISerializer serializer = _serializers[properties.ContentType];
@@ -89,28 +106,12 @@ namespace MessageBus.Core
                 }
                 catch (Exception ex)
                 {
-                    info.Callback(null, ex);
+                    info.Callback(null, new RpcCallException(RpcFailureReason.SerializationError, ex));
                     
                     return;
                 }
 
                 RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
-
-                if (message.Headers.OfType<RejectedHeader>().Any())
-                {
-                    info.Callback(null, new Exception("Message rejected"));
-
-                    return;
-                }
-
-                ExceptionHeader exceptionHeader = message.Headers.OfType<ExceptionHeader>().FirstOrDefault();
-
-                if (exceptionHeader != null)
-                {
-                    info.Callback(null, new Exception(exceptionHeader.Message));
-
-                    return;
-                }
                 
                 info.Callback(message, null);
             }

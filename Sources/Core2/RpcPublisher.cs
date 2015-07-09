@@ -23,21 +23,12 @@ namespace MessageBus.Core
             _consumer.HandleBasicReturn(message.CorrelationId, replyCode, replyText);
         }
 
-        public bool Send<TData, TReplyData>(TData data, TimeSpan timeOut, out TReplyData reply)
+        public TReplyData Send<TData, TReplyData>(TData data, TimeSpan timeOut)
         {
-            BusMessage<TReplyData> replyMessage;
-            
-            bool result = Send(new BusMessage<TData>
-            {
-                Data = data
-            }, timeOut, out replyMessage);
-
-            reply = replyMessage != null ? replyMessage.Data : default(TReplyData);
-
-            return result;
+            return Send<TData, TReplyData>(new BusMessage<TData> { Data = data }, timeOut).Data;
         }
 
-        public bool Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut, out BusMessage<TReplyData> busReplyMessage)
+        public BusMessage<TReplyData> Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut)
         {
             string id = GenerateCorrelationId();
 
@@ -86,9 +77,7 @@ namespace MessageBus.Core
 
                 if (!waitOne)
                 {
-                    busReplyMessage = null;
-
-                    return false;
+                    throw new RpcCallException(RpcFailureReason.TimeOut);
                 }
 
                 if (exception != null)
@@ -96,7 +85,7 @@ namespace MessageBus.Core
                     throw exception;
                 }
 
-                busReplyMessage = new BusMessage<TReplyData>
+                BusMessage<TReplyData> busReplyMessage = new BusMessage<TReplyData>
                 {
                     BusId = replyMessage.BusId,
                     Sent = replyMessage.Sent,
@@ -108,7 +97,7 @@ namespace MessageBus.Core
                     busMessage.Headers.Add(header);
                 }
 
-                return true;
+                return busReplyMessage;
             }
         }
 

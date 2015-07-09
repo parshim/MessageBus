@@ -142,7 +142,7 @@ namespace Core.IntegrationTest
 
                         bool waitOne = ev.WaitOne(TimeSpan.FromSeconds(50));
 
-                        counter.Should().Be(expected);
+                        counter.Should().BeGreaterOrEqualTo(expected);
                         waitOne.Should().BeTrue();
                         actual.Data.ShouldBeEquivalentTo(message);
 
