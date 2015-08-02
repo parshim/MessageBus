@@ -12,12 +12,13 @@ namespace MessageBus.Core
         private IErrorSubscriber _errorSubscriber;
         private string _queueName = "";
         private bool _receiveSelfPublish;
+        private bool _neverReply;
         private bool _transactionalDelivery;
         private string _exchange;
         private string _routingKey = "";
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
-
+        
         public SubscriberConfigurator(string exchange, IErrorSubscriber errorSubscriber, bool receiveSelfPublish)
         {
             _exchange = exchange;
@@ -29,7 +30,6 @@ namespace MessageBus.Core
 
             _serializers.Add(jsonSerializer.ContentType, jsonSerializer);
             _serializers.Add(soapSerializer.ContentType, soapSerializer);
-
         }
 
         public string QueueName
@@ -78,6 +78,14 @@ namespace MessageBus.Core
             }
         }
 
+        public bool NeverReply
+        {
+            get
+            {
+                return _neverReply;
+            }
+        }
+
         public ISubscriberConfigurator UseBufferManager(BufferManager bufferManager)
         {
             _bufferManager = bufferManager;
@@ -109,6 +117,13 @@ namespace MessageBus.Core
         public ISubscriberConfigurator SetReceiveSelfPublish(bool receive)
         {
             _receiveSelfPublish = receive;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator SetNeverReply(bool neverReply = true)
+        {
+            _neverReply = neverReply;
 
             return this;
         }

@@ -8,8 +8,8 @@ namespace MessageBus.Core
 {
     public class TransactionalMessageConsumer : MessageConsumer
     {
-        public TransactionalMessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish)
-            : base(busId, model, messageHelper, sendHelper, serializers, errorSubscriber, scheduler, receiveSelfPublish)
+        public TransactionalMessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply)
+            : base(busId, model, messageHelper, sendHelper, serializers, errorSubscriber, scheduler, receiveSelfPublish, neverReply)
         {
         }
 

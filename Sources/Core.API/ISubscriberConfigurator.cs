@@ -42,6 +42,14 @@ namespace MessageBus.Core.API
         ISubscriberConfigurator SetReceiveSelfPublish(bool receive = true);
 
         /// <summary>
+        /// If set, even for messages with reply-to filed reply will not be sent. 
+        /// <remarks>This flag is usefull for scenarious when synchronous reply is required while there are number of different subscribers for the message. 
+        /// In such case every subscriber will issue a reply and RPC publisher will get first one. Sometimes system logic requires to get reply from specific subscriber, 
+        /// while other subscribers will process message silently. For silent subscribers SetNeverReply should be called during configuration.</remarks>
+        /// </summary>
+        ISubscriberConfigurator SetNeverReply(bool neverReply = true);
+
+        /// <summary>
         /// Specifies concurency level of the subscriber. Level grater then one may cause lose of message order between processing threads.
         /// <remarks>By default concurency level is 1.</remarks>
         /// </summary>

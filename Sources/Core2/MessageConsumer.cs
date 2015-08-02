@@ -16,6 +16,7 @@ namespace MessageBus.Core
 
         private readonly string _busId;
         private readonly bool _receiveSelfPublish;
+        private readonly bool _neverReply;
 
         private readonly TaskScheduler _scheduler;
 
@@ -24,7 +25,7 @@ namespace MessageBus.Core
         private readonly Dictionary<string, ISerializer> _serializers;
         private readonly IErrorSubscriber _errorSubscriber;
         
-        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish) : base(model)
+        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply) : base(model)
         {
             _busId = busId;
             _messageHelper = messageHelper;
@@ -32,6 +33,7 @@ namespace MessageBus.Core
             _errorSubscriber = errorSubscriber;
             _scheduler = scheduler;
             _receiveSelfPublish = receiveSelfPublish;
+            _neverReply = neverReply;
             _sendHelper = sendHelper;
         }
         
@@ -123,7 +125,7 @@ namespace MessageBus.Core
                 });
             }
 
-            if (properties.IsReplyToPresent())
+            if (!_neverReply && properties.IsReplyToPresent())
             {
                 _sendHelper.Send(new SendParams
                 {
