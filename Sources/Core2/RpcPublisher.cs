@@ -5,7 +5,7 @@ using RabbitMQ.Client;
 
 namespace MessageBus.Core
 {
-    public class RpcPublisher : PublisherBase, IRpcPublisher
+    public class RpcPublisher : Publisher, IRpcPublisher
     {
         const string Queue = "amq.rabbitmq.reply-to";
 

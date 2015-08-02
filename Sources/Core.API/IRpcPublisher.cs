@@ -5,7 +5,7 @@ namespace MessageBus.Core.API
     /// <summary>
     /// RPC publisher is capable of sending messages and wait for reply message on same channel without creating or using any queue for reply message.
     /// </summary>
-    public interface IRpcPublisher : IDisposable
+    public interface IRpcPublisher : IPublisher
     {
         /// <summary>
         /// Publish data message and waits for response data message on same channel
