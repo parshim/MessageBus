@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,10 +11,10 @@ using NUnit.Framework;
 namespace Core.IntegrationTest
 {
     [TestFixture]
-    public class BusRpcCommunicationTest
+    public class BusAsyncRpcCommunicationTest
     {
         [Test]
-        public void Bus_MakeSyncRpcCall()
+        public async void Bus_MakeRpcCall()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -27,13 +27,13 @@ namespace Core.IntegrationTest
 
                     subscriber.Open();
 
-                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
-                        ResponseMessage response = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        ResponseMessage response = await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                         {
                             Data = "Hello, world!"
                         }, TimeSpan.FromSeconds(10));
-                        
+
                         response.ShouldBeEquivalentTo(new ResponseMessage
                         {
                             Code = 13
@@ -42,7 +42,7 @@ namespace Core.IntegrationTest
                 }
             }
         }
-        
+
         [Test]
         public void Bus_MakeAsyncRpcCall()
         {
@@ -57,7 +57,7 @@ namespace Core.IntegrationTest
 
                     subscriber.Open();
 
-                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
                         ResponseMessage response = null;
 
@@ -66,9 +66,9 @@ namespace Core.IntegrationTest
                             rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
-                            }, TimeSpan.FromSeconds(10), message =>
+                            }, TimeSpan.FromSeconds(10)).ContinueWith(t =>
                             {
-                                response = message;
+                                response = t.Result;
 
                                 ev.Set();
                             });
@@ -91,7 +91,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public void Bus_MakeRpcVoidCall_SubscriberReturnData()
+        public async void Bus_MakeRpcVoidCall_SubscriberReturnData()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -108,14 +108,14 @@ namespace Core.IntegrationTest
 
                     subscriber.Open();
 
-                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
                         var expected = new RequestMessage
                         {
                             Data = "Hello, world!"
                         };
 
-                        rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+                        await rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
 
                         actual.ShouldBeEquivalentTo(expected);
                     }
@@ -124,7 +124,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public void Bus_MakeRpcVoidCall_SubscriberDoNotReturnData()
+        public async void Bus_MakeRpcVoidCall_SubscriberDoNotReturnData()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -139,39 +139,40 @@ namespace Core.IntegrationTest
 
                     subscriber.Open();
 
-                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
                         var expected = new RequestMessage
                         {
                             Data = "Hello, world!"
                         };
 
-                        rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+                        await rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
 
                         actual.ShouldBeEquivalentTo(expected);
                     }
                 }
             }
         }
-        
+
         [Test]
-        public void Bus_MakeRpcCall_ExceptionOnHandler()
+        public async void Bus_MakeRpcCall_ExceptionOnHandler()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber())
                 {
-                    subscriber.Subscribe((RequestMessage m) => {
-                                                                   throw new Exception("ooops");
+                    subscriber.Subscribe((RequestMessage m) =>
+                    {
+                        throw new Exception("ooops");
                     });
 
                     subscriber.Open();
 
-                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
                         try
                         {
-                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
                             }, TimeSpan.FromSeconds(10));
@@ -186,25 +187,26 @@ namespace Core.IntegrationTest
                 }
             }
         }
-        
+
         [Test]
-        public void Bus_MakeRpcCall_RejectedByHandler()
+        public async void Bus_MakeRpcCall_RejectedByHandler()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseTransactionalDelivery()))
                 {
-                    subscriber.Subscribe((RequestMessage m) => {
-                                                                   throw new RejectMessageException();
+                    subscriber.Subscribe((RequestMessage m) =>
+                    {
+                        throw new RejectMessageException();
                     });
 
                     subscriber.Open();
 
-                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
                         try
                         {
-                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
                             }, TimeSpan.FromSeconds(10));
@@ -221,7 +223,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public void Bus_MakeRpcCall_TimeOutOnReply()
+        public async void Bus_MakeRpcCall_TimeOutOnReply()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -231,11 +233,11 @@ namespace Core.IntegrationTest
 
                     subscriber.Open();
 
-                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
                         try
                         {
-                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
                             }, TimeSpan.FromSeconds(10));
@@ -252,15 +254,15 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public void Bus_MakeRpcCall_NotRoutedToAnySubscriber()
+        public async void Bus_MakeRpcCall_NotRoutedToAnySubscriber()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
-                using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                 {
                     try
                     {
-                        rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                         {
                             Data = "Hello, world!"
                         }, TimeSpan.FromSeconds(10));
@@ -274,7 +276,7 @@ namespace Core.IntegrationTest
                 }
             }
         }
-        
+
         [Test]
         public void Bus_MultiClientRpcCall()
         {
@@ -288,62 +290,29 @@ namespace Core.IntegrationTest
                     });
 
                     subscriber.Open();
-
-                    const int calls = 20;
-
-                    using (IRpcPublisher rpcPublisher1 = client1Bus.CreateRpcPublisher(), rpcPublisher2 = client2Bus.CreateRpcPublisher())
+                    
+                    using (IRpcAsyncPublisher rpcPublisher1 = client1Bus.CreateAsyncRpcPublisher(), rpcPublisher2 = client2Bus.CreateAsyncRpcPublisher())
                     {
                         List<ResponseMessage> c1Responses = new List<ResponseMessage>(), c2Responses = new List<ResponseMessage>();
 
-                        Task t1 = Task.Factory.StartNew(() =>
+                        Task t1 = rpcPublisher1.Send<RequestMessage, ResponseMessage>(new RequestMessage
                         {
-                            for (int i = 0; i < calls; i++)
-                            {
-                                ResponseMessage response =
-                                    rpcPublisher1.Send<RequestMessage, ResponseMessage>(new RequestMessage
-                                    {
-                                        Data = "1"
-                                    }, TimeSpan.FromSeconds(10));
+                            Data = "1"
+                        }, TimeSpan.FromSeconds(10)).ContinueWith(task => c1Responses.Add(task.Result));
 
-                                c1Responses.Add(response);
-                            }
-                        });
+                        Task t2 = rpcPublisher2.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        {
+                            Data = "2"
+                        }, TimeSpan.FromSeconds(10)).ContinueWith(task => c2Responses.Add(task.Result));
                         
-                        Task t2 = Task.Factory.StartNew(() =>
-                        {
-                            for (int i = 0; i < calls; i++)
-                            {
-                                ResponseMessage response =
-                                    rpcPublisher2.Send<RequestMessage, ResponseMessage>(new RequestMessage
-                                    {
-                                        Data = "2"
-                                    }, TimeSpan.FromSeconds(10));
-
-
-                                c2Responses.Add(response);
-                            }
-                        });
 
                         Task.WaitAll(t1, t2);
-
-                        c1Responses.Should().HaveCount(calls);
-                        c2Responses.Should().HaveCount(calls);
-
+                        
                         c1Responses.All(message => message.Code == 1).Should().BeTrue();
                         c2Responses.All(message => message.Code == 2).Should().BeTrue();
                     }
                 }
             }
         }
-    }
-
-    public class RequestMessage
-    {
-        public string Data { get; set; }
-    }
-
-    public class ResponseMessage
-    {
-        public int Code { get; set; }
     }
 }

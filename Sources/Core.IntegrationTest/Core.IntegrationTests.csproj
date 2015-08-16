@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="BlobTransferTest.cs" />
     <Compile Include="BusAnnotatedSubscriptionTests.cs" />
+    <Compile Include="BusAsyncRpcCommunicationTest.cs" />
     <Compile Include="BusDurableTests.cs" />
     <Compile Include="BusFailedDeliveryTest.cs" />
     <Compile Include="BusMessageTests.cs" />

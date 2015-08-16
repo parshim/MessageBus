@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -7,7 +8,8 @@ namespace MessageBus.Core
 
     public interface IRpcConsumer : IBasicConsumer
     {
-        bool RegisterCallback(string correlationId, Type replyType, Action<RawBusMessage, Exception> callback);
+        WaitHandle RegisterCallback(string correlationId, Type replyType, TimeSpan timeOut, Action<RawBusMessage, Exception> callback);
+
         void HandleBasicReturn(string correlationId, int replyCode, string replyText);
     }
 }

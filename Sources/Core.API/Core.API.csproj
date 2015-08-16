@@ -46,6 +46,7 @@
     <Compile Include="IPublishingErrorHandler.cs" />
     <Compile Include="IReceiver.cs" />
     <Compile Include="IRouteManager.cs" />
+    <Compile Include="IRpcAsyncPublisher.cs" />
     <Compile Include="IRpcPublisher.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="ISubscriber.cs" />

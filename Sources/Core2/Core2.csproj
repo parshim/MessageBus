@@ -83,8 +83,10 @@
     <Compile Include="Receiver.cs" />
     <Compile Include="JsonSerializer.cs" />
     <Compile Include="RouteManager.cs" />
+    <Compile Include="RpcAsyncPublisher.cs" />
     <Compile Include="RpcConsumer.cs" />
-    <Compile Include="RpcPublisher.cs" />
+    <Compile Include="RpcSyncPublisher.cs" />
+    <Compile Include="RpcPublisherBase.cs" />
     <Compile Include="SendHelper.cs" />
     <Compile Include="SoapSerializer.cs" />
     <Compile Include="Subscriber.cs" />

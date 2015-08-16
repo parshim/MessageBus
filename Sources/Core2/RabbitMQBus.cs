@@ -132,7 +132,21 @@ namespace MessageBus.Core
                 { configuration.Serializer.ContentType, configuration.Serializer }
             });
 
-            return new RpcPublisher(model, BusId, configuration, _messageHelper, _sendHelper, consumer);
+            return new RpcSyncPublisher(model, BusId, configuration, _messageHelper, _sendHelper, consumer);
+        }
+
+        public IRpcAsyncPublisher CreateAsyncRpcPublisher(Action<IPublisherConfigurator> configure = null)
+        {
+            PublisherConfigurator configuration = _createPublisherConfigurator(configure);
+
+            IModel model = _connection.CreateModel();
+
+            IRpcConsumer consumer = new RpcConsumer(model, _messageHelper, new Dictionary<string, ISerializer>
+            {
+                { configuration.Serializer.ContentType, configuration.Serializer }
+            });
+
+            return new RpcAsyncPublisher(model, BusId, configuration, _messageHelper, _sendHelper, consumer);
         }
 
         public IReceiver CreateReceiver(Action<ISubscriberConfigurator> configure = null)

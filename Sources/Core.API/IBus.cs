@@ -55,6 +55,13 @@ namespace MessageBus.Core.API
         IRpcPublisher CreateRpcPublisher(Action<IPublisherConfigurator> configure = null);
 
         /// <summary>
+        /// Creates async RPC publisher. Publishers cannot be shared between threads.
+        /// </summary>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        IRpcAsyncPublisher CreateAsyncRpcPublisher(Action<IPublisherConfigurator> configure = null);
+
+        /// <summary>
         /// Creates an receiver that will receive messages from the bus on demand
         /// </summary>
         /// <returns></returns>
