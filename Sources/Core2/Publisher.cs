@@ -15,12 +15,12 @@ namespace MessageBus.Core
             _configuration.ErrorHandler.DeliveryFailed(replyCode, replyText, message);
         }
 
-        public void Send<TData>(TData data)
+        public void Send<TData>(TData data, bool persistant)
         {
-            Send(new RawBusMessage { Data = data });
+            Send(new RawBusMessage { Data = data }, persistant);
         }
 
-        public void Send<TData>(BusMessage<TData> busMessage)
+        public void Send<TData>(BusMessage<TData> busMessage, bool persistant)
         {
             RawBusMessage rawBusMessage = new RawBusMessage
             {
@@ -32,10 +32,10 @@ namespace MessageBus.Core
                 rawBusMessage.Headers.Add(header);
             }
 
-            Send(rawBusMessage);
+            Send(rawBusMessage, persistant);
         }
 
-        public void Send(RawBusMessage busMessage)
+        public void Send(RawBusMessage busMessage, bool persistant)
         {
             _sendHelper.Send(new SendParams
             {
@@ -46,7 +46,7 @@ namespace MessageBus.Core
                 CorrelationId = "",
                 Exchange = _configuration.Exchange,
                 MandatoryDelivery = _configuration.MandatoryDelivery,
-                PersistentDelivery = _configuration.PersistentDelivery,
+                PersistentDelivery = persistant || _configuration.PersistentDelivery,
                 RoutingKey = _configuration.RoutingKey
             });
         }

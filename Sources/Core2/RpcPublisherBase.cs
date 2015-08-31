@@ -23,7 +23,7 @@ namespace MessageBus.Core
             _consumer.HandleBasicReturn(message.CorrelationId, replyCode, replyText);
         }
 
-        protected void SendMessage<TData>(BusMessage<TData> busMessage, string id)
+        protected void SendMessage<TData>(BusMessage<TData> busMessage, string id, bool persistant)
         {
             var rawBusMessage = CreateRawMessage(busMessage);
 
@@ -36,7 +36,7 @@ namespace MessageBus.Core
                 Serializer = _configuration.Serializer,
                 Exchange = _configuration.Exchange,
                 MandatoryDelivery = true,
-                PersistentDelivery = _configuration.PersistentDelivery,
+                PersistentDelivery = persistant || _configuration.PersistentDelivery,
                 RoutingKey = _configuration.RoutingKey,
                 ReplyTo = Queue
             });

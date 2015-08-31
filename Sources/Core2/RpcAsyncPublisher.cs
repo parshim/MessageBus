@@ -12,32 +12,32 @@ namespace MessageBus.Core
         {
         }
 
-        public Task Send<TData>(TData data, TimeSpan timeOut)
+        public Task Send<TData>(TData data, TimeSpan timeOut, bool persistant)
         {
-            return Send(new BusMessage<TData> {Data = data}, timeOut);
+            return Send(new BusMessage<TData> { Data = data }, timeOut, persistant);
         }
 
-        public Task<TReplyData> Send<TData, TReplyData>(TData data, TimeSpan timeOut)
+        public Task<TReplyData> Send<TData, TReplyData>(TData data, TimeSpan timeOut, bool persistant)
         {
             return SendAndCreateTask(new BusMessage<TData> { Data = data }, timeOut, m =>
             {
                 BusMessage<TReplyData> replyMessage = CreateBusMessage<TReplyData>(m);
 
                 return replyMessage.Data;
-            });
-        }
-        
-        public Task Send<TData>(BusMessage<TData> message, TimeSpan timeOut)
-        {
-            return SendAndCreateTask<TData, object>(message, timeOut, m => null);
+            }, persistant);
         }
 
-        public Task<BusMessage<TReplyData>> Send<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut)
+        public Task Send<TData>(BusMessage<TData> message, TimeSpan timeOut, bool persistant)
         {
-            return SendAndCreateTask(message, timeOut, CreateBusMessage<TReplyData>);
+            return SendAndCreateTask<TData, object>(message, timeOut, m => null, persistant);
         }
 
-        private Task<TReplyData> SendAndCreateTask<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut, Func<RawBusMessage, TReplyData> createReply)
+        public Task<BusMessage<TReplyData>> Send<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut, bool persistant)
+        {
+            return SendAndCreateTask(message, timeOut, CreateBusMessage<TReplyData>, persistant);
+        }
+
+        private Task<TReplyData> SendAndCreateTask<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut, Func<RawBusMessage, TReplyData> createReply, bool persistant)
         {
             string id = GenerateCorrelationId();
 
@@ -57,7 +57,7 @@ namespace MessageBus.Core
                 }
             });
 
-            SendMessage(message, id);
+            SendMessage(message, id, persistant);
 
             return tcs.Task;
         }

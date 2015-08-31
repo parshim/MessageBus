@@ -13,22 +13,22 @@ namespace MessageBus.Core
 
         }
 
-        public TReplyData Send<TData, TReplyData>(TData data, TimeSpan timeOut)
+        public TReplyData Send<TData, TReplyData>(TData data, TimeSpan timeOut, bool persistant)
         {
-            return Send<TData, TReplyData>(new BusMessage<TData> { Data = data }, timeOut).Data;
+            return Send<TData, TReplyData>(new BusMessage<TData> { Data = data }, timeOut, persistant).Data;
         }
 
-        public void Send<TData>(TData data, TimeSpan timeOut)
+        public void Send<TData>(TData data, TimeSpan timeOut, bool persistant)
         {
-            Send(new BusMessage<TData> {Data = data}, timeOut);
+            Send(new BusMessage<TData> {Data = data}, timeOut, persistant);
         }
 
-        public void Send<TData>(BusMessage<TData> busMessage, TimeSpan timeOut)
+        public void Send<TData>(BusMessage<TData> busMessage, TimeSpan timeOut, bool persistant)
         {
-            SendAndWaitForReply(busMessage, timeOut, null);
+            SendAndWaitForReply(busMessage, timeOut, null, persistant);
         }
 
-        public void Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut, Action<BusMessage<TReplyData>> onReply)
+        public void Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut, Action<BusMessage<TReplyData>> onReply, bool persistant)
         {
             string id = GenerateCorrelationId();
 
@@ -42,22 +42,22 @@ namespace MessageBus.Core
                 }
             });
 
-            SendMessage(busMessage, id);
+            SendMessage(busMessage, id, persistant);
         }
 
-        public void Send<TData, TReplyData>(TData data, TimeSpan timeOut, Action<TReplyData> onReply)
+        public void Send<TData, TReplyData>(TData data, TimeSpan timeOut, Action<TReplyData> onReply, bool persistant)
         {
-            Send<TData, TReplyData>(new BusMessage<TData> { Data = data }, timeOut, message => onReply(message.Data));
+            Send<TData, TReplyData>(new BusMessage<TData> { Data = data }, timeOut, message => onReply(message.Data), persistant);
         }
 
-        public BusMessage<TReplyData> Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut)
+        public BusMessage<TReplyData> Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut, bool persistant)
         {
-            RawBusMessage replyMessage = SendAndWaitForReply(busMessage, timeOut, typeof(TReplyData));
+            RawBusMessage replyMessage = SendAndWaitForReply(busMessage, timeOut, typeof(TReplyData), persistant);
 
             return CreateBusMessage<TReplyData>(replyMessage);
         }
 
-        private RawBusMessage SendAndWaitForReply<TData>(BusMessage<TData> busMessage, TimeSpan timeOut, Type replyType)
+        private RawBusMessage SendAndWaitForReply<TData>(BusMessage<TData> busMessage, TimeSpan timeOut, Type replyType, bool persistant)
         {
             string id = GenerateCorrelationId();
 
@@ -70,7 +70,7 @@ namespace MessageBus.Core
                 exception = ex;
             });
 
-            SendMessage(busMessage, id);
+            SendMessage(busMessage, id, persistant);
 
             handle.WaitOne();
             

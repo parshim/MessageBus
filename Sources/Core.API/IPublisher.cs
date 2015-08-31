@@ -8,24 +8,28 @@ namespace MessageBus.Core.API
     /// </summary>
     public interface IPublisher : IDisposable
     {
+
         /// <summary>
         /// Publish data message 
         /// </summary>
         /// <typeparam name="TData">Data type</typeparam>
         /// <param name="data">Data instance</param>
-        void Send<TData>(TData data);
+        /// <param name="persistant"></param>
+        void Send<TData>(TData data, bool persistant = false);
 
         /// <summary>
         /// Publish bus message
         /// </summary>
         /// <typeparam name="TData">Data type</typeparam>
         /// <param name="busMessage">Bus message instance</param>
-        void Send<TData>(BusMessage<TData> busMessage);
+        /// <param name="persistant"></param>
+        void Send<TData>(BusMessage<TData> busMessage, bool persistant = false);
 
         /// <summary>
         /// Publish raw bus message
         /// </summary>
         /// <param name="busMessage">Bus message instance</param>
-        void Send(RawBusMessage busMessage);
+        /// <param name="persistant"></param>
+        void Send(RawBusMessage busMessage, bool persistant = false);
     }
 }
