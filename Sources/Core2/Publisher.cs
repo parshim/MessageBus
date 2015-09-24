@@ -37,6 +37,11 @@ namespace MessageBus.Core
 
         public void Send(RawBusMessage busMessage, bool persistant)
         {
+            foreach (var header in _configuration.Headers)
+            {
+                busMessage.Headers.Add(header);
+            }
+            
             _sendHelper.Send(new SendParams
             {
                 BusId = _busId,

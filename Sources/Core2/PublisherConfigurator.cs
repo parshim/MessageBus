@@ -1,4 +1,6 @@
-﻿using System.ServiceModel.Channels;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.ServiceModel.Channels;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -13,6 +15,7 @@ namespace MessageBus.Core
 
         private string _exchange;
         private string _routingKey = "";
+        private IEnumerable<BusHeader> _headers = Enumerable.Empty<BusHeader>();
 
         public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler)
         {
@@ -56,6 +59,11 @@ namespace MessageBus.Core
         public string RoutingKey
         {
             get { return _routingKey; }
+        }
+
+        public IEnumerable<BusHeader> Headers
+        {
+            get { return _headers; }
         }
 
         public IPublisherConfigurator UseBufferManager(BufferManager bufferManager)
@@ -110,6 +118,13 @@ namespace MessageBus.Core
         public IPublisherConfigurator SetRoutingKey(string routingKey)
         {
             _routingKey = routingKey;
+
+            return this;
+        }
+
+        public IPublisherConfigurator SetDefaultHeaders(IEnumerable<BusHeader> headers)
+        {
+            _headers = headers;
 
             return this;
         }

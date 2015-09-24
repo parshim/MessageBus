@@ -1,4 +1,5 @@
-﻿using System.ServiceModel.Channels;
+﻿using System.Collections.Generic;
+using System.ServiceModel.Channels;
 
 namespace MessageBus.Core.API
 {
@@ -54,5 +55,10 @@ namespace MessageBus.Core.API
         /// Specify routing key for published messages.
         /// </summary>
         IPublisherConfigurator SetRoutingKey(string routingKey);
+
+        /// <summary>
+        /// Set headers which should be sent with every message.
+        /// </summary>
+        IPublisherConfigurator SetDefaultHeaders(IEnumerable<BusHeader> headers);
     }
 }

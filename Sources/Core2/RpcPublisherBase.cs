@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -42,17 +43,18 @@ namespace MessageBus.Core
             });
         }
 
-        private static RawBusMessage CreateRawMessage<TData>(BusMessage<TData> busMessage)
+        private RawBusMessage CreateRawMessage<TData>(BusMessage<TData> busMessage)
         {
             RawBusMessage rawBusMessage = new RawBusMessage
             {
                 Data = busMessage.Data
             };
 
-            foreach (var header in busMessage.Headers)
+            foreach (var header in busMessage.Headers.Concat(_configuration.Headers))
             {
                 rawBusMessage.Headers.Add(header);
             }
+
             return rawBusMessage;
         }
 
