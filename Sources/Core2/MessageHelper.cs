@@ -53,49 +53,78 @@ namespace MessageBus.Core
             {
                 object o = header.Value;
 
-                if (header.Key == XDeadHeader.WellknownName)
+                switch (header.Key)
                 {
-                    List<object> list = (List<object>) o;
-
-                    Dictionary<string, object> values = (Dictionary<string, object>)list[0];
-
-                    byte[] reason = (byte[])values["reason"];
-                    byte[] queue = (byte[])values["queue"];
-                    AmqpTimestamp time = (AmqpTimestamp)values["time"];
-                    byte[] exchange = (byte[])values["exchange"];
-                    List<object> routingKeys = (List<object>)values["routing-keys"];
-
-                    XDeadHeader xDeadHeader = new XDeadHeader
-                    {
-                        Reason = Encoding.ASCII.GetString(reason),
-                        Queue = Encoding.ASCII.GetString(queue),
-                        Exchange = Encoding.ASCII.GetString(exchange),
-                        Time = time.GetDateTime()
-                    };
-
-                    foreach (var routingKey in routingKeys)
-                    {
-                        xDeadHeader.RoutingKeys.Add(Encoding.ASCII.GetString((byte[])routingKey));
-                    }
-
-                    message.Headers.Add(xDeadHeader);
-                }
-                else if (header.Key == RejectedHeader.WellknownName)
-                {
-                    message.Headers.Add(new RejectedHeader());
-                }
-                else if (header.Key == ExceptionHeader.WellknownName)
-                {
-                    message.Headers.Add(new ExceptionHeader
-                    {
-                        Message = Encoding.ASCII.GetString((byte[])o)
-                    });
-                }
-                else
-                {
-                    message.Headers.Add(new BusHeader(header.Key, Encoding.ASCII.GetString((byte[])o)));
+                    case XDeadHeader.WellknownName:
+                        message.Headers.Add(BuildXDeadHeader(o));
+                        break;
+                    case XReceivedFromHeader.WellknownName:
+                        message.Headers.Add(BuildXReceivedFromHeader(o));
+                        break;
+                    case RejectedHeader.WellknownName:
+                        message.Headers.Add(new RejectedHeader());
+                        break;
+                    case ExceptionHeader.WellknownName:
+                        message.Headers.Add(new ExceptionHeader
+                        {
+                            Message = Encoding.ASCII.GetString((byte[])o)
+                        });
+                        break;
+                    default:
+                        message.Headers.Add(new BusHeader(header.Key, Encoding.ASCII.GetString((byte[])o)));
+                        break;
                 }
             }
-        } 
+        }
+
+        private static XDeadHeader BuildXDeadHeader(object o)
+        {
+            List<object> list = (List<object>) o;
+
+            Dictionary<string, object> values = (Dictionary<string, object>) list[0];
+
+            byte[] reason = (byte[]) values["reason"];
+            byte[] queue = (byte[]) values["queue"];
+            AmqpTimestamp time = (AmqpTimestamp) values["time"];
+            byte[] exchange = (byte[]) values["exchange"];
+            List<object> routingKeys = (List<object>) values["routing-keys"];
+
+            XDeadHeader xDeadHeader = new XDeadHeader
+            {
+                Reason = Encoding.ASCII.GetString(reason),
+                Queue = Encoding.ASCII.GetString(queue),
+                Exchange = Encoding.ASCII.GetString(exchange),
+                Time = time.GetDateTime()
+            };
+
+            foreach (var routingKey in routingKeys)
+            {
+                xDeadHeader.RoutingKeys.Add(Encoding.ASCII.GetString((byte[]) routingKey));
+            }
+
+            return xDeadHeader;
+        }
+
+        private static XReceivedFromHeader BuildXReceivedFromHeader(object o)
+        {
+            List<object> list = (List<object>) o;
+
+            Dictionary<string, object> values = (Dictionary<string, object>) list[0];
+
+            byte[] uri = (byte[])values["uri"];
+            byte[] exchange = (byte[])values["exchange"];
+            bool redelivered = (bool)values["redelivered"];
+            byte[] clusterName = (byte[])values["cluster-name"];
+
+            XReceivedFromHeader xDeadHeader = new XReceivedFromHeader
+            {
+                Uri = Encoding.ASCII.GetString(uri),
+                Exchange = Encoding.ASCII.GetString(exchange),
+                ClusterName = Encoding.ASCII.GetString(clusterName),
+                Redelivered = redelivered
+            };
+
+            return xDeadHeader;
+        }
     }
 }

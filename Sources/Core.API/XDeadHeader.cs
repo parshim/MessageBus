@@ -26,6 +26,28 @@ namespace MessageBus.Core.API
             throw new NotImplementedException();
         }
     }
+    
+    public class XReceivedFromHeader : BusHeaderBase
+    {
+        public const string WellknownName = "x-received-from";
+
+        public XReceivedFromHeader()
+        {
+            Name = WellknownName;
+        }
+
+        public string Uri { get; set; }
+        public string Exchange { get; set; }
+        public bool Redelivered { get; set; }
+        public string ClusterName { get; set; }
+        
+        public override object GetValue()
+        {
+            // This header is non-sendable
+
+            throw new NotImplementedException();
+        }
+    }
 
     public class RejectedHeader : BusHeaderBase
     {
