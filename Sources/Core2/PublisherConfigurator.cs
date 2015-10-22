@@ -15,6 +15,7 @@ namespace MessageBus.Core
 
         private string _exchange;
         private string _routingKey = "";
+        private string _replyTo;
         private IEnumerable<BusHeader> _headers = Enumerable.Empty<BusHeader>();
 
         public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler)
@@ -64,6 +65,11 @@ namespace MessageBus.Core
         public IEnumerable<BusHeader> Headers
         {
             get { return _headers; }
+        }
+
+        public string ReplyTo
+        {
+            get { return _replyTo; }
         }
 
         public IPublisherConfigurator UseBufferManager(BufferManager bufferManager)
@@ -118,6 +124,12 @@ namespace MessageBus.Core
         public IPublisherConfigurator SetRoutingKey(string routingKey)
         {
             _routingKey = routingKey;
+
+            return this;
+        }
+        public IPublisherConfigurator SetReplyTo(string replyTo)
+        {
+            _replyTo = replyTo;
 
             return this;
         }

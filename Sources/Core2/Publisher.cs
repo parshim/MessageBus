@@ -52,7 +52,8 @@ namespace MessageBus.Core
                 Exchange = _configuration.Exchange,
                 MandatoryDelivery = _configuration.MandatoryDelivery,
                 PersistentDelivery = persistant || _configuration.PersistentDelivery,
-                RoutingKey = _configuration.RoutingKey
+                RoutingKey = _configuration.RoutingKey,
+                ReplyTo = _configuration.ReplyTo
             });
         }
     }
