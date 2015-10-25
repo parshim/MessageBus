@@ -41,6 +41,7 @@
     <Compile Include="IBusConfigurator.cs" />
     <Compile Include="IConfirmPublisher.cs" />
     <Compile Include="IErrorSubscriber.cs" />
+    <Compile Include="IExceptionFilter.cs" />
     <Compile Include="IPublisher.cs" />
     <Compile Include="IPublisherConfigurator.cs" />
     <Compile Include="IPublishingErrorHandler.cs" />

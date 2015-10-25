@@ -244,7 +244,7 @@ namespace MessageBus.Core
         {
             if (configurator.TransactionalDelivery)
             {
-                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply);
+                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.ExceptionFilter, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply);
             }
 
             return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply);

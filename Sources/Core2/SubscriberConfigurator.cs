@@ -10,6 +10,7 @@ namespace MessageBus.Core
         private TaskScheduler _taskScheduler;
         private BufferManager _bufferManager;
         private IErrorSubscriber _errorSubscriber;
+        private IExceptionFilter _exceptionFilter = new NullExceptionFilter();
         private string _queueName = "";
         private bool _receiveSelfPublish;
         private bool _neverReply;
@@ -48,6 +49,11 @@ namespace MessageBus.Core
         public bool TransactionalDelivery
         {
             get { return _transactionalDelivery; }
+        }
+
+        public IExceptionFilter ExceptionFilter
+        {
+            get { return _exceptionFilter; }
         }
 
         public BufferManager BufferManager
@@ -110,6 +116,14 @@ namespace MessageBus.Core
         public ISubscriberConfigurator UseTransactionalDelivery()
         {
             _transactionalDelivery = true;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseTransactionalDelivery(IExceptionFilter exceptionFilter)
+        {
+            _transactionalDelivery = true;
+            _exceptionFilter = exceptionFilter;
 
             return this;
         }

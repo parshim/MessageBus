@@ -8,9 +8,12 @@ namespace MessageBus.Core
 {
     public class TransactionalMessageConsumer : MessageConsumer
     {
-        public TransactionalMessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply)
+        private readonly IExceptionFilter _exceptionFilter;
+
+        public TransactionalMessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, IExceptionFilter exceptionFilter, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply)
             : base(busId, model, messageHelper, sendHelper, serializers, errorSubscriber, scheduler, receiveSelfPublish, neverReply)
         {
+            _exceptionFilter = exceptionFilter;
         }
 
         protected override RawBusMessage HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
@@ -31,9 +34,11 @@ namespace MessageBus.Core
 
                 throw;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Model.BasicNack(deliveryTag, false, true);
+                bool requeue = _exceptionFilter.Filter(ex, message, redelivered, deliveryTag);
+
+                Model.BasicNack(deliveryTag, false, requeue);
 
                 throw;
             }

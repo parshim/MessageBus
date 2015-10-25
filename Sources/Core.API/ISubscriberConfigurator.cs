@@ -34,6 +34,13 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <returns></returns>
         ISubscriberConfigurator UseTransactionalDelivery();
+
+        /// <summary>
+        /// Specify transactional delivery of the messages. If exception will be thrown on subscribed action message will be returned to the queue.
+        /// </summary>
+        /// <param name="exceptionFilter">Exception filter</param>
+        /// <returns></returns>
+        ISubscriberConfigurator UseTransactionalDelivery(IExceptionFilter exceptionFilter);
         
         /// <summary>
         /// If set, messages published within bus instance will be received and processed by subscriber.
