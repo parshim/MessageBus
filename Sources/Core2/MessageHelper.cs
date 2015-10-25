@@ -67,14 +67,23 @@ namespace MessageBus.Core
                     case ExceptionHeader.WellknownName:
                         message.Headers.Add(new ExceptionHeader
                         {
-                            Message = Encoding.ASCII.GetString((byte[])o)
+                            Message = BuildHeaderValue(o)
                         });
                         break;
                     default:
-                        message.Headers.Add(new BusHeader(header.Key, Encoding.ASCII.GetString((byte[])o)));
+                        message.Headers.Add(new BusHeader(header.Key, BuildHeaderValue(o)));
                         break;
                 }
             }
+        }
+
+        private static string BuildHeaderValue(object o)
+        {
+            byte[] data = o as byte[];
+
+            if (data == null) return null;
+
+            return Encoding.UTF8.GetString((byte[])o);
         }
 
         private static XDeadHeader BuildXDeadHeader(object o)
