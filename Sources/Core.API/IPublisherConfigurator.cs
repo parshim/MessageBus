@@ -60,5 +60,12 @@ namespace MessageBus.Core.API
         /// Set headers which should be sent with every message.
         /// </summary>
         IPublisherConfigurator SetDefaultHeaders(IEnumerable<BusHeader> headers);
+
+        /// <summary>
+        /// Set reply to property on message
+        /// </summary>
+        /// <param name="replyTo"></param>
+        /// <returns></returns>
+        IPublisherConfigurator SetReplyTo(string replyTo);
     }
 }
