@@ -49,6 +49,7 @@
     <Compile Include="IRouteManager.cs" />
     <Compile Include="IRpcAsyncPublisher.cs" />
     <Compile Include="IRpcPublisher.cs" />
+    <Compile Include="IRpcPublisherConfigurator.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="ISubscriberConfigurator.cs" />

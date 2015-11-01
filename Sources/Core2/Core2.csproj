@@ -86,6 +86,7 @@
     <Compile Include="RouteManager.cs" />
     <Compile Include="RpcAsyncPublisher.cs" />
     <Compile Include="RpcConsumer.cs" />
+    <Compile Include="RpcPublisherConfigurator.cs" />
     <Compile Include="RpcSyncPublisher.cs" />
     <Compile Include="RpcPublisherBase.cs" />
     <Compile Include="SendHelper.cs" />

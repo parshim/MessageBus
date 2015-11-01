@@ -7,7 +7,7 @@ namespace MessageBus.Core
 {
     public class RpcSyncPublisher : RpcPublisherBase, IRpcPublisher
     {
-        public RpcSyncPublisher(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper, IRpcConsumer consumer)
+        public RpcSyncPublisher(IModel model, string busId, RpcPublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper, IRpcConsumer consumer)
             : base(model, busId, configuration, messageHelper, sendHelper, consumer)
         {
 
@@ -30,7 +30,7 @@ namespace MessageBus.Core
 
         public void Send<TData, TReplyData>(BusMessage<TData> busMessage, TimeSpan timeOut, Action<BusMessage<TReplyData>> onReply, bool persistant)
         {
-            string id = GenerateCorrelationId();
+            string id = NewMiniGuid();
 
             _consumer.RegisterCallback(id, typeof (TReplyData), timeOut, (replyRawMessage, exception) =>
             {
@@ -59,7 +59,7 @@ namespace MessageBus.Core
 
         private RawBusMessage SendAndWaitForReply<TData>(BusMessage<TData> busMessage, TimeSpan timeOut, Type replyType, bool persistant)
         {
-            string id = GenerateCorrelationId();
+            string id = NewMiniGuid();
 
             RawBusMessage replyMessage = null;
             Exception exception = null;

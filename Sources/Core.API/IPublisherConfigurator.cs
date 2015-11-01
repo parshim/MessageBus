@@ -62,9 +62,13 @@ namespace MessageBus.Core.API
         IPublisherConfigurator SetDefaultHeaders(IEnumerable<BusHeader> headers);
 
         /// <summary>
-        /// Set reply to property on message
-        /// </summary>
+        /// Set replyTo property on message. ReplyTo property is used as routing key for reply messages by subscribers.
+        /// </summary>      
         /// <param name="replyTo"></param>
+        /// <see cref="ISubscriberConfigurator.SetReplyExchange"/>
+        /// <remarks>
+        /// This method mostly will be used together with ISubscriberConfigurator.SetReplyExchange to specify reply exchange to which reply messages will be dispatched.
+        /// </remarks>
         /// <returns></returns>
         IPublisherConfigurator SetReplyTo(string replyTo);
     }

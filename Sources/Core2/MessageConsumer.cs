@@ -17,6 +17,7 @@ namespace MessageBus.Core
         private readonly string _busId;
         private readonly bool _receiveSelfPublish;
         private readonly bool _neverReply;
+        private readonly string _replyExchange;
 
         private readonly TaskScheduler _scheduler;
 
@@ -24,8 +25,9 @@ namespace MessageBus.Core
         private readonly ISendHelper _sendHelper;
         private readonly Dictionary<string, ISerializer> _serializers;
         private readonly IErrorSubscriber _errorSubscriber;
-        
-        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply) : base(model)
+
+        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply, string replyExchange)
+            : base(model)
         {
             _busId = busId;
             _messageHelper = messageHelper;
@@ -35,6 +37,7 @@ namespace MessageBus.Core
             _receiveSelfPublish = receiveSelfPublish;
             _neverReply = neverReply;
             _sendHelper = sendHelper;
+            _replyExchange = replyExchange;
         }
         
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
@@ -133,7 +136,7 @@ namespace MessageBus.Core
                     BusMessage = reply,
                     Model = Model,
                     CorrelationId = properties.IsCorrelationIdPresent() ? properties.CorrelationId : "",
-                    Exchange = "",
+                    Exchange = _replyExchange,
                     RoutingKey = properties.ReplyTo,
                     Serializer = serializer,
                     MandatoryDelivery = false,

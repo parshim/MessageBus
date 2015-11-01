@@ -15,6 +15,7 @@ namespace MessageBus.Core
 
         private readonly Func<Action<ISubscriberConfigurator>, SubscriberConfigurator> _createSubscriberConfigurator;
         private readonly Func<Action<IPublisherConfigurator>, PublisherConfigurator> _createPublisherConfigurator;
+        private readonly Func<Action<IRpcPublisherConfigurator>, RpcPublisherConfigurator> _createRpcPublisherConfigurator;
 
         private readonly string _exchange;
 
@@ -64,7 +65,7 @@ namespace MessageBus.Core
 
             _createSubscriberConfigurator = configure =>
             {
-                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish);
+                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ReplyExchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish);
 
                 if (configure != null)
                 {
@@ -77,6 +78,18 @@ namespace MessageBus.Core
             _createPublisherConfigurator = configure =>
             {
                 PublisherConfigurator configurator = new PublisherConfigurator(_exchange, busConfiguration.ErrorHandler);
+
+                if (configure != null)
+                {
+                    configure(configurator);
+                }
+
+                return configurator;
+            };
+
+            _createRpcPublisherConfigurator = configure =>
+            {
+                RpcPublisherConfigurator configurator = new RpcPublisherConfigurator(_exchange, busConfiguration.UseFastReply, busConfiguration.ReplyExchange, busConfiguration.ErrorHandler);
 
                 if (configure != null)
                 {
@@ -121,9 +134,9 @@ namespace MessageBus.Core
             return new ConfirmPublisher(model, BusId, configuration, _messageHelper, _sendHelper);
         }
 
-        public IRpcPublisher CreateRpcPublisher(Action<IPublisherConfigurator> configure = null)
+        public IRpcPublisher CreateRpcPublisher(Action<IRpcPublisherConfigurator> configure = null)
         {
-            PublisherConfigurator configuration = _createPublisherConfigurator(configure);
+            RpcPublisherConfigurator configuration = _createRpcPublisherConfigurator(configure);
 
             IModel model = _connection.CreateModel();
 
@@ -135,9 +148,9 @@ namespace MessageBus.Core
             return new RpcSyncPublisher(model, BusId, configuration, _messageHelper, _sendHelper, consumer);
         }
 
-        public IRpcAsyncPublisher CreateAsyncRpcPublisher(Action<IPublisherConfigurator> configure = null)
+        public IRpcAsyncPublisher CreateAsyncRpcPublisher(Action<IRpcPublisherConfigurator> configure = null)
         {
-            PublisherConfigurator configuration = _createPublisherConfigurator(configure);
+            RpcPublisherConfigurator configuration = _createRpcPublisherConfigurator(configure);
 
             IModel model = _connection.CreateModel();
 
@@ -244,10 +257,10 @@ namespace MessageBus.Core
         {
             if (configurator.TransactionalDelivery)
             {
-                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.ExceptionFilter, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply);
+                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.ExceptionFilter, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange);
             }
 
-            return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply);
+            return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange);
         }
     }
 }

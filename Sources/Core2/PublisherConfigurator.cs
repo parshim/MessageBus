@@ -17,7 +17,7 @@ namespace MessageBus.Core
         private string _routingKey = "";
         private string _replyTo;
         private IEnumerable<BusHeader> _headers = Enumerable.Empty<BusHeader>();
-
+        
         public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler)
         {
             _exchange = exchange;

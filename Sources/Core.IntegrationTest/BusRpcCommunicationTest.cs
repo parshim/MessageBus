@@ -42,6 +42,126 @@ namespace Core.IntegrationTest
                 }
             }
         }
+
+        [Test]
+        public void Bus_MakeSyncRpcCall_NoFastReply()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber())
+                {
+                    subscriber.Subscribe((RequestMessage m) => new ResponseMessage
+                    {
+                        Code = m.Data.Length
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher(c => c.DisableFastReply()))
+                    {
+                        ResponseMessage response = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        {
+                            Data = "Hello, world!"
+                        }, TimeSpan.FromSeconds(10));
+                        
+                        response.ShouldBeEquivalentTo(new ResponseMessage
+                        {
+                            Code = 13
+                        });
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_MakeSyncRpcCall_NoFastReply_CustomExchange()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.SetReplyExchange("amq.direct")))
+                {
+                    subscriber.Subscribe((RequestMessage m) => new ResponseMessage
+                    {
+                        Code = m.Data.Length
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher(c => c.DisableFastReply().SetReplyExchange("amq.direct").SetReplyTo("MyReplyKey")))
+                    {
+                        ResponseMessage response = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        {
+                            Data = "Hello, world!"
+                        }, TimeSpan.FromSeconds(10));
+                        
+                        response.ShouldBeEquivalentTo(new ResponseMessage
+                        {
+                            Code = 13
+                        });
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_MakeSyncRpcCall_NoFastReply_CustomExchange_NoReplyTo()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.SetReplyExchange("amq.direct")))
+                {
+                    subscriber.Subscribe((RequestMessage m) => new ResponseMessage
+                    {
+                        Code = m.Data.Length
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher(c => c.DisableFastReply().SetReplyExchange("amq.direct")))
+                    {
+                        ResponseMessage response = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        {
+                            Data = "Hello, world!"
+                        }, TimeSpan.FromSeconds(10));
+                        
+                        response.ShouldBeEquivalentTo(new ResponseMessage
+                        {
+                            Code = 13
+                        });
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_MakeSyncRpcCall_NoFastReply_BusLevelConfig()
+        {
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish().DisableFastReply().SetReplyExchange("amq.direct")))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber())
+                {
+                    subscriber.Subscribe((RequestMessage m) => new ResponseMessage
+                    {
+                        Code = m.Data.Length
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    {
+                        ResponseMessage response = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        {
+                            Data = "Hello, world!"
+                        }, TimeSpan.FromSeconds(10));
+                        
+                        response.ShouldBeEquivalentTo(new ResponseMessage
+                        {
+                            Code = 13
+                        });
+                    }
+                }
+            }
+        }
         
         [Test]
         public void Bus_MakeAsyncRpcCall()

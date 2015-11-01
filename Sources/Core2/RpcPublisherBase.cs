@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
@@ -9,16 +10,45 @@ namespace MessageBus.Core
     {
         protected readonly IRpcConsumer _consumer;
 
-        protected RpcPublisherBase(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper, IRpcConsumer consumer)
+        private readonly string _replyTo;
+
+        protected RpcPublisherBase(IModel model, string busId, RpcPublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper, IRpcConsumer consumer)
             : base(model, busId, configuration, messageHelper, sendHelper)
         {
             _consumer = consumer;
 
-            model.BasicConsume(Queue, true, consumer);
+            const string fastReplyQueue = "amq.rabbitmq.reply-to";
+
+            if (configuration.UseFastReply)
+            {
+                model.BasicConsume(fastReplyQueue, true, consumer);
+
+                _replyTo = fastReplyQueue;
+            }
+            else
+            {
+                QueueDeclareOk queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
+
+                if (string.IsNullOrEmpty(configuration.ReplyExchange))
+                {
+                    // Use default exchange, no need to bind queue
+
+                    _replyTo = queueDeclare.QueueName;
+                }
+                else
+                {
+                    // Bind queue to specified exchange by replyTo or generate unique routing key
+                    string routingKey = configuration.ReplyTo ?? NewMiniGuid();
+                    
+                    model.QueueBind(queueDeclare.QueueName, configuration.ReplyExchange, routingKey);
+                    
+                    _replyTo = routingKey;
+                }
+
+                model.BasicConsume(queueDeclare.QueueName, true, consumer);
+            }
         }
-
-        protected const string Queue = "amq.rabbitmq.reply-to";
-
+        
         protected override void OnMessageReturn(int replyCode, string replyText, RawBusMessage message)
         {
             _consumer.HandleBasicReturn(message.CorrelationId, replyCode, replyText);
@@ -39,7 +69,7 @@ namespace MessageBus.Core
                 MandatoryDelivery = true,
                 PersistentDelivery = persistant || _configuration.PersistentDelivery,
                 RoutingKey = _configuration.RoutingKey,
-                ReplyTo = Queue
+                ReplyTo = _replyTo
             });
         }
 
@@ -75,7 +105,7 @@ namespace MessageBus.Core
             return busReplyMessage;
         }
 
-        protected static string GenerateCorrelationId()
+        protected static string NewMiniGuid()
         {
             string id = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 

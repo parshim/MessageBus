@@ -85,7 +85,7 @@ namespace MessageBus.Core
             ManualResetEvent ev = new ManualResetEvent(false);
 
             RegisteredWaitHandle handle = ThreadPool.RegisterWaitForSingleObject(ev, CallbackTimeout, id, timeOut, true);
-
+            
             return new CallbackInfo(callback, replyType, ev, handle);
         }
 
@@ -108,9 +108,11 @@ namespace MessageBus.Core
         {
             CallbackInfo info;
 
-            if (_callbacksDictionary.TryGetValue(correlationId, out info))
+            if (_callbacksDictionary.TryRemove(correlationId, out info))
             {
                 info.SetResponse(null, new RpcCallException(RpcFailureReason.NotRouted, string.Format("Message not routed. Error code: {0}, reply: {1}", replyCode, replyText)));
+
+                info.RegisteredHandle.Unregister(info.WaitHandle);
             }
         }
 
@@ -123,7 +125,7 @@ namespace MessageBus.Core
 
             CallbackInfo info;
 
-            if (_callbacksDictionary.TryGetValue(properties.CorrelationId, out info))
+            if (_callbacksDictionary.TryRemove(properties.CorrelationId, out info))
             {
                 var rejectHeader =
                     properties.Headers.Where(pair => pair.Key == RejectedHeader.WellknownName)
@@ -189,6 +191,8 @@ namespace MessageBus.Core
                 RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
 
                 info.SetResponse(message, null);
+
+                info.RegisteredHandle.Unregister(info.WaitHandle);
             }
         }
 

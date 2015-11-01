@@ -10,6 +10,8 @@ namespace MessageBus.Core
         private IErrorSubscriber _errorSubscriber;
         private RabbitMQConnectionString _connectionString;
         private bool _receiveSelfPublish;
+        private bool _useFastReply = true;
+        private string _replyExchange = "";
 
         public string BusId
         {
@@ -37,6 +39,16 @@ namespace MessageBus.Core
             {
                 return _receiveSelfPublish;
             }
+        }
+
+        public bool UseFastReply
+        {
+            get { return _useFastReply; }
+        }
+
+        public string ReplyExchange
+        {
+            get { return _replyExchange; }
         }
 
         public IBusConfigurator SetBusId(string busId)
@@ -75,6 +87,20 @@ namespace MessageBus.Core
         public IBusConfigurator SetReceiveSelfPublish()
         {
             _receiveSelfPublish = true;
+
+            return this;
+        }
+
+        public IBusConfigurator DisableFastReply()
+        {
+            _useFastReply = false;
+
+            return this;
+        }
+
+        public IBusConfigurator SetReplyExchange(string replyExchange)
+        {
+            _replyExchange = replyExchange;
 
             return this;
         }

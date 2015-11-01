@@ -52,14 +52,14 @@ namespace MessageBus.Core.API
         /// </summary>
         /// <param name="configure"></param>
         /// <returns></returns>
-        IRpcPublisher CreateRpcPublisher(Action<IPublisherConfigurator> configure = null);
+        IRpcPublisher CreateRpcPublisher(Action<IRpcPublisherConfigurator> configure = null);
 
         /// <summary>
         /// Creates async RPC publisher. Publishers cannot be shared between threads.
         /// </summary>
         /// <param name="configure"></param>
         /// <returns></returns>
-        IRpcAsyncPublisher CreateAsyncRpcPublisher(Action<IPublisherConfigurator> configure = null);
+        IRpcAsyncPublisher CreateAsyncRpcPublisher(Action<IRpcPublisherConfigurator> configure = null);
 
         /// <summary>
         /// Creates an receiver that will receive messages from the bus on demand

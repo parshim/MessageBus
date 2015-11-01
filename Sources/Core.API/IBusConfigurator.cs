@@ -38,5 +38,20 @@
         /// <remarks>By default self-published messages are ignored.</remarks>
         /// </summary>
         IBusConfigurator SetReceiveSelfPublish();
+
+        /// <summary>
+        /// Disable fast reply mechanism introduced in RabbitMQ. Publisher will create dedicated  auto-delete queue to consume reply messages. 
+        /// If replyExchange parameter is different from default exchange (empty string) use IPublisherConfigurator.SetReplyTo method to specify routing key to bind queue to reply exchange.
+        /// </summary>
+        /// <returns></returns>
+        IBusConfigurator DisableFastReply();
+
+        /// <summary>
+        /// Set exchange name for reply messages. It can be used if fast reply is disabled and reply queue should be bounded to specified exchange. 
+        /// By default reply queue will get messages from default exchange. 
+        /// </summary>
+        /// <param name="replyExchange"></param>
+        /// <returns></returns>
+        IBusConfigurator SetReplyExchange(string replyExchange);
     }
 }

@@ -7,7 +7,7 @@ namespace MessageBus.Core
 {
     public class RpcAsyncPublisher : RpcPublisherBase, IRpcAsyncPublisher
     {
-        public RpcAsyncPublisher(IModel model, string busId, PublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper, IRpcConsumer consumer)
+        public RpcAsyncPublisher(IModel model, string busId, RpcPublisherConfigurator configuration, IMessageHelper messageHelper, ISendHelper sendHelper, IRpcConsumer consumer)
             : base(model, busId, configuration, messageHelper, sendHelper, consumer)
         {
         }
@@ -39,7 +39,7 @@ namespace MessageBus.Core
 
         private Task<TReplyData> SendAndCreateTask<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut, Func<RawBusMessage, TReplyData> createReply, bool persistant)
         {
-            string id = GenerateCorrelationId();
+            string id = NewMiniGuid();
 
             var tcs = new TaskCompletionSource<TReplyData>();
 
