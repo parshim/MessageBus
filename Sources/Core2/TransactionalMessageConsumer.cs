@@ -16,6 +16,19 @@ namespace MessageBus.Core
             _exceptionFilter = exceptionFilter;
         }
 
+        protected override bool ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
+        {
+            var processed = base.ConsumeMessage(redelivered, deliveryTag, properties, body);
+
+            if (!processed)
+            {
+                // Message can't be processed by consumer -> reject it
+                Model.BasicNack(deliveryTag, false, false);
+            }
+
+            return processed;
+        }
+
         protected override RawBusMessage HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
         {
             try

@@ -44,8 +44,8 @@ namespace MessageBus.Core
         {
             Task.Factory.StartNew(() => ConsumeMessage(redelivered, deliveryTag, properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler);
         }
-        
-        private void ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
+
+        protected virtual bool ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
 
@@ -64,7 +64,7 @@ namespace MessageBus.Core
 
                 _errorSubscriber.UnregisteredMessageArrived(rawBusMessage);
 
-                return;
+                return false;
             }
 
             object data;
@@ -75,7 +75,7 @@ namespace MessageBus.Core
 
                 _errorSubscriber.MessageDeserializeException(rawBusMessage, new Exception("Unsupported content type"));
 
-                return;
+                return false;
             }
 
             ISerializer serializer;
@@ -92,7 +92,7 @@ namespace MessageBus.Core
 
                 _errorSubscriber.MessageDeserializeException(rawBusMessage, ex);
 
-                return;
+                return false;
             }
             
             RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
@@ -101,7 +101,7 @@ namespace MessageBus.Core
             {
                 _errorSubscriber.MessageFilteredOut(message);
 
-                return;
+                return false;
             }
 
             RawBusMessage reply;
@@ -143,6 +143,8 @@ namespace MessageBus.Core
                     PersistentDelivery = false
                 });
             }
+
+            return true;
         }
         
         protected virtual RawBusMessage HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
