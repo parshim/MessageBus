@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>RabbitMQ.MessageBus.Proxy</id>
-        <version>2.5.0</version>
+        <version>2.5.3</version>
         <authors>Michael Parshin</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Message Bus infrastructure based on RabbitMQ message broker</description>
