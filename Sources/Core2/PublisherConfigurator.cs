@@ -2,6 +2,7 @@
 using System.Linq;
 using System.ServiceModel.Channels;
 using MessageBus.Core.API;
+using Newtonsoft.Json;
 
 namespace MessageBus.Core
 {
@@ -12,6 +13,10 @@ namespace MessageBus.Core
         private ISerializer _serializer;
         private bool _mandatoryDelivery;
         private bool _persistentDelivery;
+        private JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.None
+        };
 
         private string _exchange;
         private string _routingKey = "";
@@ -49,7 +54,7 @@ namespace MessageBus.Core
 
         public ISerializer Serializer
         {
-            get { return _serializer ?? new JsonSerializer(); }
+            get { return _serializer ?? new JsonSerializer(_settings); }
         }
 
         public string Exchange
@@ -110,6 +115,13 @@ namespace MessageBus.Core
         public IPublisherConfigurator UseCustomSerializer(ISerializer serializer)
         {
             _serializer = serializer;
+
+            return this;
+        }
+
+        public IPublisherConfigurator UseJsonSerializerSettings(JsonSerializerSettings settings)
+        {
+            _settings = settings;
 
             return this;
         }

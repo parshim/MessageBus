@@ -2,6 +2,7 @@
 using System.ServiceModel.Channels;
 using System.Threading.Tasks;
 using MessageBus.Core.API;
+using Newtonsoft.Json;
 
 namespace MessageBus.Core
 {
@@ -18,6 +19,10 @@ namespace MessageBus.Core
         private bool _transactionalDelivery;
         private string _exchange;
         private string _routingKey = "";
+        private JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.None
+        };
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
 
@@ -27,12 +32,6 @@ namespace MessageBus.Core
             _errorSubscriber = errorSubscriber;
             _receiveSelfPublish = receiveSelfPublish;
             _replyExchange = replyExchange;
-
-            ISerializer jsonSerializer = new JsonSerializer();
-            ISerializer soapSerializer = new SoapSerializer();
-
-            _serializers.Add(jsonSerializer.ContentType, jsonSerializer);
-            _serializers.Add(soapSerializer.ContentType, soapSerializer);
         }
 
         public string QueueName
@@ -75,7 +74,17 @@ namespace MessageBus.Core
 
         public Dictionary<string, ISerializer> Serializers
         {
-            get { return _serializers; }
+            get
+            {
+                ISerializer jsonSerializer = new JsonSerializer(_settings);
+                ISerializer soapSerializer = new SoapSerializer();
+
+                return new Dictionary<string, ISerializer>(_serializers)
+                {
+                    {jsonSerializer.ContentType, jsonSerializer},
+                    {soapSerializer.ContentType, soapSerializer}
+                };
+            }
         }
 
         public bool ReceiveSelfPublish
@@ -176,6 +185,13 @@ namespace MessageBus.Core
         public ISubscriberConfigurator AddCustomSerializer(ISerializer serializer)
         {
             _serializers.Add(serializer.ContentType, serializer);
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseJsonSerializerSettings(JsonSerializerSettings settings)
+        {
+            _settings = settings;
 
             return this;
         }

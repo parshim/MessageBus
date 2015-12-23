@@ -19,12 +19,12 @@ namespace Core.Proxy.IntegrationTests
             {
                 using (IChannelFactory<ITestContract> channelFactory = new MessageBus.Core.Proxy.ChannelFactory<ITestContract>(bus))
                 {
-                    ISubscriptionFactory<ITestContract> subscriptionFactory = new SubscriptionFactory<ITestContract>(bus, c => c.SetReceiveSelfPublish());
+                    ISubscriptionFactory<ITestContract> subscriptionFactory = new SubscriptionFactory<ITestContract>(bus);
 
                     string actual = "";
                     ManualResetEvent ev = new ManualResetEvent(false);
 
-                    using (ISubscriptionSelector<ITestContract> selector = subscriptionFactory.Subscribe())
+                    using (ISubscriptionSelector<ITestContract> selector = subscriptionFactory.Subscribe(c => c.SetReceiveSelfPublish()))
                     {
                         selector.Subscribe<string>(contract => contract.Foo, s =>
                         {

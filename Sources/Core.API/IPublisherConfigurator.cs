@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ServiceModel.Channels;
+using Newtonsoft.Json;
 
 namespace MessageBus.Core.API
 {
@@ -46,6 +47,13 @@ namespace MessageBus.Core.API
         /// <returns></returns>
         IPublisherConfigurator UseCustomSerializer(ISerializer serializer);
 
+        /// <summary>
+        /// Specify custom serializer settings.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        IPublisherConfigurator UseJsonSerializerSettings(JsonSerializerSettings settings);
+        
         /// <summary>
         /// Specify exchange messages should be published to.
         /// </summary>

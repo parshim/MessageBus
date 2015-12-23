@@ -1,8 +1,18 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Core.IntegrationTest
 {
     [DataContract]
+    public class InternalHierarchy
+    {
+        [DataMember]
+        public List<Data> Data { get; set; }
+    }
+
+    [DataContract]
+    [KnownType(typeof(Person))]
+    [KnownType(typeof(Car))]
     public class Data
     {
         

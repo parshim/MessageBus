@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using FakeItEasy;
 using FluentAssertions;
 using MessageBus.Core;
 using MessageBus.Core.API;
-
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Core.IntegrationTest
@@ -92,6 +93,60 @@ namespace Core.IntegrationTest
 
                 A.CallTo(() => serializer.Serialize(A<RawBusMessage>._)).MustHaveHappened();
                 A.CallTo(() => serializer.Deserialize(new DataContractKey(typeof(Person).Name, typeof(Person).Namespace), typeof(Person), A<byte[]>._)).MustHaveHappened();
+            }
+        }
+
+        [Test]
+        public void MessageWithInternalHierarchy_DataSerialized()
+        {
+            ManualResetEvent ev = new ManualResetEvent(false);
+
+            using (IBus busA = new RabbitMQBus(), busB = new RabbitMQBus())
+            {
+                var data = new InternalHierarchy
+                {
+                    Data = new List<Data>
+                    {
+                        new Car
+                        {
+                            Number = "324234"
+                        },
+                        new Person
+                        {
+                            Id = 5
+                        }
+                    }
+                };
+
+                InternalHierarchy actual = null;
+                
+                using (ISubscriber subscriber = busA.CreateSubscriber(c => c.UseJsonSerializerSettings(new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.All
+                })))
+                {
+                    
+                    subscriber.Subscribe((Action<InternalHierarchy>)(p =>
+                    {
+                        actual = p;
+
+                        ev.Set();
+                    }));
+
+                    subscriber.Open();
+
+                    using (IPublisher publisher = busB.CreatePublisher(c => c.UseJsonSerializerSettings(new JsonSerializerSettings
+                    {
+                        TypeNameHandling = TypeNameHandling.All
+                    })))
+                    {
+                        publisher.Send(data);
+                    }
+
+                    ev.WaitOne(TimeSpan.FromSeconds(5));
+
+                    actual.ShouldBeEquivalentTo(data);
+                }
             }
         }
     }

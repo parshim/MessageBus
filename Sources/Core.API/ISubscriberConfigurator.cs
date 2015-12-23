@@ -1,5 +1,6 @@
 ﻿using System.ServiceModel.Channels;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace MessageBus.Core.API
 {
@@ -84,6 +85,14 @@ namespace MessageBus.Core.API
         /// <returns></returns>
         ISubscriberConfigurator AddCustomSerializer(ISerializer serializer);
 
+        /// <summary>
+        /// Specify custom serializer settings.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        ISubscriberConfigurator UseJsonSerializerSettings(JsonSerializerSettings settings);
+
+        
         /// <summary>
         /// Specify exchange messages subscriptions should be bound to.
         /// </summary>

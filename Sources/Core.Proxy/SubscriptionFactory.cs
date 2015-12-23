@@ -6,22 +6,20 @@ namespace MessageBus.Core.Proxy
     public class SubscriptionFactory<T> : ISubscriptionFactory<T> where T : class
     {
         private readonly IBus _bus;
-        private readonly Action<ISubscriberConfigurator> _configurator;
         private readonly IMessageFactory _messageFactory;
 
-        public SubscriptionFactory(IBus bus, Action<ISubscriberConfigurator> configurator = null)
+        public SubscriptionFactory(IBus bus)
         {
             _bus = bus;
-            _configurator = configurator;
 
             string ns = typeof(T).GetMessageNamespace();
 
             _messageFactory = new MessageFactory(ns);
         }
-        
-        public ISubscriptionSelector<T> Subscribe()
+
+        public ISubscriptionSelector<T> Subscribe(Action<ISubscriberConfigurator> configurator)
         {
-            ISubscriber subscriber = _bus.CreateSubscriber(_configurator);
+            ISubscriber subscriber = _bus.CreateSubscriber(configurator);
 
             subscriber.Open();
 

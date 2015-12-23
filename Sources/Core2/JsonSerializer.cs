@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+
 using MessageBus.Core.API;
 using Newtonsoft.Json;
 
@@ -8,6 +9,13 @@ namespace MessageBus.Core
     public class JsonSerializer : ISerializer
     {
         private readonly Encoding _encoding = Encoding.UTF8;
+
+        private readonly JsonSerializerSettings _settings;
+
+        public JsonSerializer(JsonSerializerSettings settings)
+        {
+            _settings = settings;
+        }
 
         public string ContentType { get { return "application/json"; } }
         
@@ -20,7 +28,7 @@ namespace MessageBus.Core
                 return data as byte[];
             }
 
-            string body = JsonConvert.SerializeObject(data, Formatting.None);
+            string body = JsonConvert.SerializeObject(data, _settings);
 
             return _encoding.GetBytes(body);
         }
@@ -34,7 +42,7 @@ namespace MessageBus.Core
 
             string sBody = _encoding.GetString(body);
 
-            return JsonConvert.DeserializeObject(sBody, dataType);
+            return JsonConvert.DeserializeObject(sBody, dataType, _settings);
         }
     }
 }
