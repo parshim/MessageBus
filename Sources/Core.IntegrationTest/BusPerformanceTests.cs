@@ -28,13 +28,13 @@ namespace Core.IntegrationTest
 
                 using (ISubscriber subscriberA = entityA.CreateSubscriber())
                 {
-                    subscriberA.Subscribe((Action<Data>)(d => counter++), true);
+                    subscriberA.Subscribe((Action<Data>)(d => Counter(ref counter)), true);
 
                     subscriberA.Subscribe(typeof(OK), (Action<object>)(data => ev1.Set()));
 
                     subscriberA.Open();
 
-                    const int expected = 1000;
+                    const int expected = 100000;
 
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
@@ -53,6 +53,11 @@ namespace Core.IntegrationTest
                     counter.Should().Be(expected);
                 }
             }
+        }
+
+        private static void Counter(ref int counter)
+        {
+            counter++;
         }
     }
 }

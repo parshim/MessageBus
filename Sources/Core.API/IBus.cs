@@ -78,6 +78,18 @@ namespace MessageBus.Core.API
         /// </returns>
         /// <exception cref="NoIncomingConnectionAcceptedException">No incoming connection were accepted.</exception>
         ISubscriber CreateSubscriber(Action<ISubscriberConfigurator> configure = null);
+
+        /// <summary>
+        /// Creates async subscriber. Subscriber implementation should provide ordered message delivery, i.e. preserve message dispatching order.
+        /// </summary>
+        /// <remarks>
+        /// To logically separate processing of different message types, separate subscriber instances should be created.
+        /// </remarks>
+        /// <returns>
+        /// Subscriber instance.
+        /// </returns>
+        /// <exception cref="NoIncomingConnectionAcceptedException">No incoming connection were accepted.</exception>
+        IAsyncSubscriber CreateAsyncSubscriber(Action<ISubscriberConfigurator> configure = null);
         
         /// <summary>
         /// Register subscription instance.

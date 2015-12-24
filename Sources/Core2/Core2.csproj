@@ -49,11 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionHandler.cs" />
+    <Compile Include="AsyncActionHandler.cs" />
+    <Compile Include="AsyncSubscriber.cs" />
     <Compile Include="BusConfigurator.cs" />
     <Compile Include="BusMessageProcedureHandler.cs" />
     <Compile Include="ConfirmPublisher.cs" />
-    <Compile Include="FunctionHandler.cs" />
+    <Compile Include="AsyncFunctionHandler.cs" />
     <Compile Include="IRpcConsumer.cs" />
     <Compile Include="ISendHelper.cs" />
     <Compile Include="MessageMonitor.cs" />
@@ -61,7 +62,7 @@
     <Compile Include="NullExceptionFilter.cs" />
     <Compile Include="PublisherBase.cs" />
     <Compile Include="RabbitMQBus.cs" />
-    <Compile Include="BusMessageCallHandler.cs" />
+    <Compile Include="AsyncBusMessageCallHandler.cs" />
     <Compile Include="ICallHandler.cs" />
     <Compile Include="IMessageConsumer.cs" />
     <Compile Include="IMessageHelper.cs" />
@@ -80,7 +81,7 @@
     <Compile Include="Publisher.cs" />
     <Compile Include="PublisherConfigurator.cs" />
     <Compile Include="RabbitMQConnectionString.cs" />
-    <Compile Include="RawHandler.cs" />
+    <Compile Include="AsyncRawHandler.cs" />
     <Compile Include="Receiver.cs" />
     <Compile Include="JsonSerializer.cs" />
     <Compile Include="RouteManager.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Subscription.cs" />
     <Compile Include="SubscriptionHelper.cs" />
     <Compile Include="SubscriptionInfo.cs" />
+    <Compile Include="SyncTaskScheduler.cs" />
     <Compile Include="TransactionalMessageConsumer.cs" />
     <Compile Include="TransactionalPublisher.cs" />
   </ItemGroup>

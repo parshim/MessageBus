@@ -19,7 +19,7 @@ namespace MessageBus.Core
         private readonly bool _neverReply;
         private readonly string _replyExchange;
 
-        private readonly TaskScheduler _scheduler;
+        private readonly TaskFactory _taskFactory;
 
         private readonly IMessageHelper _messageHelper;
         private readonly ISendHelper _sendHelper;
@@ -33,19 +33,22 @@ namespace MessageBus.Core
             _messageHelper = messageHelper;
             _serializers = serializers;
             _errorSubscriber = errorSubscriber;
-            _scheduler = scheduler;
             _receiveSelfPublish = receiveSelfPublish;
             _neverReply = neverReply;
             _sendHelper = sendHelper;
             _replyExchange = replyExchange;
+
+            _taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
         }
         
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
-            Task.Factory.StartNew(() => ConsumeMessage(redelivered, deliveryTag, properties, body), CancellationToken.None, TaskCreationOptions.None, _scheduler);
+            Func<Task<bool>> func = () => ConsumeMessage(redelivered, deliveryTag, properties, body);
+
+            _taskFactory.StartNew(func).Unwrap();
         }
 
-        protected virtual bool ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
+        protected virtual async Task<bool> ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
 
@@ -108,7 +111,7 @@ namespace MessageBus.Core
 
             try
             {
-                reply = HandleMessage(subscription.Handler, message, redelivered, deliveryTag);
+                reply = await HandleMessage(subscription.Handler, message, redelivered, deliveryTag);
             }
             catch (RejectMessageException)
             {
@@ -147,7 +150,7 @@ namespace MessageBus.Core
             return true;
         }
         
-        protected virtual RawBusMessage HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
+        protected virtual Task<RawBusMessage> HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
         {
             return handler.Dispatch(message);
         }

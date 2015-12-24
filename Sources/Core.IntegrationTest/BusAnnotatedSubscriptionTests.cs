@@ -157,7 +157,7 @@ namespace Core.IntegrationTest
 
                         publisher.Send(busMessage);
 
-                        bool waitOne = ev.WaitOne(TimeSpan.FromSeconds(5));
+                        bool waitOne = ev.WaitOne(TimeSpan.FromSeconds(5000));
 
                         waitOne.Should().BeTrue();
 

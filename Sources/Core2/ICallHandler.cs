@@ -1,10 +1,11 @@
-﻿using MessageBus.Core.API;
+﻿using System.Threading.Tasks;
+using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
     public interface ICallHandler
     {
-        RawBusMessage Dispatch(RawBusMessage message);
+        Task<RawBusMessage> Dispatch(RawBusMessage message);
     }
 
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using MessageBus.Core.API;
 
 using RabbitMQ.Client;
@@ -19,16 +18,16 @@ namespace MessageBus.Core
 
         public bool Subscribe<TData>(Action<TData> callback, bool hierarchy, IEnumerable<BusHeader> filter)
         {
-            ActionHandler<TData> actionHandler = new ActionHandler<TData>(callback);
+            ActionHandler<TData> asyncActionHandler = new ActionHandler<TData>(callback);
 
-            return _helper.Subscribe(typeof(TData), actionHandler, hierarchy, filter);
+            return _helper.Subscribe(typeof(TData), asyncActionHandler, hierarchy, filter);
         }
         
         public bool Subscribe(Type dataType, Action<object> callback, bool hierarchy, IEnumerable<BusHeader> filter)
         {
-            ActionHandler<object> actionHandler = new ActionHandler<object>(callback);
+            ActionHandler<object> asyncActionHandler = new ActionHandler<object>(callback);
 
-            return _helper.Subscribe(dataType, actionHandler, hierarchy, filter);
+            return _helper.Subscribe(dataType, asyncActionHandler, hierarchy, filter);
         }
 
         public bool Subscribe<TData>(Action<BusMessage<TData>> callback, bool hierarchy, IEnumerable<BusHeader> filter)
@@ -47,7 +46,7 @@ namespace MessageBus.Core
 
         public bool Subscribe<TData, TReplyData>(Func<TData, TReplyData> callback, bool hierarchy = false, IEnumerable<BusHeader> filter = null)
         {
-            FunctionHandler handler = new FunctionHandler(o => callback((TData) o));
+            FunctionHandler<TData, TReplyData> handler = new FunctionHandler<TData, TReplyData>(callback);
 
             return _helper.Subscribe(typeof (TData), handler, hierarchy, filter);
         }

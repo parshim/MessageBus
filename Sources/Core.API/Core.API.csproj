@@ -37,6 +37,7 @@
     <Compile Include="CreateQueueSettings.cs" />
     <Compile Include="DataContractKey.cs" />
     <Compile Include="HeaderFilterAttribute.cs" />
+    <Compile Include="IAsyncSubscriber.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IBusConfigurator.cs" />
     <Compile Include="IConfirmPublisher.cs" />

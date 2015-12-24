@@ -1,12 +1,13 @@
-﻿using MessageBus.Core.API;
+﻿using System.Threading.Tasks;
+using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
     internal class NullCallHandler : ICallHandler
     {
-        public RawBusMessage Dispatch(RawBusMessage message)
+        public Task<RawBusMessage> Dispatch(RawBusMessage message)
         {
-            return new RawBusMessage();
+            return Task.FromResult(new RawBusMessage());
         }
     }
 }

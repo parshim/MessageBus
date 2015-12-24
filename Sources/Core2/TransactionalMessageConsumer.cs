@@ -16,9 +16,9 @@ namespace MessageBus.Core
             _exceptionFilter = exceptionFilter;
         }
 
-        protected override bool ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
+        protected override async Task<bool> ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
         {
-            var processed = base.ConsumeMessage(redelivered, deliveryTag, properties, body);
+            var processed = await base.ConsumeMessage(redelivered, deliveryTag, properties, body);
 
             if (!processed)
             {
@@ -29,11 +29,11 @@ namespace MessageBus.Core
             return processed;
         }
 
-        protected override RawBusMessage HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
+        protected override async Task<RawBusMessage> HandleMessage(ICallHandler handler, RawBusMessage message, bool redelivered, ulong deliveryTag)
         {
             try
             {
-                RawBusMessage replyMessage = base.HandleMessage(handler, message, redelivered, deliveryTag);
+                RawBusMessage replyMessage = await base.HandleMessage(handler, message, redelivered, deliveryTag);
 
                 Model.BasicAck(deliveryTag, false);
 

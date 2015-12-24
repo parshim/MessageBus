@@ -69,7 +69,7 @@ namespace MessageBus.Core
 
         public TaskScheduler TaskScheduler
         {
-            get { return _taskScheduler ?? new LimitedConcurrencyLevelTaskScheduler(1); }
+            get { return _taskScheduler ?? new SyncTaskScheduler(); }
         }
 
         public Dictionary<string, ISerializer> Serializers

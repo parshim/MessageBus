@@ -188,6 +188,21 @@ namespace MessageBus.Core
             return new Subscriber(model, queue, consumer, helper, configurator);
         }
         
+        public IAsyncSubscriber CreateAsyncSubscriber(Action<ISubscriberConfigurator> configure = null)
+        {
+            SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
+
+            IModel model = _connection.CreateModel();
+
+            string queue = CreateQueue(model, configurator);
+
+            IMessageConsumer consumer = CreateConsumer(model, configurator);
+
+            var helper = CreateSubscriptionHelper(consumer, model, queue, configurator);
+
+            return new AsyncSubscriber(model, queue, consumer, helper, configurator);
+        }
+        
         public ISubscription RegisterSubscription<T>(T instance, Action<ISubscriberConfigurator> configure = null)
         {
             SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
