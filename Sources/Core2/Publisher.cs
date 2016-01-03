@@ -15,33 +15,64 @@ namespace MessageBus.Core
             _configuration.ErrorHandler.DeliveryFailed(replyCode, replyText, message);
         }
 
+        public void Send<TData>(TData data)
+        {
+            SendInternal(new RawBusMessage { Data = data }, false, null);
+        }
+
         public void Send<TData>(TData data, bool persistant)
         {
-            Send(new RawBusMessage { Data = data }, persistant);
+            SendInternal(new RawBusMessage { Data = data }, persistant, null);
+        }
+
+        public void Send<TData>(TData data, bool persistant, byte priority)
+        {
+            SendInternal(new RawBusMessage { Data = data }, persistant, priority);
+        }
+
+        public void Send<TData>(BusMessage<TData> busMessage)
+        {
+            RawBusMessage rawBusMessage = busMessage.ToRawBusMessage();
+
+            SendInternal(rawBusMessage, false, null);
         }
 
         public void Send<TData>(BusMessage<TData> busMessage, bool persistant)
         {
-            RawBusMessage rawBusMessage = new RawBusMessage
-            {
-                Data = busMessage.Data
-            };
+            RawBusMessage rawBusMessage = busMessage.ToRawBusMessage();
 
-            foreach (var header in busMessage.Headers)
-            {
-                rawBusMessage.Headers.Add(header);
-            }
+            SendInternal(rawBusMessage, persistant, null);
+        }
 
-            Send(rawBusMessage, persistant);
+        public void Send<TData>(BusMessage<TData> busMessage, bool persistant, byte priority)
+        {
+            RawBusMessage rawBusMessage = busMessage.ToRawBusMessage();
+
+            SendInternal(rawBusMessage, persistant, priority);
+        }
+
+        public void Send(RawBusMessage busMessage)
+        {
+            SendInternal(busMessage, false, null);
         }
 
         public void Send(RawBusMessage busMessage, bool persistant)
+        {
+            SendInternal(busMessage, persistant, null);
+        }
+
+        public void Send(RawBusMessage busMessage, bool persistant, byte priority)
+        {
+            SendInternal(busMessage, persistant, priority);
+        }
+        
+        private void SendInternal(RawBusMessage busMessage, bool persistant, byte? priority)
         {
             foreach (var header in _configuration.Headers)
             {
                 busMessage.Headers.Add(header);
             }
-            
+
             _sendHelper.Send(new SendParams
             {
                 BusId = _busId,
@@ -53,7 +84,8 @@ namespace MessageBus.Core
                 MandatoryDelivery = _configuration.MandatoryDelivery,
                 PersistentDelivery = persistant || _configuration.PersistentDelivery,
                 RoutingKey = _configuration.RoutingKey,
-                ReplyTo = _configuration.ReplyTo
+                ReplyTo = _configuration.ReplyTo,
+                Priority = priority
             });
         }
     }

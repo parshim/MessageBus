@@ -32,5 +32,7 @@ namespace MessageBus.Core
         public bool PersistentDelivery { get; set; }
         
         public string ReplyTo { get; set; }
+
+        public byte? Priority { get; set; }
     }
 }

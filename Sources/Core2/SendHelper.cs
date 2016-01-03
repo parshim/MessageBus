@@ -62,6 +62,11 @@ namespace MessageBus.Core
                 basicProperties.CorrelationId = sendParams.CorrelationId;
             }
 
+            if (sendParams.Priority.HasValue)
+            {
+                basicProperties.Priority = sendParams.Priority.Value;
+            }
+
             sendParams.Model.BasicPublish(sendParams.Exchange, sendParams.RoutingKey, sendParams.MandatoryDelivery, false, basicProperties, bytes);
         }
 

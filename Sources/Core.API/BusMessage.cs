@@ -102,4 +102,27 @@ namespace MessageBus.Core.API
         /// </summary>
         public object Data { get; set; }
     }
+
+    public static class Extentions
+    {
+        public static RawBusMessage ToRawBusMessage<T>(this BusMessage<T> message)
+        {
+            if (message == null)
+            {
+                return null;
+            }
+
+            RawBusMessage rawBusMessage = new RawBusMessage
+            {
+                Data = message.Data
+            };
+
+            foreach (var header in message.Headers)
+            {
+                rawBusMessage.Headers.Add(header);
+            }
+
+            return rawBusMessage;
+        }
+    }
 }

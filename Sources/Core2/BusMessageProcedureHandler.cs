@@ -29,15 +29,7 @@ namespace MessageBus.Core
 
             BusMessage<TReplyData> busReplyMessage = await _action(busMessage);
 
-            RawBusMessage replyMessage = new RawBusMessage
-            {
-                Data = busReplyMessage.Data
-            };
-
-            foreach (var header in busReplyMessage.Headers)
-            {
-                replyMessage.Headers.Add(header);
-            }
+            RawBusMessage replyMessage = busReplyMessage.ToRawBusMessage();
 
             return replyMessage;
         }
@@ -68,15 +60,7 @@ namespace MessageBus.Core
 
             BusMessage<TReplyData> busReplyMessage = _action(busMessage);
 
-            RawBusMessage replyMessage = new RawBusMessage
-            {
-                Data = busReplyMessage.Data
-            };
-
-            foreach (var header in busReplyMessage.Headers)
-            {
-                replyMessage.Headers.Add(header);
-            }
+            RawBusMessage replyMessage = busReplyMessage.ToRawBusMessage();
 
             return Task.FromResult(replyMessage);
         }
