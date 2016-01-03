@@ -132,13 +132,6 @@ namespace MessageBus.Core
                         .Select(pair => pair.Value)
                         .FirstOrDefault();
 
-                if (rejectHeader != null)
-                {
-                    info.SetResponse(null, new RpcCallException(RpcFailureReason.Reject));
-
-                    return;
-                }
-
                 var exceptionHeader =
                     properties.Headers.Where(pair => pair.Key == ExceptionHeader.WellknownName)
                         .Select(pair => pair.Value)
@@ -156,8 +149,15 @@ namespace MessageBus.Core
 
                 if (body.Length == 0 || info.ReplyType == null)
                 {
-                    // Void reply or sender not interested in reply data, but only interested to be notified that work is done
+                    // Reject without data
+                    if (rejectHeader != null)
+                    {
+                        info.SetResponse(null, new RpcCallException(RpcFailureReason.Reject));
 
+                        return;
+                    }
+
+                    // Void reply or sender not interested in reply data, but only interested to be notified that work is done
                     dataContractKey = DataContractKey.Void;
                     data = null;
                 }
@@ -186,6 +186,14 @@ namespace MessageBus.Core
 
                         return;
                     }
+                }
+
+                // Reject with data
+                if (rejectHeader != null)
+                {
+                    info.SetResponse(null, new RpcCallException(RpcFailureReason.Reject, data));
+
+                    return;
                 }
 
                 RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);

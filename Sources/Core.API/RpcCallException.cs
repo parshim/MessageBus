@@ -17,6 +17,12 @@ namespace MessageBus.Core.API
         {
             Reason = reason;
         }
+        
+        public RpcCallException(RpcFailureReason reason, object replyData)
+        {
+            Reason = reason;
+            ReplyData = replyData;
+        }
 
         public RpcCallException(RpcFailureReason reason, string message) :base(message)
         {
@@ -29,5 +35,7 @@ namespace MessageBus.Core.API
         }
 
         public RpcFailureReason Reason { get; private set; }
+
+        public object ReplyData { get; private set; }
     }
 }

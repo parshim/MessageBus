@@ -308,6 +308,49 @@ namespace Core.IntegrationTest
         }
         
         [Test]
+        public void Bus_MakeRpcCall_RejectedWithDataByHandler()
+        {
+            ResponseMessage replyData = new ResponseMessage
+            {
+                Code = 234
+            };
+
+            using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseTransactionalDelivery()))
+                {
+                    subscriber.Subscribe((RequestMessage m) => {
+                                                                   throw new RejectMessageException
+                                                                   {
+                                                                       ReplyData = replyData
+                                                                   };
+                    });
+
+                    subscriber.Open();
+
+                    using (IRpcPublisher rpcPublisher = bus.CreateRpcPublisher())
+                    {
+                        try
+                        {
+                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            {
+                                Data = "Hello, world!"
+                            }, TimeSpan.FromSeconds(10));
+
+                            Assert.Fail("No exception");
+                        }
+                        catch (RpcCallException ex)
+                        {
+                            ex.Reason.Should().Be(RpcFailureReason.Reject);
+                            ex.ReplyData.Should().BeOfType<ResponseMessage>();
+                            ((ResponseMessage)ex.ReplyData).ShouldBeEquivalentTo(replyData);
+                        }
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void Bus_MakeRpcCall_RejectedByHandler()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))

@@ -113,9 +113,12 @@ namespace MessageBus.Core
             {
                 reply = await HandleMessage(subscription.Handler, message, redelivered, deliveryTag);
             }
-            catch (RejectMessageException)
+            catch (RejectMessageException ex)
             {
-                reply = new RawBusMessage();
+                reply = new RawBusMessage
+                {
+                    Data = ex.ReplyData
+                };
                 
                 reply.Headers.Add(new RejectedHeader());
             }
