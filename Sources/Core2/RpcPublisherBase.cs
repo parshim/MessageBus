@@ -9,6 +9,7 @@ namespace MessageBus.Core
     public abstract class RpcPublisherBase : Publisher
     {
         protected readonly IRpcConsumer _consumer;
+        private readonly string _consumerTag;
 
         private readonly string _replyTo;
 
@@ -45,10 +46,20 @@ namespace MessageBus.Core
                     _replyTo = routingKey;
                 }
 
-                model.BasicConsume(queueDeclare.QueueName, true, consumer);
+                _consumerTag = model.BasicConsume(queueDeclare.QueueName, true, consumer);
             }
         }
-        
+
+        public override void Dispose()
+        {
+            if (!string.IsNullOrEmpty(_consumerTag))
+            {
+                _model.BasicCancel(_consumerTag);
+            }
+
+            base.Dispose();
+        }
+
         protected override void OnMessageReturn(int replyCode, string replyText, RawBusMessage message)
         {
             _consumer.HandleBasicReturn(message.CorrelationId, replyCode, replyText);

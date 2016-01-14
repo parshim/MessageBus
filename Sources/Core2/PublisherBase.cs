@@ -46,7 +46,7 @@ namespace MessageBus.Core
 
         protected abstract void OnMessageReturn(int replyCode, string replyText, RawBusMessage message);
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _model.BasicReturn -= ModelOnBasicReturn;
 
