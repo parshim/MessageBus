@@ -35,6 +35,9 @@ namespace MessageBus.Core
                 basicProperties.Headers.Add(MessagingConstants.HeaderNames.Name, contractKey.Name);
                 basicProperties.Headers.Add(MessagingConstants.HeaderNames.NameSpace, contractKey.Ns);
 
+                sendParams.BusMessage.Name = contractKey.Name;
+                sendParams.BusMessage.Namespace = contractKey.Ns;
+
                 bytes = sendParams.Serializer.Serialize(sendParams.BusMessage);
             }
             else
