@@ -6,8 +6,10 @@ namespace MessageBus.Core
     {
         private bool _useFastReply;
         private string _replyExchange;
+        private string _consumerTag = "";
 
-        public RpcPublisherConfigurator(string exchange, bool useFastReply, string replyExchange, IPublishingErrorHandler errorHandler) : base(exchange, errorHandler)
+        public RpcPublisherConfigurator(string exchange, bool useFastReply, string replyExchange, IPublishingErrorHandler errorHandler, ITrace trace)
+            : base(exchange, errorHandler, trace)
         {
             _useFastReply = useFastReply;
             _replyExchange = replyExchange;
@@ -22,6 +24,10 @@ namespace MessageBus.Core
         {
             get { return _replyExchange; }
         }
+        public string ConsumerTag
+        {
+            get { return _consumerTag; }
+        }
 
         public IRpcPublisherConfigurator DisableFastReply()
         {
@@ -34,6 +40,13 @@ namespace MessageBus.Core
         public IRpcPublisherConfigurator SetReplyExchange(string replyExchange)
         {
             _replyExchange = replyExchange;
+
+            return this;
+        }
+
+        public IRpcPublisherConfigurator SetConsumerTag(string consumerTag)
+        {
+            _consumerTag = consumerTag;
 
             return this;
         }

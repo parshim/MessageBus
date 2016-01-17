@@ -24,11 +24,26 @@ namespace MessageBus.Core.API
         ISubscriberConfigurator UseErrorSubscriber(IErrorSubscriber errorSubscriber);
 
         /// <summary>
+        /// Specify trace to log every arrived message in to.
+        /// </summary>
+        /// <returns></returns>
+        ISubscriberConfigurator UseTrace(ITrace trace);
+        
+
+        /// <summary>
         /// Specify durable queue name to listen for the messages.
         /// </summary>
         /// <param name="queueName"></param>
         /// <returns></returns>
         ISubscriberConfigurator UseDurableQueue(string queueName);
+
+        /// <summary>
+        /// Specify durable queue name to listen for the messages.
+        /// </summary>
+        /// <param name="queueName">Durable queue name</param>
+        /// <param name="createBindings">Specify if message bindings should be created</param>
+        /// <returns></returns>
+        ISubscriberConfigurator UseDurableQueue(string queueName, bool createBindings);
 
         /// <summary>
         /// Specify transactional delivery of the messages. If exception will be thrown on subscribed action message will be returned to the queue.
@@ -49,6 +64,11 @@ namespace MessageBus.Core.API
         /// </summary>
         ISubscriberConfigurator SetReceiveSelfPublish(bool receive = true);
 
+        /// <summary>
+        /// Specify consumer tag.
+        /// </summary>
+        ISubscriberConfigurator SetConsumerTag(string consumerTag);
+        
         /// <summary>
         /// If set, even for messages with reply-to field reply will not be sent. 
         /// <remarks>This flag is usefull for scenarious when synchronous reply is required while there are number of different subscribers for the message. 

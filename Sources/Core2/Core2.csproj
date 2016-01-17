@@ -60,6 +60,7 @@
     <Compile Include="MessageMonitor.cs" />
     <Compile Include="MessageMonitorConsumer.cs" />
     <Compile Include="NullExceptionFilter.cs" />
+    <Compile Include="NullTrace.cs" />
     <Compile Include="PublisherBase.cs" />
     <Compile Include="RabbitMQBus.cs" />
     <Compile Include="AsyncBusMessageCallHandler.cs" />

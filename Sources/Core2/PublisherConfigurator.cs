@@ -10,6 +10,7 @@ namespace MessageBus.Core
     {
         private BufferManager _bufferManager;
         private IPublishingErrorHandler _errorHandler;
+        private ITrace _trace;
         private ISerializer _serializer;
         private bool _mandatoryDelivery;
         private bool _persistentDelivery;
@@ -23,10 +24,11 @@ namespace MessageBus.Core
         private string _replyTo;
         private IEnumerable<BusHeader> _headers = Enumerable.Empty<BusHeader>();
         
-        public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler)
+        public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler, ITrace trace)
         {
             _exchange = exchange;
             _errorHandler = errorHandler;
+            _trace = trace;
         }
 
         public BufferManager BufferManager
@@ -39,6 +41,14 @@ namespace MessageBus.Core
             get
             {
                 return _errorHandler;
+            }
+        }
+
+        public ITrace Trace
+        {
+            get
+            {
+                return _trace;
             }
         }
 
@@ -87,6 +97,13 @@ namespace MessageBus.Core
         public IPublisherConfigurator UseErrorHandler(IPublishingErrorHandler errorHandler)
         {
             _errorHandler = errorHandler;
+
+            return this;
+        }
+
+        public IPublisherConfigurator UseTrace(ITrace trace)
+        {
+            _trace = trace;
 
             return this;
         }

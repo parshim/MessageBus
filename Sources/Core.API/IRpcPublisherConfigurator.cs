@@ -16,5 +16,10 @@
         /// <param name="replyExchange"></param>
         /// <returns></returns>
         IRpcPublisherConfigurator SetReplyExchange(string replyExchange);
+        
+        /// <summary>
+        /// Specify consumer tag.
+        /// </summary>
+        IRpcPublisherConfigurator SetConsumerTag(string consumerTag);
     }
 }

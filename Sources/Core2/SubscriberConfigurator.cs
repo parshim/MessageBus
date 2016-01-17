@@ -11,6 +11,7 @@ namespace MessageBus.Core
         private TaskScheduler _taskScheduler;
         private BufferManager _bufferManager;
         private IErrorSubscriber _errorSubscriber;
+        private ITrace _trace;
         private IExceptionFilter _exceptionFilter = new NullExceptionFilter();
         private string _queueName = "";
         private bool _receiveSelfPublish;
@@ -19,6 +20,8 @@ namespace MessageBus.Core
         private bool _transactionalDelivery;
         private string _exchange;
         private string _routingKey = "";
+        private string _consumerTag = "";
+        private bool _createBindings = true;
         private JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             Formatting = Formatting.None
@@ -26,11 +29,12 @@ namespace MessageBus.Core
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
 
-        public SubscriberConfigurator(string exchange, string replyExchange, IErrorSubscriber errorSubscriber, bool receiveSelfPublish)
+        public SubscriberConfigurator(string exchange, string replyExchange, IErrorSubscriber errorSubscriber, bool receiveSelfPublish, ITrace trace)
         {
             _exchange = exchange;
             _errorSubscriber = errorSubscriber;
             _receiveSelfPublish = receiveSelfPublish;
+            _trace = trace;
             _replyExchange = replyExchange;
         }
 
@@ -66,6 +70,10 @@ namespace MessageBus.Core
         {
             get { return _errorSubscriber; }
         }
+        public ITrace Trace
+        {
+            get { return _trace; }
+        }
 
         public TaskScheduler TaskScheduler
         {
@@ -89,26 +97,27 @@ namespace MessageBus.Core
 
         public bool ReceiveSelfPublish
         {
-            get
-            {
-                return _receiveSelfPublish;
-            }
+            get { return _receiveSelfPublish; }
         }
 
         public bool NeverReply
         {
-            get
-            {
-                return _neverReply;
-            }
+            get { return _neverReply; }
         }
 
         public string ReplyExchange
         {
-            get
-            {
-                return _replyExchange;
-            }
+            get { return _replyExchange; }
+        }
+
+        public string ConsumerTag
+        {
+            get { return _consumerTag; }
+        }
+
+        public bool CreateBindings
+        {
+            get { return _createBindings; }
         }
 
         public ISubscriberConfigurator UseBufferManager(BufferManager bufferManager)
@@ -125,9 +134,25 @@ namespace MessageBus.Core
             return this;
         }
 
+        public ISubscriberConfigurator UseTrace(ITrace trace)
+        {
+            _trace = trace;
+
+            return this;
+        }
+
         public ISubscriberConfigurator UseDurableQueue(string queueName)
         {
             _queueName = queueName;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseDurableQueue(string queueName, bool createBindings)
+        {
+            _queueName = queueName;
+
+            _createBindings = createBindings;
 
             return this;
         }
@@ -150,6 +175,13 @@ namespace MessageBus.Core
         public ISubscriberConfigurator SetReceiveSelfPublish(bool receive)
         {
             _receiveSelfPublish = receive;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator SetConsumerTag(string consumerTag)
+        {
+            _consumerTag = consumerTag;
 
             return this;
         }

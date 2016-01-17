@@ -37,7 +37,7 @@ namespace MessageBus.Core
 
             _helper = new SubscriptionHelper((type, filterInfo, handler) =>
             {
-                if (_nameMappings.TryAdd(type, filterInfo))
+                if (_nameMappings.TryAdd(type, filterInfo) && configurator.CreateBindings)
                 {
                     _model.QueueBind(_queue, configurator.Exchange, configurator.RoutingKey, filterInfo);
 

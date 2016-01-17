@@ -22,7 +22,7 @@ namespace MessageBus.Core
 
             if (configuration.UseFastReply)
             {
-                model.BasicConsume(fastReplyQueue, true, consumer);
+                model.BasicConsume(fastReplyQueue, true, configuration.ConsumerTag, consumer);
 
                 _replyTo = fastReplyQueue;
             }
@@ -46,7 +46,7 @@ namespace MessageBus.Core
                     _replyTo = routingKey;
                 }
 
-                _consumerTag = model.BasicConsume(queueDeclare.QueueName, true, consumer);
+                _consumerTag = model.BasicConsume(queueDeclare.QueueName, true, configuration.ConsumerTag, consumer);
             }
         }
 
@@ -82,6 +82,8 @@ namespace MessageBus.Core
                 RoutingKey = _configuration.RoutingKey,
                 ReplyTo = _replyTo
             });
+
+            _configuration.Trace.MessageSent(_busId, rawBusMessage);
         }
 
         private RawBusMessage CreateRawMessage<TData>(BusMessage<TData> busMessage)

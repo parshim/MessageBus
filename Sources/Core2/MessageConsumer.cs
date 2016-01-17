@@ -25,8 +25,9 @@ namespace MessageBus.Core
         private readonly ISendHelper _sendHelper;
         private readonly Dictionary<string, ISerializer> _serializers;
         private readonly IErrorSubscriber _errorSubscriber;
+        private readonly ITrace _trace;
 
-        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply, string replyExchange)
+        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply, string replyExchange, ITrace trace)
             : base(model)
         {
             _busId = busId;
@@ -37,6 +38,7 @@ namespace MessageBus.Core
             _neverReply = neverReply;
             _sendHelper = sendHelper;
             _replyExchange = replyExchange;
+            _trace = trace;
 
             _taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
         }
@@ -107,6 +109,8 @@ namespace MessageBus.Core
                 return false;
             }
 
+            _trace.MessageArrived(_busId, message, ConsumerTag);
+
             RawBusMessage reply;
 
             try
@@ -148,6 +152,8 @@ namespace MessageBus.Core
                     MandatoryDelivery = false,
                     PersistentDelivery = false
                 });
+
+                _trace.MessageSent(_busId, reply);
             }
 
             return true;

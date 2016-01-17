@@ -65,11 +65,15 @@ namespace MessageBus.Core
 
         private readonly IMessageHelper _messageHelper;
         private readonly Dictionary<string, ISerializer> _serializers;
+        private readonly ITrace _trace;
+        private readonly string _busId;
 
-        public RpcConsumer(IModel model, IMessageHelper messageHelper, Dictionary<string, ISerializer> serializers)
+        public RpcConsumer(string busId, IModel model, IMessageHelper messageHelper, Dictionary<string, ISerializer> serializers, ITrace trace)
             : base(model)
         {
+            _busId = busId;
             _serializers = serializers;
+            _trace = trace;
             _messageHelper = messageHelper;
         }
 
@@ -197,6 +201,8 @@ namespace MessageBus.Core
                 }
 
                 RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
+
+                _trace.MessageArrived(_busId, message, ConsumerTag);
 
                 info.SetResponse(message, null);
 

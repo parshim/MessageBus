@@ -65,7 +65,7 @@ namespace MessageBus.Core
 
             _createSubscriberConfigurator = configure =>
             {
-                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ReplyExchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish);
+                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ReplyExchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish, busConfiguration.Trace);
 
                 if (configure != null)
                 {
@@ -77,7 +77,7 @@ namespace MessageBus.Core
 
             _createPublisherConfigurator = configure =>
             {
-                PublisherConfigurator configurator = new PublisherConfigurator(_exchange, busConfiguration.ErrorHandler);
+                PublisherConfigurator configurator = new PublisherConfigurator(_exchange, busConfiguration.ErrorHandler, busConfiguration.Trace);
 
                 if (configure != null)
                 {
@@ -89,7 +89,7 @@ namespace MessageBus.Core
 
             _createRpcPublisherConfigurator = configure =>
             {
-                RpcPublisherConfigurator configurator = new RpcPublisherConfigurator(_exchange, busConfiguration.UseFastReply, busConfiguration.ReplyExchange, busConfiguration.ErrorHandler);
+                RpcPublisherConfigurator configurator = new RpcPublisherConfigurator(_exchange, busConfiguration.UseFastReply, busConfiguration.ReplyExchange, busConfiguration.ErrorHandler, busConfiguration.Trace);
 
                 if (configure != null)
                 {
@@ -140,10 +140,10 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            IRpcConsumer consumer = new RpcConsumer(model, _messageHelper, new Dictionary<string, ISerializer>
+            IRpcConsumer consumer = new RpcConsumer(BusId, model, _messageHelper, new Dictionary<string, ISerializer>
             {
                 { configuration.Serializer.ContentType, configuration.Serializer }
-            });
+            }, configuration.Trace);
 
             return new RpcSyncPublisher(model, BusId, configuration, _messageHelper, _sendHelper, consumer);
         }
@@ -154,10 +154,10 @@ namespace MessageBus.Core
 
             IModel model = _connection.CreateModel();
 
-            IRpcConsumer consumer = new RpcConsumer(model, _messageHelper, new Dictionary<string, ISerializer>
+            IRpcConsumer consumer = new RpcConsumer(BusId, model, _messageHelper, new Dictionary<string, ISerializer>
             {
                 { configuration.Serializer.ContentType, configuration.Serializer }
-            });
+            }, configuration.Trace);
 
             return new RpcAsyncPublisher(model, BusId, configuration, _messageHelper, _sendHelper, consumer);
         }
@@ -256,7 +256,7 @@ namespace MessageBus.Core
         {
             ISubscriptionHelper helper = new SubscriptionHelper((type, filterInfo, handler) =>
             {
-                if (consumer.Register(type, filterInfo, handler))
+                if (consumer.Register(type, filterInfo, handler) && configurator.CreateBindings)
                 {
                     model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey, filterInfo);
 
@@ -272,10 +272,10 @@ namespace MessageBus.Core
         {
             if (configurator.TransactionalDelivery)
             {
-                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.ExceptionFilter, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange);
+                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.ExceptionFilter, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange, configurator.Trace);
             }
 
-            return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange);
+            return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange, configurator.Trace);
         }
     }
 }

@@ -24,6 +24,12 @@ namespace MessageBus.Core.API
         IPublisherConfigurator UseErrorHandler(IPublishingErrorHandler errorHandler);
 
         /// <summary>
+        /// Specify trace to log every sent message in to.
+        /// </summary>
+        /// <returns></returns>
+        IPublisherConfigurator UseTrace(ITrace trace);
+
+        /// <summary>
         /// Specify that message should be sent to at least one subscriber.
         /// Otherwise error handler will be notified about undeliverable message.
         /// Use UseErrorHandler to register error handler implementation

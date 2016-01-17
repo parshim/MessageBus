@@ -56,7 +56,32 @@ namespace Core.IntegrationTest
 
                     bool wait = ev.WaitOne(TimeSpan.FromSeconds(10));
 
-                    wait.Should().BeTrue("Message should not arrive from publisher to subscriber within same bus instance");
+                    wait.Should().BeTrue("Message should arrive from publisher to subscriber within same bus instance");
+                }
+            }
+        }
+        
+        [Test]
+        public void Bus_CustomConsumerTag_ShouldArriveToSubscriber()
+        {
+            ManualResetEvent ev = new ManualResetEvent(false);
+
+            using (var bus = new MessageBus.Core.RabbitMQBus())
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.SetReceiveSelfPublish().SetConsumerTag("MyConsumer")))
+                {
+                    subscriber.Subscribe((Action<OK>) (ok => ev.Set()));
+
+                    subscriber.Open();
+
+                    using (IPublisher publisher = bus.CreatePublisher())
+                    {
+                        publisher.Send(new OK());
+                    }
+
+                    bool wait = ev.WaitOne(TimeSpan.FromSeconds(10));
+
+                    wait.Should().BeTrue();
                 }
             }
         }

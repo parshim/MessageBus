@@ -87,6 +87,8 @@ namespace MessageBus.Core
                 ReplyTo = _configuration.ReplyTo,
                 Priority = priority
             });
+
+            _configuration.Trace.MessageSent(_busId, busMessage);
         }
     }
 }

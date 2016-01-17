@@ -7,6 +7,7 @@ namespace MessageBus.Core
     {
         private string _busId = Guid.NewGuid().ToString();
         private IPublishingErrorHandler _errorHandler;
+        private ITrace _trace;
         private IErrorSubscriber _errorSubscriber;
         private RabbitMQConnectionString _connectionString;
         private bool _receiveSelfPublish;
@@ -25,11 +26,20 @@ namespace MessageBus.Core
                 return _errorHandler ?? new NullPublishingErrorHandler();
             }
         }
+        
         public IErrorSubscriber ErrorSubscriber
         {
             get
             {
                 return _errorSubscriber ?? new NullErrorSubscriber();
+            }
+        }
+
+        public ITrace Trace
+        {
+            get
+            {
+                return _trace ?? new NullTrace();
             }
         }
 
@@ -80,6 +90,13 @@ namespace MessageBus.Core
         public IBusConfigurator UseErrorHandler(IPublishingErrorHandler errorHandler)
         {
             _errorHandler = errorHandler;
+
+            return this;
+        }
+
+        public IBusConfigurator UseTrace(ITrace trace)
+        {
+            _trace = trace;
 
             return this;
         }

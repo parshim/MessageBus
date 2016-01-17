@@ -30,7 +30,7 @@ namespace MessageBus.Core
 
         public void Open()
         {
-            _consumerTag = _model.BasicConsume(_queue, !_configurator.TransactionalDelivery, "", !_configurator.ReceiveSelfPublish, false, new Dictionary<string, object>(), _consumer);
+            _consumerTag = _model.BasicConsume(_queue, !_configurator.TransactionalDelivery, _configurator.ConsumerTag, !_configurator.ReceiveSelfPublish, false, new Dictionary<string, object>(), _consumer);
         }
 
         public void Close()
