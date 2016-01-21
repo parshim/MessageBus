@@ -49,7 +49,25 @@ namespace Core.IntegrationTest
                     OK receive = receiver.Receive<OK>();
 
                     receive.Should()
-                        .NotBeNull("Message should not arrive from publisher to subscriber within same bus instance");
+                        .NotBeNull("Message should arrive from publisher to subscriber within same bus instance");
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_Receive_NoMassagesAvailableToReceiver()
+        {
+            using (MessageBus.Core.RabbitMQBus bus = new MessageBus.Core.RabbitMQBus())
+            {
+                using (IReceiver receiver = bus.CreateReceiver())
+                {
+                    receiver.Subscribe<OK>();
+
+                    receiver.Open();
+                    
+                    OK receive = receiver.Receive<OK>();
+
+                    receive.Should().BeNull("No messages are in queue, so NULL should be returned");
                 }
             }
         }

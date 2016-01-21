@@ -79,6 +79,11 @@ namespace MessageBus.Core
         {
             BasicGetResult result = _model.BasicGet(_queue, true);
 
+            if (result == null)
+            {
+                return null;
+            }
+
             IBasicProperties basicProperties = result.BasicProperties;
 
             DataContractKey dataContractKey = basicProperties.GetDataContractKey();
