@@ -45,7 +45,12 @@ namespace MessageBus.Core
         
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
-            Func<Task<bool>> func = () => ConsumeMessage(redelivered, deliveryTag, properties, body);
+            Func<Task<bool>> func = () => ConsumeMessage(redelivered, deliveryTag, properties, body).ContinueWith(t =>
+            {
+                _errorSubscriber.UnhandledException(t.Exception);
+
+                return false;
+            }, TaskContinuationOptions.OnlyOnFaulted);
 
             _taskFactory.StartNew(func).Unwrap();
         }

@@ -8,6 +8,12 @@ namespace MessageBus.Core.API
     public interface IErrorSubscriber
     {
         /// <summary>
+        /// General unhendled exception
+        /// </summary>
+        /// <param name="exception"></param>
+        void UnhandledException(Exception exception);
+
+        /// <summary>
         /// Message serialization failed
         /// </summary>
         /// <param name="busMessage"></param>

@@ -47,6 +47,11 @@ namespace Core.IntegrationTest
             });
         }
 
+        public void UnhandledException(Exception exception)
+        {
+            
+        }
+
         public void MessageDeserializeException(RawBusMessage busMessage, Exception exception)
         {
             

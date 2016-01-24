@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using FluentAssertions;
@@ -6,7 +7,9 @@ using FluentAssertions;
 using MessageBus.Core.API;
 using NUnit.Framework;
 using System.Runtime.Serialization;
+using System.Text;
 using Newtonsoft.Json;
+using RabbitMQ.Client;
 
 namespace Core.IntegrationTest
 {
@@ -16,13 +19,20 @@ namespace Core.IntegrationTest
         private RawBusMessage _busMessage;
         private Exception _exception;
 
-        private readonly ManualResetEvent _ev = new ManualResetEvent(false);
+        private ManualResetEvent _ev;
 
         [SetUp]
         public void SetUp()
         {
             _busMessage = null;
             _exception = null;
+            _ev = new ManualResetEvent(false);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _ev.Dispose();
         }
 
         [Test]
@@ -57,7 +67,7 @@ namespace Core.IntegrationTest
             }
         }
         
-        [Test, Ignore]
+        [Test]
         public void Bus_ErrorSubscriber_MessageDeserializedException()
         {
             const string busId = "MyBus";
@@ -88,7 +98,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [Test, Ignore]
+        [Test]
         public void Bus_ErrorSubscriber_MessageDispatchException()
         {
             const string busId = "MyBus";
@@ -121,28 +131,96 @@ namespace Core.IntegrationTest
             }
         }
 
-        [Test, Ignore]
+        [Test]
+        public void Bus_ErrorSubscriber_MessageGeneralException()
+        {
+            const string busId = "MyBus";
+
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(c => c.SetBusId(busId)))
+            {
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this).SetReceiveSelfPublish()))
+                {
+                    subscriber.Subscribe(delegate(ContractToSend ok) {  });
+                    
+                    subscriber.Open();
+
+                    ConnectionFactory factory = new ConnectionFactory();
+
+                    using (IConnection connection = factory.CreateConnection())
+                    {
+                        using (var model = connection.CreateModel())
+                        {
+                            IBasicProperties prop = model.CreateBasicProperties();
+
+                            prop.Headers = new Dictionary<string, object>
+                            {
+                                {"Name", "Data"},
+                                {"Namespace", "bus.error.test.org"}
+                            };
+                            
+                            model.BasicPublish("amq.headers", "", prop, Encoding.ASCII.GetBytes("sdjashdkjashd"));
+                        }
+                    }
+
+
+                    bool wait = _ev.WaitOne(TimeSpan.FromSeconds(5));
+
+                    wait.Should().BeTrue();
+
+                    _busMessage.Should().BeNull();
+                    _exception.Should().NotBeNull();
+                }
+            }
+        }
+
+        [Test]
         public void Bus_ErrorSubscriber_UnregisteredMessageShouldNotArrive()
         {
             const string busId = "MyBus";
 
             using (IBus bus = new MessageBus.Core.RabbitMQBus(c => c.SetBusId(busId)))
             {
-                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseErrorSubscriber(this)))
+                string queue;
+
+                using (var manager = bus.CreateRouteManager())
                 {
-                    subscriber.Open();
-
-                    using (IPublisher publisher = bus.CreatePublisher())
+                    queue = manager.CreateQueue("test32424", true, true, CreateQueueSettings.Default);
+                    
+                    using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseDurableQueue(queue).UseErrorSubscriber(this)))
                     {
-                        publisher.Send(new ContractToSend { Data = 4 });
+                        subscriber.Open();
+
+                        ConnectionFactory factory = new ConnectionFactory();
+
+                        using (IConnection connection = factory.CreateConnection())
+                        {
+                            using (var model = connection.CreateModel())
+                            {
+                                IBasicProperties prop = model.CreateBasicProperties();
+
+                                prop.Headers = new Dictionary<string, object>
+                                {
+                                    {"Name", "Data"},
+                                    {"Namespace", "bus.error.test.org"}
+                                };
+
+                                model.BasicPublish("", queue, prop, Encoding.ASCII.GetBytes("sdjashdkjashd"));
+                            }
+                        }
+
+                        bool wait = _ev.WaitOne(TimeSpan.FromSeconds(5));
+
+                        wait.Should().BeTrue();
+                        _busMessage.Should().NotBeNull();
                     }
-
-                    bool wait = _ev.WaitOne(TimeSpan.FromSeconds(5));
-
-                    wait.Should().BeFalse();
-                    _busMessage.Should().BeNull();
                 }
             }
+        }
+
+        public void UnhandledException(Exception exception)
+        {
+            _exception = exception;
+            _ev.Set();
         }
 
         public void MessageDeserializeException(RawBusMessage busMessage, Exception exception)
