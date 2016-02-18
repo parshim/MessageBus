@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -23,7 +24,7 @@ namespace MessageBus.Core
 
         public string CreateQueue(string name, bool durable, bool autoDelete, CreateQueueSettings settings)
         {
-            Dictionary<string, object> arguments = new Dictionary<string, object>();
+            var arguments = new Dictionary<string, object>();
 
             if (settings.TTL != TimeSpan.Zero)
             {
@@ -80,6 +81,11 @@ namespace MessageBus.Core
             });
 
             helper.Subscribe(typeof(T), new NullCallHandler(), hierarchy, filter);
+        }
+
+        public void QueueBindMessage(string queueName, string exchange, string routingKey = "", IEnumerable<BusHeader> filter = null)
+        {
+            _model.QueueBind(queueName, exchange, routingKey, filter ?? Enumerable.Empty<BusHeader>());
         }
 
         public void DeleteQueue(string name)

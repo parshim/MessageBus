@@ -26,6 +26,18 @@ namespace MessageBus.Core
             model.QueueBind(queue, exchange, routingKey, arguments);
         }
 
+        public static void QueueBind(this IModel model, string queue, string exchange, string routingKey, IEnumerable<BusHeader> filterHeaders)
+        {
+            IDictionary<string, object> arguments = new Dictionary<string, object>();
+            
+            foreach (BusHeader header in filterHeaders)
+            {
+                arguments.Add(header.Name, header.Value);
+            }
+
+            model.QueueBind(queue, exchange, routingKey, arguments);
+        }
+
         public static string GetHeaderValue(this IBasicProperties basicProperties, string key)
         {
             string name = "";
