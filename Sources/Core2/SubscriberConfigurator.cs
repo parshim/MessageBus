@@ -18,6 +18,7 @@ namespace MessageBus.Core
         private bool _neverReply;
         private string _replyExchange;
         private bool _transactionalDelivery;
+        private ushort _prefetch;
         private string _exchange;
         private string _routingKey = "";
         private string _consumerTag = "";
@@ -54,6 +55,11 @@ namespace MessageBus.Core
         public bool TransactionalDelivery
         {
             get { return _transactionalDelivery; }
+        }
+
+        public ushort Prefetch
+        {
+            get { return _prefetch; }
         }
 
         public IExceptionFilter ExceptionFilter
@@ -164,10 +170,27 @@ namespace MessageBus.Core
             return this;
         }
 
+        public ISubscriberConfigurator UseTransactionalDelivery(ushort prefetch)
+        {
+            _transactionalDelivery = true;
+            _prefetch = prefetch;
+
+            return this;
+        }
+
         public ISubscriberConfigurator UseTransactionalDelivery(IExceptionFilter exceptionFilter)
         {
             _transactionalDelivery = true;
             _exceptionFilter = exceptionFilter;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseTransactionalDelivery(IExceptionFilter exceptionFilter, ushort prefetch)
+        {
+            _transactionalDelivery = true;
+            _exceptionFilter = exceptionFilter;
+            _prefetch = prefetch;
 
             return this;
         }

@@ -30,6 +30,11 @@ namespace MessageBus.Core
 
         public void Open()
         {
+            if (_configurator.Prefetch > 0)
+            {
+                _model.BasicQos(0, _configurator.Prefetch, false);
+            }
+
             _consumerTag = _model.BasicConsume(_queue, !_configurator.TransactionalDelivery, _configurator.ConsumerTag, !_configurator.ReceiveSelfPublish, false, new Dictionary<string, object>(), _consumer);
         }
 
