@@ -143,7 +143,7 @@ namespace MessageBus.Core
                 });
             }
 
-            if (!_neverReply && properties.IsReplyToPresent())
+            if (!_neverReply && reply != null && properties.IsReplyToPresent())
             {
                 _sendHelper.Send(new SendParams
                 {

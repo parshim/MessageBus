@@ -53,6 +53,11 @@ namespace MessageBus.Core
 
                 Model.BasicNack(deliveryTag, false, requeue);
 
+                if (requeue)
+                {
+                    return null;
+                }
+
                 throw;
             }
         }
