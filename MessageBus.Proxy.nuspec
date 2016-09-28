@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>RabbitMQ.MessageBus.Proxy</id>
-        <version>2.7.1</version>
+        <version>3.0.0</version>
         <authors>Michael Parshin</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Message Bus infrastructure based on RabbitMQ message broker</description>
@@ -12,11 +12,11 @@
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="Castle.Core" version="3.1.0" />
-				<dependency id="RabbitMQ.MessageBus" version="2.7.1" />
+				<dependency id="RabbitMQ.MessageBus" version="3.0.0" />
             </group>
         </dependencies>
     </metadata>
     <files>
-        <file src="Binaries\Release\MessageBus.Core.Proxy.dll" target="lib\net45\MessageBus.Core.Proxy.dll" />
+        <file src="Binaries\Release\MessageBus.Core.Proxy.dll" target="lib\net451\MessageBus.Core.Proxy.dll" />
     </files>
 </package>

@@ -70,7 +70,7 @@ namespace MessageBus.Core
                 basicProperties.Priority = sendParams.Priority.Value;
             }
 
-            sendParams.Model.BasicPublish(sendParams.Exchange, sendParams.RoutingKey, sendParams.MandatoryDelivery, false, basicProperties, bytes);
+            sendParams.Model.BasicPublish(sendParams.Exchange, sendParams.RoutingKey, sendParams.MandatoryDelivery, basicProperties, bytes);
         }
 
         public Type GetDataType(DataContractKey dataContractKey)
