@@ -169,7 +169,6 @@ namespace MessageBus.Binding.RabbitMQ
                 _model.BasicPublish(uri.Endpoint,
                                      uri.RoutingKey,
                                      _bindingElement.Mandatory,
-                                     _bindingElement.Immediate,
                                      basicProperties,
                                      body);
 
