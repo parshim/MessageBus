@@ -26,6 +26,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.SignalR", "Core.Signal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.RabbitMQ", "Core.RabbitMQ\Core.RabbitMQ.csproj", "{0B59193B-0883-4BD6-A66A-47C515EAF014}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".targets", ".targets", "{E04B27CD-E0FD-4C05-A31E-8E19B80C2E8B}"
+	ProjectSection(SolutionItems) = preProject
+		.targets\Core.API.nuspec = .targets\Core.API.nuspec
+		.targets\Core.API.targets = .targets\Core.API.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

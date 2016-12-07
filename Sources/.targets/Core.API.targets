@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <NugetPath>nuget.exe</NugetPath>
+    <NugetOutDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), key.snk))\..\nugets\</NugetOutDir>
+    <NugetAssemblyVersion>0.0.0.0</NugetAssemblyVersion>
+    <NugetSpecFile>$(SolutionDir)\.targets\$(ProjectName).nuspec</NugetSpecFile>
+  </PropertyGroup>
+
+  <Target Name="WriteAssemblyVersion" AfterTargets="CopyFilesToOutputDirectory;MergeAssemblies">
+    <GetAssemblyVersion AssemblyFile="$(TargetPath)">
+      <Output TaskParameter="Version" PropertyName="NugetAssemblyVersion"/>
+    </GetAssemblyVersion>
+  </Target>
+
+  <Target Name="GenerateNugetPackage" AfterTargets="WriteAssemblyVersion">
+    <MakeDir Condition="Exists('$(NugetOutDir)') == false" Directories="$(NugetOutDir)"/>
+    <Exec Command='$(NugetPath) pack "$(NugetSpecFile)" -OutputDirectory "$(NugetOutDir.TrimEnd(\\))" -BasePath "$(TargetDir.TrimEnd(\\))" -Version "$(NugetAssemblyVersion)" -verbosity quiet' />
+  </Target>
+
+  <UsingTask TaskName="GetAssemblyVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+      <AssemblyFile ParameterType="System.String" Required="true"></AssemblyFile>
+      <Version ParameterType="System.String" Output="true"/>
+    </ParameterGroup>
+
+    <Task>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        var asmData = System.IO.File.ReadAllBytes(AssemblyFile);
+        var asm = System.Reflection.Assembly.Load(asmData);
+        Version = asm.GetName().Version.ToString();
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  
+</Project>

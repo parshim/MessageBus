@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>RabbitMQ.MessageBus.API</id>
+    <version>3.0.1</version>
+    <authors>Michael Parshin</authors>
+    <owners>Michael Parshin</owners>
+    <projectUrl>https://github.com/parshim/MessageBus</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/parshim/MessageBus/master/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Message Bus api interface</description>
+    <tags>RabbitMQ AMQP MessageBus</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.5.1">
+        <dependency id="Newtonsoft.Json" version="7.0.1" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="MessageBus.Core.API.???" target="lib\net451"/>
+  </files>
+</package>
