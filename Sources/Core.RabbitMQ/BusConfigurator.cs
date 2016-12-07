@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using MessageBus.Core.API;
 
 namespace MessageBus.Core
@@ -73,9 +74,13 @@ namespace MessageBus.Core
             get { return _connectionString ?? new RabbitMQConnectionString(); }
         }
 
-        public IBusConfigurator UseConnectionString(string connectionString)
+        public IBusConfigurator UseConnectionString(string nameOrConnectionString)
         {
-            _connectionString = new RabbitMQConnectionString(new Uri(connectionString));
+            var configConnectionString = ConfigurationManager.ConnectionStrings[nameOrConnectionString];
+            var connectionString = configConnectionString?.ConnectionString ?? nameOrConnectionString;
+            var connectionUri = new Uri(connectionString);
+
+            _connectionString = new RabbitMQConnectionString(connectionUri);
 
             return this;
         }

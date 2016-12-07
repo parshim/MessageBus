@@ -15,9 +15,9 @@
         /// <summary>
         /// Specify broker connection string
         /// </summary>
-        /// <param name="connectionString"></param>
+        /// <param name="nameOrConnectionString"></param>
         /// <returns></returns>
-        IBusConfigurator UseConnectionString(string connectionString);
+        IBusConfigurator UseConnectionString(string nameOrConnectionString);
 
         /// <summary>
         /// Specify error subscriber interface to redirect subscriber errors to.
