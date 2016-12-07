@@ -25,7 +25,7 @@
       <AssemblyFile ParameterType="System.String" Required="true"></AssemblyFile>
       <Version ParameterType="System.String" Output="true"/>
     </ParameterGroup>
-
+    
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[

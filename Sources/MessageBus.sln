@@ -30,6 +30,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".targets", ".targets", "{E0
 	ProjectSection(SolutionItems) = preProject
 		.targets\Core.API.nuspec = .targets\Core.API.nuspec
 		.targets\Core.API.targets = .targets\Core.API.targets
+		.targets\Core.RabbitMQ.nuspec = .targets\Core.RabbitMQ.nuspec
+		.targets\Core.RabbitMQ.targets = .targets\Core.RabbitMQ.targets
 	EndProjectSection
 EndProject
 Global

@@ -88,7 +88,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Core.RabbitMQ\Core.RabbitMQ.csproj">
       <Project>{0B59193B-0883-4BD6-A66A-47C515EAF014}</Project>
-      <Name>Core2</Name>
+      <Name>Core.RabbitMQ</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
