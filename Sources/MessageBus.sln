@@ -1,32 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binding", "Binding", "{D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ", "Binding\RabbitMQ\RabbitMQ.csproj", "{F4B205B9-ABFC-4382-BB46-4130E54ED99D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.IntegrationTests", "Binding\RabbitMQ.IntegrationTests\RabbitMQ.IntegrationTests.csproj", "{0E7FE783-22CA-4752-9D4F-0961767764C9}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A4A58F6E-9836-4ED8-9B6A-B17A5077E86A}"
-	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
-		MessageBus.vsmdi = MessageBus.vsmdi
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.UnitTests", "Binding\RabbitMQ.UnitTests\RabbitMQ.UnitTests.csproj", "{816915E1-F1AB-4A58-A5A3-CB7F65A3D994}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.API", "Core.API\Core.API.csproj", "{3B9A69DB-A6AB-49D8-828D-3274124829B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.IntegrationTests", "Core.IntegrationTest\Core.IntegrationTests.csproj", "{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{80E98378-020D-441C-98C0-5BFF508ADB47}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZeroMQ", "Binding\ZeroMQ\ZeroMQ.csproj", "{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZeroMQ.IntegrationTests", "Binding\ZeroMQ.IntegrationTests\ZeroMQ.IntegrationTests.csproj", "{DDF82B33-45E1-455C-B7B4-273DA10844D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.ZeroMQ", "Core.ZeroMQ\Core.ZeroMQ.csproj", "{17967D45-C969-44A4-8C33-4588ED94F549}"
 EndProject
@@ -41,11 +24,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core2", "Core2\Core2.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Proxy", "Core.Proxy\Core.Proxy.csproj", "{49C94D69-D65F-4A65-B529-C308470B7A5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Proxy.IntegrationTests", "Core.Proxy.IntegrationTests\Core.Proxy.IntegrationTests.csproj", "{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.SignalR", "Core.SignalR\Core.SignalR.csproj", "{E314AF95-5622-4138-8897-4CF80026E1AF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.SignalR.IntegrationTests", "Core.SignalR.IntegrationTests\Core.SignalR.IntegrationTests.csproj", "{368519CD-1604-47E9-803D-F3456747CB6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,34 +36,14 @@ Global
 		{F4B205B9-ABFC-4382-BB46-4130E54ED99D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4B205B9-ABFC-4382-BB46-4130E54ED99D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4B205B9-ABFC-4382-BB46-4130E54ED99D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E7FE783-22CA-4752-9D4F-0961767764C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E7FE783-22CA-4752-9D4F-0961767764C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E7FE783-22CA-4752-9D4F-0961767764C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E7FE783-22CA-4752-9D4F-0961767764C9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{816915E1-F1AB-4A58-A5A3-CB7F65A3D994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{816915E1-F1AB-4A58-A5A3-CB7F65A3D994}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{816915E1-F1AB-4A58-A5A3-CB7F65A3D994}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{816915E1-F1AB-4A58-A5A3-CB7F65A3D994}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3B9A69DB-A6AB-49D8-828D-3274124829B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3B9A69DB-A6AB-49D8-828D-3274124829B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B9A69DB-A6AB-49D8-828D-3274124829B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B9A69DB-A6AB-49D8-828D-3274124829B0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6574B8B6-C1B9-4D09-B1E3-1FA0F6110E6F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{80E98378-020D-441C-98C0-5BFF508ADB47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{80E98378-020D-441C-98C0-5BFF508ADB47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{80E98378-020D-441C-98C0-5BFF508ADB47}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{80E98378-020D-441C-98C0-5BFF508ADB47}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17967D45-C969-44A4-8C33-4588ED94F549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17967D45-C969-44A4-8C33-4588ED94F549}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B59193B-0883-4BD6-A66A-47C515EAF014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -95,29 +54,17 @@ Global
 		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49C94D69-D65F-4A65-B529-C308470B7A5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64EF695B-07DA-45CE-BA9C-CDDB9B8BE540}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E314AF95-5622-4138-8897-4CF80026E1AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E314AF95-5622-4138-8897-4CF80026E1AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E314AF95-5622-4138-8897-4CF80026E1AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E314AF95-5622-4138-8897-4CF80026E1AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{368519CD-1604-47E9-803D-F3456747CB6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{368519CD-1604-47E9-803D-F3456747CB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{368519CD-1604-47E9-803D-F3456747CB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{368519CD-1604-47E9-803D-F3456747CB6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F4B205B9-ABFC-4382-BB46-4130E54ED99D} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
-		{0E7FE783-22CA-4752-9D4F-0961767764C9} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
-		{A4A58F6E-9836-4ED8-9B6A-B17A5077E86A} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
-		{816915E1-F1AB-4A58-A5A3-CB7F65A3D994} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
 		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
