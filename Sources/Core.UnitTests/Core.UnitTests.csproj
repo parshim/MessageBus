@@ -72,9 +72,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core2\Core2.csproj">
-      <Project>{0b59193b-0883-4bd6-a66a-47c515eaf014}</Project>
-      <Name>Core2</Name>
+    <ProjectReference Include="..\Core.RabbitMQ\Core.RabbitMQ.csproj">
+      <Project>{0B59193B-0883-4BD6-A66A-47C515EAF014}</Project>
+      <Name>Core.RabbitMQ</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
