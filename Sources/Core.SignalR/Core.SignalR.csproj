@@ -86,7 +86,7 @@
       <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>
       <Name>Core.API</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Core2\Core2.csproj">
+    <ProjectReference Include="..\Core.RabbitMQ\Core.RabbitMQ.csproj">
       <Project>{0B59193B-0883-4BD6-A66A-47C515EAF014}</Project>
       <Name>Core2</Name>
     </ProjectReference>
