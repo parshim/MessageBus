@@ -73,8 +73,8 @@ Thus only this particular message type will arrive to the subscriber.
 
 ## Documentation
 
-There are a lot of features inside, most covered by tests and you are welcome to take a look.
+There are a lot of features inside, most covered by integration tests and you are welcome to take a look.
 
-I am working on documentation, so stay tuned.
+[Connection string](docs/ConnectionString.md)
 
 Enjoy!
