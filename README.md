@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/parshim/MessageBus.svg)](https://travis-ci.org/parshim/MessageBus)
-[![NuGet](https://img.shields.io/nuget/dt/RabbitMQ.MessageBus.svg)](http://www.nuget.org/packages/RabbitMQ.MessageBus/)
+[![NuGet](https://img.shields.io/nuget/v/RabbitMQ.MessageBus.svg)](http://www.nuget.org/packages/RabbitMQ.MessageBus/)
 
 MessageBus
 ==========
