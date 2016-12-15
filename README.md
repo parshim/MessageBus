@@ -75,6 +75,6 @@ Thus only this particular message type will arrive to the subscriber.
 
 There are a lot of features inside, most covered by integration tests and you are welcome to take a look.
 
-[Connection string](docs/ConnectionString.md)
+[Connection string](Docs/ConnectionString.md)
 
 Enjoy!
