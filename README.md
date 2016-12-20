@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/parshim/MessageBus.svg)](https://travis-ci.org/parshim/MessageBus)
-[![NuGet](https://img.shields.io/nuget/dt/RabbitMQ.MessageBus.svg)](http://www.nuget.org/packages/RabbitMQ.MessageBus/)
+[![NuGet](https://img.shields.io/nuget/v/RabbitMQ.MessageBus.svg)](http://www.nuget.org/packages/RabbitMQ.MessageBus/)
 
 MessageBus
 ==========
@@ -73,8 +73,8 @@ Thus only this particular message type will arrive to the subscriber.
 
 ## Documentation
 
-There are a lot of features inside, most covered by tests and you are welcome to take a look.
+There are a lot of features inside, most covered by integration tests and you are welcome to take a look.
 
-I am working on documentation, so stay tuned.
+[Connection string](Docs/ConnectionString.md)
 
 Enjoy!
