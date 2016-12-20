@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>RabbitMQ.MessageBus</id>
-        <version>3.0.1</version>
+        <version>3.0.3</version>
         <authors>Michael Parshin</authors>
         <owners>Michael Parshin</owners>
         <projectUrl>https://github.com/parshim/MessageBus</projectUrl>

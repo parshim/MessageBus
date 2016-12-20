@@ -22,7 +22,7 @@ namespace MessageBus.Core
 
             if (configuration.UseFastReply)
             {
-                model.BasicConsume(fastReplyQueue, true, configuration.ConsumerTag, consumer);
+                _consumerTag = model.BasicConsume(fastReplyQueue, true, configuration.ConsumerTag, consumer);
 
                 _replyTo = fastReplyQueue;
             }
