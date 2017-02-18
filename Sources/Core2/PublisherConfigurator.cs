@@ -129,6 +129,13 @@ namespace MessageBus.Core
             return this;
         }
 
+        public IPublisherConfigurator UseXmlSerializer()
+        {
+            _serializer = new XmlSerializer();
+
+            return this;
+        }
+
         public IPublisherConfigurator UseCustomSerializer(ISerializer serializer)
         {
             _serializer = serializer;

@@ -103,6 +103,7 @@
     <Compile Include="SyncTaskScheduler.cs" />
     <Compile Include="TransactionalMessageConsumer.cs" />
     <Compile Include="TransactionalPublisher.cs" />
+    <Compile Include="XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

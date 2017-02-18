@@ -14,7 +14,7 @@ namespace Core.IntegrationTest
     public class BusAsyncRpcCommunicationTest
     {
         [Test]
-        public async void Bus_MakeRpcCall()
+        public async Task Bus_MakeRpcCall()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -91,7 +91,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public async void Bus_MakeRpcVoidCall_SubscriberReturnData()
+        public void Bus_MakeRpcVoidCall_SubscriberReturnData()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -115,7 +115,9 @@ namespace Core.IntegrationTest
                             Data = "Hello, world!"
                         };
 
-                        await rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+                        var task = rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+
+                        task.Wait(TimeSpan.FromSeconds(30));
 
                         actual.ShouldBeEquivalentTo(expected);
                     }
@@ -124,7 +126,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public async void Bus_MakeRpcVoidCall_SubscriberDoNotReturnData()
+        public void Bus_MakeRpcVoidCall_SubscriberDoNotReturnData()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -146,7 +148,9 @@ namespace Core.IntegrationTest
                             Data = "Hello, world!"
                         };
 
-                        await rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+                        var task = rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+
+                        task.Wait(TimeSpan.FromSeconds(30));
 
                         actual.ShouldBeEquivalentTo(expected);
                     }
@@ -155,7 +159,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public async void Bus_MakeRpcCall_ExceptionOnHandler()
+        public void Bus_MakeRpcCall_ExceptionOnHandler()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -172,16 +176,18 @@ namespace Core.IntegrationTest
                     {
                         try
                         {
-                            await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
                             }, TimeSpan.FromSeconds(10));
 
+                            task.Wait(TimeSpan.FromSeconds(30));
+
                             Assert.Fail("No exception");
                         }
-                        catch (RpcCallException ex)
+                        catch (AggregateException ex) when (ex.InnerException is RpcCallException)
                         {
-                            ex.Reason.Should().Be(RpcFailureReason.HandlerError);
+                            (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.HandlerError);
                         }
                     }
                 }
@@ -189,7 +195,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public async void Bus_MakeRpcCall_RejectedByHandler()
+        public void Bus_MakeRpcCall_RejectedByHandler()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -206,16 +212,18 @@ namespace Core.IntegrationTest
                     {
                         try
                         {
-                            await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
                             }, TimeSpan.FromSeconds(10));
+                            
+                            task.Wait(TimeSpan.FromSeconds(30));
 
                             Assert.Fail("No exception");
                         }
-                        catch (RpcCallException ex)
+                        catch (AggregateException ex) when (ex.InnerException is RpcCallException)
                         {
-                            ex.Reason.Should().Be(RpcFailureReason.Reject);
+                            (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.Reject);
                         }
                     }
                 }
@@ -223,7 +231,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public async void Bus_MakeRpcCall_TimeOutOnReply()
+        public async Task Bus_MakeRpcCall_TimeOutOnReply()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -254,7 +262,7 @@ namespace Core.IntegrationTest
         }
 
         [Test]
-        public async void Bus_MakeRpcCall_NotRoutedToAnySubscriber()
+        public void Bus_MakeRpcCall_NotRoutedToAnySubscriber()
         {
             using (IBus bus = new RabbitMQBus(c => c.SetReceiveSelfPublish()))
             {
@@ -262,16 +270,18 @@ namespace Core.IntegrationTest
                 {
                     try
                     {
-                        await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                         {
                             Data = "Hello, world!"
                         }, TimeSpan.FromSeconds(10));
 
+                        task.Wait(TimeSpan.FromSeconds(30));
+
                         Assert.Fail("No exception");
                     }
-                    catch (RpcCallException ex)
+                    catch (AggregateException  ex) when (ex.InnerException is RpcCallException)
                     {
-                        ex.Reason.Should().Be(RpcFailureReason.NotRouted);
+                        (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.NotRouted);
                     }
                 }
             }

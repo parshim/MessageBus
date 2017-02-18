@@ -28,15 +28,18 @@ namespace MessageBus.Core
             
             if (sendParams.BusMessage.Data != null)
             {
-                Type type = sendParams.BusMessage.Data.GetType();
-                DataContractKey contractKey = _nameMappings.GetOrAdd(type, t => t.GetDataContractKey());
+                if (string.IsNullOrEmpty(sendParams.BusMessage.Name) || string.IsNullOrEmpty(sendParams.BusMessage.Namespace))
+                {
+                    Type type = sendParams.BusMessage.Data.GetType();
+                    DataContractKey contractKey = _nameMappings.GetOrAdd(type, t => t.GetDataContractKey());
 
-                basicProperties.Type = contractKey.Name;
-                basicProperties.Headers.Add(MessagingConstants.HeaderNames.Name, contractKey.Name);
-                basicProperties.Headers.Add(MessagingConstants.HeaderNames.NameSpace, contractKey.Ns);
+                    basicProperties.Type = contractKey.Name;
+                    basicProperties.Headers.Add(MessagingConstants.HeaderNames.Name, contractKey.Name);
+                    basicProperties.Headers.Add(MessagingConstants.HeaderNames.NameSpace, contractKey.Ns);
 
-                sendParams.BusMessage.Name = contractKey.Name;
-                sendParams.BusMessage.Namespace = contractKey.Ns;
+                    sendParams.BusMessage.Name = contractKey.Name;
+                    sendParams.BusMessage.Namespace = contractKey.Ns;
+                }                
 
                 bytes = sendParams.Serializer.Serialize(sendParams.BusMessage);
             }
@@ -52,7 +55,7 @@ namespace MessageBus.Core
 
             if (sendParams.PersistentDelivery)
             {
-                basicProperties.SetPersistent(true);
+                basicProperties.Persistent = true;
             }
 
             if (!string.IsNullOrEmpty(sendParams.ReplyTo))

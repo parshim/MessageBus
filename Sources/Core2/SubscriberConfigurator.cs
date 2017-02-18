@@ -92,11 +92,13 @@ namespace MessageBus.Core
             {
                 ISerializer jsonSerializer = new JsonSerializer(_settings);
                 ISerializer soapSerializer = new SoapSerializer();
+                ISerializer xmlSerializer = new XmlSerializer();
 
                 return new Dictionary<string, ISerializer>(_serializers)
                 {
                     {jsonSerializer.ContentType, jsonSerializer},
-                    {soapSerializer.ContentType, soapSerializer}
+                    {soapSerializer.ContentType, soapSerializer},
+                    {xmlSerializer.ContentType, xmlSerializer}
                 };
             }
         }

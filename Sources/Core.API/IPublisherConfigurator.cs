@@ -45,6 +45,11 @@ namespace MessageBus.Core.API
         /// Specifies that published messages should be serialized as Soap envelopes.
         /// </summary>
         IPublisherConfigurator UseSoapSerializer();
+        
+        /// <summary>
+        /// Specifies that published messages should be serialized as xml.
+        /// </summary>
+        IPublisherConfigurator UseXmlSerializer();
 
         /// <summary>
         /// Specify custom serializer for published messages.
