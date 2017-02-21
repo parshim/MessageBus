@@ -37,7 +37,16 @@ namespace MessageBus.Core
                 dataContractKey = DataContractKey.BinaryBlob;
             }
 
-            object data = _configuration.Serializer.Deserialize(dataContractKey, dataType, args.Body);
+            object data;
+
+            if (dataContractKey.Equals(DataContractKey.BinaryBlob))
+            {
+                data = args.Body;
+            }
+            else
+            {
+                data = _configuration.Serializer.Deserialize(dataType, args.Body);
+            }
 
             RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, args.BasicProperties, data);
 

@@ -118,7 +118,14 @@ namespace MessageBus.Core
             
             try
             {
-                data = _serializers[basicProperties.ContentType].Deserialize(dataContractKey, subscription.DataType, result.Body);
+                if (dataContractKey.Equals(DataContractKey.BinaryBlob))
+                {
+                    data = result.Body;
+                }
+                else
+                {
+                    data = _serializers[basicProperties.ContentType].Deserialize(subscription.DataType, result.Body);
+                }
             }
             catch (Exception ex)
             {

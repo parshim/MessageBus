@@ -8,6 +8,6 @@ namespace MessageBus.Core.API
 
         byte[] Serialize(RawBusMessage data);
 
-        object Deserialize(DataContractKey dataContractKey, Type dataType, byte[] body);
+        object Deserialize(Type dataType, byte[] body);
     }
 }

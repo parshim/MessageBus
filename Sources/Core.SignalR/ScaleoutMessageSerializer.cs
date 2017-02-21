@@ -13,7 +13,7 @@ namespace Core.SignalR
             return ((ScaleoutMessage)data.Data).ToBytes();
         }
 
-        public object Deserialize(DataContractKey dataContractKey, Type dataType, byte[] body)
+        public object Deserialize(Type dataType, byte[] body)
         {
             return ScaleoutMessage.FromBytes(body);
         }

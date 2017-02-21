@@ -93,8 +93,15 @@ namespace MessageBus.Core
             try
             {
                 serializer = _serializers[properties.ContentType];
-                
-                data = serializer.Deserialize(dataContractKey, subscription.DataType, body);
+
+                if (dataContractKey.Equals(DataContractKey.BinaryBlob))
+                {
+                    data = body;
+                }
+                else
+                {
+                    data = serializer.Deserialize(subscription.DataType, body);
+                }
             }
             catch (Exception ex)
             {

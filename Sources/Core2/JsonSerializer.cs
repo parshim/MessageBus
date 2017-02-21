@@ -33,13 +33,8 @@ namespace MessageBus.Core
             return _encoding.GetBytes(body);
         }
 
-        public object Deserialize(DataContractKey dataContractKey, Type dataType, byte[] body)
+        public object Deserialize(Type dataType, byte[] body)
         {
-            if (dataContractKey.Equals(DataContractKey.BinaryBlob))
-            {
-                return body;
-            }
-
             string sBody = _encoding.GetString(body);
 
             return JsonConvert.DeserializeObject(sBody, dataType, _settings);

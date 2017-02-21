@@ -31,7 +31,7 @@ namespace MessageBus.Core
             }
         }
 
-        public object Deserialize(DataContractKey contractKey, Type dataType, byte[] body)
+        public object Deserialize(Type dataType, byte[] body)
         {
             DataContractSerializer serializer = new DataContractSerializer(dataType);
 

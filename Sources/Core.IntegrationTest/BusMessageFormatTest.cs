@@ -104,7 +104,7 @@ namespace Core.IntegrationTest
                 ISerializer serializer = A.Fake<ISerializer>();
 
                 A.CallTo(() => serializer.Serialize(A<RawBusMessage>._)).Returns(new byte[0]);
-                A.CallTo(() => serializer.Deserialize(new DataContractKey(typeof(Person).Name, typeof(Person).Namespace), typeof(Person), A<byte[]>._)).Returns(person);
+                A.CallTo(() => serializer.Deserialize(typeof(Person), A<byte[]>._)).Returns(person);
                 A.CallTo(() => serializer.ContentType).Returns("Custom");
                 
                 using (ISubscriber subscriber = busA.CreateSubscriber(c => c.AddCustomSerializer(serializer)))
@@ -129,7 +129,7 @@ namespace Core.IntegrationTest
                 }
 
                 A.CallTo(() => serializer.Serialize(A<RawBusMessage>._)).MustHaveHappened();
-                A.CallTo(() => serializer.Deserialize(new DataContractKey(typeof(Person).Name, typeof(Person).Namespace), typeof(Person), A<byte[]>._)).MustHaveHappened();
+                A.CallTo(() => serializer.Deserialize(typeof(Person), A<byte[]>._)).MustHaveHappened();
             }
         }
 
