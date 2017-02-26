@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Linq;
-
+using System.Text;
 using MessageBus.Core.API;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace MessageBus.Core
 {
@@ -16,13 +15,25 @@ namespace MessageBus.Core
         {
             object data = busMessage.Data;
 
-            DataContractSerializer serializer = new DataContractSerializer(data.GetType());
+            System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(data.GetType());
+
+            //Create our own namespaces for the output
+            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+
+            //Add an empty namespace and empty value
+            ns.Add("", "");
 
             using (MemoryStream stream = new MemoryStream())
             {
-                using (XmlWriter writer = XmlWriter.Create(stream))
+                using (XmlWriter writer = XmlWriter.Create(stream, new XmlWriterSettings
                 {
-                    serializer.WriteObject(writer, busMessage.Data);
+                    Encoding = Encoding.UTF8,
+                    Indent = false,
+                    NewLineHandling = NewLineHandling.None,
+                    
+                }))
+                {
+                    serializer.Serialize(writer, busMessage.Data, ns);
 
                     writer.Flush();
 
@@ -33,13 +44,13 @@ namespace MessageBus.Core
 
         public object Deserialize(Type dataType, byte[] body)
         {
-            DataContractSerializer serializer = new DataContractSerializer(dataType);
+            System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(dataType);
 
             using (MemoryStream stream = new MemoryStream(body, false))
             {
                 using (XmlReader reader = XmlReader.Create(stream))
                 {
-                    return serializer.ReadObject(reader);
+                    return serializer.Deserialize(reader);
                 }
             }   
         }
