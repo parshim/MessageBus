@@ -28,17 +28,17 @@ namespace MessageBus.Core
 
             if (sendParams.BusMessage.Data != null)
             {
-                if (string.IsNullOrEmpty(sendParams.BusMessage.Name) || string.IsNullOrEmpty(sendParams.BusMessage.Namespace))
+                if (sendParams.BusMessage.Name == null || sendParams.BusMessage.Namespace == null)
                 {
                     Type type = sendParams.BusMessage.Data.GetType();
                     DataContractKey contractKey = _nameMappings.GetOrAdd(type, t => t.GetDataContractKey());
 
-                    if (string.IsNullOrEmpty(sendParams.BusMessage.Name))
+                    if (sendParams.BusMessage.Name == null)
                     {
                         sendParams.BusMessage.Name = contractKey.Name;
                     }
 
-                    if (string.IsNullOrEmpty(sendParams.BusMessage.Namespace))
+                    if (sendParams.BusMessage.Namespace == null)
                     {
                         sendParams.BusMessage.Namespace = contractKey.Ns;
                     }

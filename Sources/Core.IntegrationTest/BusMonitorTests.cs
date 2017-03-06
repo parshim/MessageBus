@@ -52,7 +52,7 @@ namespace Core.IntegrationTest
                 RawBusMessage expected = new RawBusMessage
                 {
                     Name = "MyName",
-                    Namespace = "MyNamespace",
+                    Namespace = "",
                     Data = "Some raw data"
                 };
 
@@ -76,8 +76,8 @@ namespace Core.IntegrationTest
                     Assert.IsTrue(waitOne);
 
                     actual.Should().NotBeNull();
-                    actual.Name.Should().Be(expected.Name);
-                    actual.Namespace.Should().Be(expected.Namespace);
+                    actual.Name.Should().Be("MyName");
+                    actual.Namespace.Should().Be("");
                     actual.Data.Should().Be(string.Format("\"{0}\"", expected.Data));
                 }
             }
