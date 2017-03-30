@@ -250,13 +250,13 @@ namespace MessageBus.Core
                 {
                     if (configurator.Durable)
                     {
-                        // TODO: [Danny] exclusive?
+                        // exclusive: Can only be accessed by the current connection. (default false)
+                        // https://github.com/EasyNetQ/EasyNetQ/wiki/The-Advanced-API
                         model.QueueDeclare(configurator.QueueName, true, false, false, new Dictionary<string, object>());
                     }
                     else
                     {
-                        // TODO: [Danny] exclusive?
-                        model.QueueDeclare(configurator.QueueName, false, false, true, new Dictionary<string, object>());
+                        model.QueueDeclare(configurator.QueueName, false, true, true, new Dictionary<string, object>());
                     }
                 }
 
