@@ -4,6 +4,7 @@ using System.Threading;
 using System.Transactions;
 using FakeItEasy;
 using FluentAssertions;
+using FluentAssertions.Specialized;
 using MessageBus.Binding.RabbitMQ;
 using NUnit.Framework;
 using RabbitMQ.IntegrationTests.ContractsAndServices;
@@ -172,7 +173,7 @@ namespace RabbitMQ.IntegrationTests
             }).MustHaveHappened();
         }
         
-        [Test, ExpectedException(typeof(FaultException))]
+        [Test]
         public void RabbitMQBinding_TransactionalDispatching_ExceptionIfTransactionalChannelUsedOutOfTheTransactionScope()
         {
             IOneWayService channel = _channelFactory.CreateChannel();
@@ -199,9 +200,7 @@ namespace RabbitMQ.IntegrationTests
             Assert.IsTrue(wait, "Service were not being invoked");
 
             // Same channel instance can't be used outsode transaction scope
-            channel.Say(new Data());
-
-            Assert.Fail("Same channel instance can't be used outsode transaction scope");
+            ((Action)(() => channel.Say(new Data()))).ShouldThrow<FaultException>();
         }
     }
 }
