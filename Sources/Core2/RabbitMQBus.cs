@@ -242,12 +242,28 @@ namespace MessageBus.Core
 
         private static string CreateQueue(IModel model, SubscriberConfigurator configurator)
         {
+            QueueDeclareOk queueDeclare;
+
             if (!string.IsNullOrEmpty(configurator.QueueName))
             {
+                if (configurator.AutoCreate)
+                {
+                    if (configurator.Durable)
+                    {
+                        // TODO: [Danny] exclusive?
+                        model.QueueDeclare(configurator.QueueName, true, false, false, new Dictionary<string, object>());
+                    }
+                    else
+                    {
+                        // TODO: [Danny] exclusive?
+                        model.QueueDeclare(configurator.QueueName, false, false, true, new Dictionary<string, object>());
+                    }
+                }
+
                 return configurator.QueueName;
             }
 
-            QueueDeclareOk queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
+            queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
 
             return queueDeclare.QueueName;
         }

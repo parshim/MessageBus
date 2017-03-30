@@ -29,8 +29,8 @@ namespace Core.IntegrationTest
 
                     routeManager.CreateQueue(DeadLetterQueueName, true, false, CreateQueueSettings.Default);
 
-                    routeManager.QueueBindMessage<Person>(QueueName);
-                    routeManager.QueueBindMessage<Person>(DeadLetterQueueName, "amq.direct", "fail");
+                    routeManager.QueueBindMessage<TransactionalPerson>(QueueName);
+                    routeManager.QueueBindMessage<TransactionalPerson>(DeadLetterQueueName, "amq.direct", "fail");
                 }
             }
         }
@@ -53,7 +53,7 @@ namespace Core.IntegrationTest
         {
             using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
             {
-                Person message = new Person
+                TransactionalPerson message = new TransactionalPerson
                 {
                     Id = 5
                 };
@@ -64,7 +64,7 @@ namespace Core.IntegrationTest
 
                 using (ISubscriber subscriberA = entityA.CreateSubscriber(c => c.UseTransactionalDelivery()))
                 {
-                    subscriberA.Subscribe((Action<Person>)(d =>
+                    subscriberA.Subscribe((Action<TransactionalPerson>)(d =>
                     {
                         counter++;
 
@@ -95,7 +95,7 @@ namespace Core.IntegrationTest
         {
             using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus(), entityC = new RabbitMQBus(c => c.UseConnectionString("amqp://localhost/amq.direct")))
             {
-                Person message = new Person
+                TransactionalPerson message = new TransactionalPerson
                     {
                         Id = 5
                     };
@@ -104,11 +104,11 @@ namespace Core.IntegrationTest
 
                 int counter = 0;
 
-                BusMessage<Person> actual = null;
+                BusMessage<TransactionalPerson> actual = null;
 
                 using (ISubscriber subscriberA = entityA.CreateSubscriber(c => c.UseDurableQueue(QueueName).UseTransactionalDelivery()))
                 {
-                    subscriberA.Subscribe((Action<Person>) (d =>
+                    subscriberA.Subscribe((Action<TransactionalPerson>) (d =>
                     {
                         counter++;
 
@@ -124,7 +124,7 @@ namespace Core.IntegrationTest
 
                     using (ISubscriber deadLetterSubscriber = entityC.CreateSubscriber(c => c.UseDurableQueue(DeadLetterQueueName)))
                     {
-                        deadLetterSubscriber.Subscribe<Person>(m =>
+                        deadLetterSubscriber.Subscribe<TransactionalPerson>(m =>
                         {
                             actual = m;
                             
@@ -162,8 +162,8 @@ namespace Core.IntegrationTest
         {
             using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus(), entityC = new RabbitMQBus(c => c.UseConnectionString("amqp://localhost/amq.direct")))
             {
-                Person message = new Person
-                    {
+                TransactionalPerson message = new TransactionalPerson
+                {
                         Id = 5
                     };
 
@@ -171,11 +171,11 @@ namespace Core.IntegrationTest
 
                 int counter = 0;
 
-                BusMessage<Person> actual = null;
+                BusMessage<TransactionalPerson> actual = null;
 
                 using (ISubscriber subscriberA = entityA.CreateSubscriber(c => c.UseDurableQueue(QueueName).UseTransactionalDelivery(new MyFilter())))
                 {
-                    subscriberA.Subscribe((Action<Person>) (d =>
+                    subscriberA.Subscribe((Action<TransactionalPerson>) (d =>
                     {
                         counter++;
 
@@ -186,7 +186,7 @@ namespace Core.IntegrationTest
 
                     using (ISubscriber deadLetterSubscriber = entityC.CreateSubscriber(c => c.UseDurableQueue(DeadLetterQueueName)))
                     {
-                        deadLetterSubscriber.Subscribe<Person>(m =>
+                        deadLetterSubscriber.Subscribe<TransactionalPerson>(m =>
                         {
                             actual = m;
                             
@@ -217,6 +217,11 @@ namespace Core.IntegrationTest
                 }
             
             }
+        }
+
+        // Created a specific class for these tests to prevent bindings from other tests from interfering
+        public class TransactionalPerson : Person
+        {
         }
     }
 
