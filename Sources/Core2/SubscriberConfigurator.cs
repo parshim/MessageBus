@@ -200,14 +200,13 @@ namespace MessageBus.Core
             return this;
         }
 
-        public ISubscriberConfigurator UseNonDurableNamedQueue(string queueNameSuffix)
+        public ISubscriberConfigurator UseNonDurableNamedQueue(string queueName)
         {
             _durable = false;
 
             _autoCreate = true;
 
-            _queueName = "serviceBus.gen-" + System.Environment.MachineName
-                + "." + System.Diagnostics.Process.GetCurrentProcess().Id + "." + queueNameSuffix;
+            _queueName = queueName;
 
             return this;
         }

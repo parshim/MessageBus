@@ -58,7 +58,7 @@ namespace MessageBus.Core.API
         /// Enable mutliple subscribers to enlist to the same queue instead of using exclusive queue even if the queue is non-durable
         /// </summary>
         /// <returns></returns>
-        ISubscriberConfigurator UseNonDurableNamedQueue(string queueNameSuffix);
+        ISubscriberConfigurator UseNonDurableNamedQueue(string queueName);
 
         /// <summary>
         /// Specify transactional delivery of the messages. If exception will be thrown on subscribed action message will be returned to the queue.
