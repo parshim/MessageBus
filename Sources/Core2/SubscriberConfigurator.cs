@@ -13,16 +13,18 @@ namespace MessageBus.Core
         private IErrorSubscriber _errorSubscriber;
         private ITrace _trace;
         private IExceptionFilter _exceptionFilter = new NullExceptionFilter();
-        private string _queueName = "";
+        private string _queueName = string.Empty;
         private bool _receiveSelfPublish;
         private bool _neverReply;
         private string _replyExchange;
         private bool _transactionalDelivery;
         private ushort _prefetch;
         private string _exchange;
-        private string _routingKey = "";
-        private string _consumerTag = "";
+        private string _routingKey = string.Empty;
+        private string _consumerTag = string.Empty;
         private bool _createBindings = true;
+        private bool _autoCreate = true;
+        private bool _durable = true;
         private JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             Formatting = Formatting.None
@@ -43,10 +45,12 @@ namespace MessageBus.Core
         {
             get { return _queueName; }
         }
+
         public string Exchange
         {
             get { return _exchange; }
         }
+
         public string RoutingKey
         {
             get { return _routingKey; }
@@ -128,6 +132,16 @@ namespace MessageBus.Core
             get { return _createBindings; }
         }
 
+        public bool Durable
+        {
+            get { return _durable; }
+        }
+
+        public bool AutoCreate
+        {
+            get { return _autoCreate; }
+        }
+
         public ISubscriberConfigurator UseBufferManager(BufferManager bufferManager)
         {
             _bufferManager = bufferManager;
@@ -151,16 +165,48 @@ namespace MessageBus.Core
 
         public ISubscriberConfigurator UseDurableQueue(string queueName)
         {
+            _durable = true;
+
             _queueName = queueName;
+
+            _autoCreate = false;
 
             return this;
         }
 
         public ISubscriberConfigurator UseDurableQueue(string queueName, bool createBindings)
         {
+            _durable = true;
+
             _queueName = queueName;
 
             _createBindings = createBindings;
+
+            _autoCreate = false;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseDurableQueue(string queueName, bool createBindings, bool autoCreate)
+        {
+            _durable = true;
+
+            _queueName = queueName;
+
+            _createBindings = createBindings;
+
+            _autoCreate = autoCreate;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator UseNonDurableNamedQueue(string queueName)
+        {
+            _durable = false;
+
+            _autoCreate = true;
+
+            _queueName = queueName;
 
             return this;
         }

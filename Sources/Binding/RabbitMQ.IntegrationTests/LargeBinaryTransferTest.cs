@@ -103,7 +103,7 @@ namespace RabbitMQ.IntegrationTests
 
             wait.Should().BeTrue();
 
-            A.CallTo(() => _processorFake.LargeData(A<Blob>._)).MustHaveHappened(Repeated.Like(i => i == 1));
+            A.CallTo(() => _processorFake.LargeData(A<Blob>._)).MustHaveHappened(Repeated.Exactly.Once);
         }
     }
 }

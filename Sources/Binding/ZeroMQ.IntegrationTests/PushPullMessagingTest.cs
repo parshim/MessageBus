@@ -19,6 +19,9 @@ namespace ZeroMQ.IntegrationTests
         [TestFixtureSetUp]
         public void SetUp()
         {
+            if (IntPtr.Size != 8)
+                Assert.Inconclusive("Please run this test in x64");
+
             _fake = A.Fake<IPublicationService>();
 
             _host = new ServiceHost(new PublicationService(_fake));

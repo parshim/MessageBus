@@ -46,6 +46,21 @@ namespace MessageBus.Core.API
         ISubscriberConfigurator UseDurableQueue(string queueName, bool createBindings);
 
         /// <summary>
+        /// Specify durable queue name to listen for the messages.
+        /// </summary>
+        /// <param name="queueName">Durable queue name</param>
+        /// <param name="createBindings">Specify if message bindings should be created</param>
+        /// <param name="autoCreate">Specify if queue should be automatically created</param>
+        /// <returns></returns>
+        ISubscriberConfigurator UseDurableQueue(string queueName, bool createBindings, bool autoCreate);
+
+        /// <summary>
+        /// Enable mutliple subscribers to enlist to the same queue instead of using exclusive queue even if the queue is non-durable
+        /// </summary>
+        /// <returns></returns>
+        ISubscriberConfigurator UseNonDurableNamedQueue(string queueName);
+
+        /// <summary>
         /// Specify transactional delivery of the messages. If exception will be thrown on subscribed action message will be returned to the queue.
         /// </summary>
         /// <returns></returns>

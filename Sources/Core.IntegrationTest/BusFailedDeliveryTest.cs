@@ -23,9 +23,9 @@ namespace Core.IntegrationTest
             {
                 using (IPublisher publisher = bus.CreatePublisher(c => c.SetMandatoryDelivery().UseErrorHandler(this)))
                 {
-                    Person person = new Person {Id = 5};
+                    UndeliverablePerson person = new UndeliverablePerson { Id = 5};
 
-                    BusMessage<Person> busMessage = new BusMessage<Person>
+                    BusMessage<UndeliverablePerson> busMessage = new BusMessage<UndeliverablePerson>
                         {
                             Data = person
                         };
@@ -46,15 +46,20 @@ namespace Core.IntegrationTest
                     _text.Should().Be("NO_ROUTE");
 
                     _message.BusId.Should().Be(bus.BusId);
-                    _message.Name.Should().Be("Person");
+                    _message.Name.Should().Be("UndeliverablePerson");
                     _message.Sent.Should().BeCloseTo(DateTime.Now, 2000);
-                    _message.Data.Should().BeOfType<Person>();
+                    _message.Data.Should().BeOfType<UndeliverablePerson>();
 
                     _message.Headers.OfType<BusHeader>().Should().OnlyContain(header => header.Name == "Header" && header.Value == "Value");
 
                     person.ShouldBeEquivalentTo(_message.Data);
                 }
             }
+        }
+
+        // Created a specific class for these tests to prevent bindings from other tests from interfering
+        public class UndeliverablePerson : Person
+        {
         }
 
         public void DeliveryFailed(int errorCode, string text, RawBusMessage message)

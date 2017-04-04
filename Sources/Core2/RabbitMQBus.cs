@@ -242,12 +242,28 @@ namespace MessageBus.Core
 
         private static string CreateQueue(IModel model, SubscriberConfigurator configurator)
         {
+            QueueDeclareOk queueDeclare;
+
             if (!string.IsNullOrEmpty(configurator.QueueName))
             {
+                if (configurator.AutoCreate)
+                {
+                    if (configurator.Durable)
+                    {
+                        // exclusive: Can only be accessed by the current connection. (default false)
+                        // https://github.com/EasyNetQ/EasyNetQ/wiki/The-Advanced-API
+                        model.QueueDeclare(configurator.QueueName, true, false, false, new Dictionary<string, object>());
+                    }
+                    else
+                    {
+                        model.QueueDeclare(configurator.QueueName, false, true, true, new Dictionary<string, object>());
+                    }
+                }
+
                 return configurator.QueueName;
             }
 
-            QueueDeclareOk queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
+            queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
 
             return queueDeclare.QueueName;
         }
