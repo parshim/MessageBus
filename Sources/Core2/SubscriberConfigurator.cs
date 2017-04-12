@@ -25,7 +25,7 @@ namespace MessageBus.Core
         private bool _createBindings = true;
         private bool _autoCreate = true;
         private bool _durable = true;
-        private byte _maxPriority;
+        private sbyte _maxPriority;
 
         private JsonSerializerSettings _settings = new JsonSerializerSettings
         {
@@ -144,7 +144,7 @@ namespace MessageBus.Core
             get { return _autoCreate; }
         }
 
-        public byte MaxPriority
+        public sbyte MaxPriority
         {
             get { return _maxPriority; }
         }
@@ -320,7 +320,7 @@ namespace MessageBus.Core
             return this;
         }
 
-        public ISubscriberConfigurator SetMaxPriority(byte maxPriority)
+        public ISubscriberConfigurator SetMaxPriority(sbyte maxPriority)
         {
             _maxPriority = maxPriority;
 

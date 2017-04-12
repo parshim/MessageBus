@@ -160,6 +160,6 @@ namespace MessageBus.Core.API
         /// <param name="maxPriority">The max priory to enable</param>
         /// <returns></returns>
         /// <remarks>There is some in-memory and on-disk cost per priority level per queue. There is also an additional CPU cost, especially when consuming, so you may not wish to create huge numbers of levels.</remarks>
-        ISubscriberConfigurator SetMaxPriority(byte maxPriority);
+        ISubscriberConfigurator SetMaxPriority(sbyte maxPriority);
     }
 }

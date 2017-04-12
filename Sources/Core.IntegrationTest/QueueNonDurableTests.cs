@@ -13,6 +13,23 @@ namespace Core.IntegrationTest
         private const string NonDurableTestQueueSuffix = "NonDurableTests";
 
         [Test]
+        public void Queue_MaxPriority_ShouldNotThrowException()
+        {
+            // Create a subscriber in order to create queue and bindings then dispose of it
+            // queue and bindings should remain
+            using (var bus = new MessageBus.Core.RabbitMQBus(c => { }))
+            {
+                // For incorrect data type e.g. byte instead of sbyte this test would fail
+                using (ISubscriber subscriber = bus.CreateSubscriber(c => c.UseNonDurableNamedQueue("~TEMP").SetMaxPriority(8)))
+                {
+                    subscriber.Subscribe((Action<NonImportantData>)(p => { }));
+                    subscriber.Open();
+                    subscriber.Close();
+                }
+            }
+        }
+
+        [Test]
         public void Queue_NonDurableQueue_SubscribesAfterPublishing_MessagesShouldNotBeReceived()
         {
             // Create a subscriber in order to create queue and bindings then dispose of it
