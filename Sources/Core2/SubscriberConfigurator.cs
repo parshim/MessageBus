@@ -25,6 +25,8 @@ namespace MessageBus.Core
         private bool _createBindings = true;
         private bool _autoCreate = true;
         private bool _durable = true;
+        private byte _maxPriority;
+
         private JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             Formatting = Formatting.None
@@ -140,6 +142,11 @@ namespace MessageBus.Core
         public bool AutoCreate
         {
             get { return _autoCreate; }
+        }
+
+        public byte MaxPriority
+        {
+            get { return _maxPriority; }
         }
 
         public ISubscriberConfigurator UseBufferManager(BufferManager bufferManager)
@@ -309,6 +316,13 @@ namespace MessageBus.Core
         public ISubscriberConfigurator SetRoutingKey(string routingKey)
         {
             _routingKey = routingKey;
+
+            return this;
+        }
+
+        public ISubscriberConfigurator SetMaxPriority(byte maxPriority)
+        {
+            _maxPriority = maxPriority;
 
             return this;
         }
