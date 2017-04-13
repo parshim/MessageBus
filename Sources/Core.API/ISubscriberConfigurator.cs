@@ -57,6 +57,7 @@ namespace MessageBus.Core.API
         /// <summary>
         /// Enable mutliple subscribers to enlist to the same queue instead of using exclusive queue even if the queue is non-durable
         /// </summary>
+        /// <param name="queueName">Non durable queue name. Usage of a unique name is recommended</param>
         /// <returns></returns>
         ISubscriberConfigurator UseNonDurableNamedQueue(string queueName);
 
@@ -152,5 +153,13 @@ namespace MessageBus.Core.API
         /// Specify routing key for messages bindings.
         /// </summary>
         ISubscriberConfigurator SetRoutingKey(string routingKey);
+
+        /// <summary>
+        /// Specifies the max priority for the queue, unless set the queue will not support priorities
+        /// </summary>
+        /// <param name="maxPriority">The max priory to enable</param>
+        /// <returns></returns>
+        /// <remarks>There is some in-memory and on-disk cost per priority level per queue. There is also an additional CPU cost, especially when consuming, so you may not wish to create huge numbers of levels.</remarks>
+        ISubscriberConfigurator SetMaxPriority(sbyte maxPriority);
     }
 }

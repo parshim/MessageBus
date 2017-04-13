@@ -244,6 +244,12 @@ namespace MessageBus.Core
         {
             QueueDeclareOk queueDeclare;
 
+            var arguments = new Dictionary<string, object>();
+            if (configurator.MaxPriority > 0)
+            {
+                arguments.Add("x-max-priority", configurator.MaxPriority);
+            }
+
             if (!string.IsNullOrEmpty(configurator.QueueName))
             {
                 if (configurator.AutoCreate)
@@ -252,18 +258,18 @@ namespace MessageBus.Core
                     {
                         // exclusive: Can only be accessed by the current connection. (default false)
                         // https://github.com/EasyNetQ/EasyNetQ/wiki/The-Advanced-API
-                        model.QueueDeclare(configurator.QueueName, true, false, false, new Dictionary<string, object>());
+                        model.QueueDeclare(configurator.QueueName, true, false, false, arguments);
                     }
                     else
                     {
-                        model.QueueDeclare(configurator.QueueName, false, true, true, new Dictionary<string, object>());
+                        model.QueueDeclare(configurator.QueueName, false, true, true, arguments);
                     }
                 }
 
                 return configurator.QueueName;
             }
 
-            queueDeclare = model.QueueDeclare("", false, true, true, new Dictionary<string, object>());
+            queueDeclare = model.QueueDeclare("", false, true, true, arguments);
 
             return queueDeclare.QueueName;
         }
