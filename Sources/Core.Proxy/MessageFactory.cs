@@ -11,7 +11,7 @@ namespace MessageBus.Core.Proxy
         private readonly string _namespace;
         private readonly ModuleBuilder _moduleBuilder;
 
-        private readonly ConcurrentDictionary<string, Type> _types = new ConcurrentDictionary<string, Type>();
+        private readonly ConcurrentDictionary<string, Lazy<Type>> _types = new ConcurrentDictionary<string, Lazy<Type>>();
         
         public MessageFactory(string ns)
         {
@@ -51,7 +51,9 @@ namespace MessageBus.Core.Proxy
 
             ParameterInfo[] parameters = methodInfo.GetParameters();
 
-            return _types.GetOrAdd(name, n => CreateMessageType(n, parameters));
+            var lazy = _types.GetOrAdd(name, n => new Lazy<Type>(() => CreateMessageType(n, parameters)));
+
+            return lazy.Value;
         }
 
         public FieldInfo GetMessageFieldInfo(MethodInfo methodInfo, string fieldName)
