@@ -15,7 +15,7 @@ namespace MessageBus.Core
         
         private readonly IExceptionFilter _exceptionFilter;
 
-        public TransactionalMessageMonitorConsumer(IMessageHelper messageHelper, Action<RawBusMessage> monitor, IExceptionFilter exceptionFilter)
+        public TransactionalMessageMonitorConsumer(IModel model, IMessageHelper messageHelper, Action<RawBusMessage> monitor, IExceptionFilter exceptionFilter):base(model)
         {
             _messageHelper = messageHelper;
             _monitor = monitor;

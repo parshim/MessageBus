@@ -202,11 +202,11 @@ namespace MessageBus.Core
 
             if (configurator.TransactionalDelivery)
             {
-                consumer = new TransactionalMessageMonitorConsumer(_messageHelper, monitor, configurator.ExceptionFilter);
+                consumer = new TransactionalMessageMonitorConsumer(model, _messageHelper, monitor, configurator.ExceptionFilter);
             }
             else
             {
-                consumer = new MessageMonitorConsumer(_messageHelper, monitor, configurator.ErrorSubscriber);
+                consumer = new MessageMonitorConsumer(model, _messageHelper, monitor, configurator.ErrorSubscriber);
             }
 
             return new MessageMonitor(model, queue, consumer, configurator);

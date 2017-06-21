@@ -15,7 +15,7 @@ namespace MessageBus.Core
 
         private readonly IErrorSubscriber _errorSubscriber;
 
-        public MessageMonitorConsumer(IMessageHelper messageHelper, Action<RawBusMessage> monitor, IErrorSubscriber errorSubscriber)
+        public MessageMonitorConsumer(IModel model, IMessageHelper messageHelper, Action<RawBusMessage> monitor, IErrorSubscriber errorSubscriber):base(model)
         {
             _messageHelper = messageHelper;
             _monitor = monitor;
