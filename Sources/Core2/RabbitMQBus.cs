@@ -187,7 +187,31 @@ namespace MessageBus.Core
 
             return new Subscriber(model, queue, consumer, helper, configurator);
         }
-        
+
+        public ISubscription CreateMonitor(Action<RawBusMessage> monitor, Action<ISubscriberConfigurator> configure = null, IEnumerable<BusHeader> filterHeaders = null)
+        {
+            SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
+
+            IModel model = _connection.CreateModel();
+
+            string queue = CreateQueue(model, configurator);
+
+            model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey, filterHeaders ?? Enumerable.Empty<BusHeader>());
+
+            DefaultBasicConsumer consumer;
+
+            if (configurator.TransactionalDelivery)
+            {
+                consumer = new TransactionalMessageMonitorConsumer(_messageHelper, monitor, configurator.ExceptionFilter);
+            }
+            else
+            {
+                consumer = new MessageMonitorConsumer(_messageHelper, monitor, configurator.ErrorSubscriber);
+            }
+
+            return new MessageMonitor(model, queue, consumer, configurator);
+        }
+
         public IAsyncSubscriber CreateAsyncSubscriber(Action<ISubscriberConfigurator> configure = null)
         {
             SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
@@ -223,21 +247,6 @@ namespace MessageBus.Core
             IModel model = _connection.CreateModel();
 
             return new RouteManager(model, _exchange);
-        }
-
-        public ISubscription CreateMonitor(Action<RawBusMessage> monitor, Action<ISubscriberConfigurator> configure, IEnumerable<BusHeader> filterHeaders)
-        {
-            SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
-            
-            IModel model = _connection.CreateModel();
-
-            string queue = CreateQueue(model, configurator);
-
-            model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey, filterHeaders ?? Enumerable.Empty<BusHeader>());
-
-            var consumer = new MessageMonitorConsumer(_messageHelper, monitor);
-
-            return new MessageMonitor(model, queue, consumer, configurator);
         }
 
         private static string CreateQueue(IModel model, SubscriberConfigurator configurator)

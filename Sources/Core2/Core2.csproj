@@ -103,6 +103,7 @@
     <Compile Include="SubscriptionInfo.cs" />
     <Compile Include="SyncTaskScheduler.cs" />
     <Compile Include="TransactionalMessageConsumer.cs" />
+    <Compile Include="TransactionalMessageMonitorConsumer.cs" />
     <Compile Include="TransactionalPublisher.cs" />
     <Compile Include="XmlSerializer.cs" />
   </ItemGroup>
