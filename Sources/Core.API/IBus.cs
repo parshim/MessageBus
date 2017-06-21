@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MessageBus.Core.API
 {
@@ -116,8 +117,11 @@ namespace MessageBus.Core.API
         /// <summary>
         /// Create monitor instance
         /// </summary>
+        /// <param name="monitor"></param>
+        /// <param name="configure"></param>
+        /// <param name="filterHeaders"></param>
         /// <returns></returns>
-        ISubscription CreateMonitor(Action<RawBusMessage> monitor);
+        ISubscription CreateMonitor(Action<RawBusMessage> monitor, Action<ISubscriberConfigurator> configure = null, IEnumerable<BusHeader> filterHeaders = null);
 
     }
 }

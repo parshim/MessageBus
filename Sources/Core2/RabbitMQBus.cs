@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -225,15 +225,15 @@ namespace MessageBus.Core
             return new RouteManager(model, _exchange);
         }
 
-        public ISubscription CreateMonitor(Action<RawBusMessage> monitor)
+        public ISubscription CreateMonitor(Action<RawBusMessage> monitor, Action<ISubscriberConfigurator> configure, IEnumerable<BusHeader> filterHeaders)
         {
-            SubscriberConfigurator configurator = _createSubscriberConfigurator(null);
+            SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
             
             IModel model = _connection.CreateModel();
 
             string queue = CreateQueue(model, configurator);
 
-            model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey);
+            model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey, filterHeaders ?? Enumerable.Empty<BusHeader>());
 
             var consumer = new MessageMonitorConsumer(_messageHelper, monitor);
 

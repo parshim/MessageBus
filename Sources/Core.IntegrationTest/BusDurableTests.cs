@@ -13,7 +13,7 @@ namespace Core.IntegrationTest
         private const string QueueName = "DurableTestQueue";
         private const string AutomaticallyCreatedQueueName = "AutomaticDurableTestQueue";
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Initialize()
         {
             using (var bus = new MessageBus.Core.RabbitMQBus())
@@ -27,7 +27,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void Clean()
         {
             using (var bus = new MessageBus.Core.RabbitMQBus())

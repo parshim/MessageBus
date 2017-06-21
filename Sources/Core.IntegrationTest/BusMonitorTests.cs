@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using MessageBus.Core;
 using MessageBus.Core.API;
@@ -78,7 +79,55 @@ namespace Core.IntegrationTest
                     actual.Should().NotBeNull();
                     actual.Name.Should().Be("MyName");
                     actual.Namespace.Should().Be("");
-                    actual.Data.Should().Be(string.Format("\"{0}\"", expected.Data));
+                    actual.Data.Should().Be($"\"{expected.Data}\"");
+                }
+            }
+        }
+
+        [Test]
+        public void Bus_PublishRawMessages_MonitorReceiveNotFiltered()
+        {
+            ManualResetEvent ev = new ManualResetEvent(false);
+
+            using (IBus bus = new RabbitMQBus())
+            {
+                List<RawBusMessage> actual = new List<RawBusMessage>();
+
+                RawBusMessage toFilterOut = new RawBusMessage
+                {
+                    Name = "SomeOtherName",
+                    Namespace = "",
+                    Data = "Some raw data"
+                };
+
+                RawBusMessage expected = new RawBusMessage
+                {
+                    Name = "MyName",
+                    Namespace = "",
+                    Data = "Some raw data"
+                };
+
+                Action<RawBusMessage> action = message =>
+                {
+                    actual.Add(message);
+                };
+
+                using (ISubscription monitor = bus.CreateMonitor(action, filterHeaders: new [] { new BusHeader("Name", "MyName") }))
+                {
+                    monitor.Open();
+
+                    using (IPublisher publisher = bus.CreatePublisher())
+                    {
+                        publisher.Send(toFilterOut);
+                        publisher.Send(expected);
+                    }
+
+                    ev.WaitOne(TimeSpan.FromSeconds(10));
+                    
+                    actual.Count.Should().Be(1);
+                    actual[0].Name.Should().Be("MyName");
+                    actual[0].Namespace.Should().Be("");
+                    actual[0].Data.Should().Be($"\"{expected.Data}\"");
                 }
             }
         }
