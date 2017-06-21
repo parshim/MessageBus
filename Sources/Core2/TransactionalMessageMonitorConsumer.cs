@@ -33,6 +33,8 @@ namespace MessageBus.Core
             try
             {
                 _monitor(rawBusMessage);
+
+                Model.BasicAck(deliveryTag, false);
             }
             catch (RejectMessageException)
             {

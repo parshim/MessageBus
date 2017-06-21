@@ -91,6 +91,47 @@ namespace Core.IntegrationTest
         }
 
         [Test]
+        public void MonitorMessageProcessFailedOnce_CheckMessageRedelivered()
+        {
+            using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus())
+            {
+                TransactionalPerson message = new TransactionalPerson
+                {
+                    Id = 5
+                };
+
+                ManualResetEvent ev = new ManualResetEvent(false);
+
+                int counter = 0;
+
+                using (var subscriberA = entityA.CreateMonitor(busMessage =>
+                {
+                    counter++;
+
+                    if (counter == 1)
+                    {
+                        throw new Exception();
+                    }
+                }, c => c.UseTransactionalDelivery()))
+                {
+
+                    subscriberA.Open();
+
+                    const int expected = 2;
+
+                    using (IPublisher publisher = entityB.CreatePublisher())
+                    {
+                        publisher.Send(message);
+                    }
+
+                    ev.WaitOne(TimeSpan.FromSeconds(5));
+
+                    counter.Should().Be(expected);
+                }
+            }
+        }
+
+        [Test]
         public void MessageProcessFailedOnce_RejectMessage_CheckMessageDeliveredToDeadLetterQ()
         {
             using (RabbitMQBus entityA = new RabbitMQBus(), entityB = new RabbitMQBus(), entityC = new RabbitMQBus(c => c.UseConnectionString("amqp://localhost/amq.direct")))
