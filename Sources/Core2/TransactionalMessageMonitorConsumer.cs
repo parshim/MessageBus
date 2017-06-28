@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -8,8 +7,6 @@ namespace MessageBus.Core
     public class TransactionalMessageMonitorConsumer : DefaultBasicConsumer
     {
         private readonly IMessageHelper _messageHelper;
-
-        private readonly Encoding _encoding = Encoding.UTF8;
 
         private readonly Action<RawBusMessage> _monitor;
         
@@ -25,10 +22,8 @@ namespace MessageBus.Core
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
-
-            string sBody = _encoding.GetString(body);
-
-            RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)sBody);
+            
+            RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)body);
 
             try
             {

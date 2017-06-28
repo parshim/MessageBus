@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>RabbitMQ.MessageBus.Protobuf</id>
+        <version>3.1.5</version>
+        <authors>Michael Parshin</authors>
+        <owners>Michael Parshin</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Message Bus infrastructure based on RabbitMQ message broker</description>
+		<projectUrl>https://github.com/parshim/MessageBus</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/parshim/MessageBus/master/icon.png</iconUrl>
+		<tags>RabbitMQ AMQP MessageBus Protobuf</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5.1">
+                <dependency id="Google.Protobuf" version="3.3.0" />
+				<dependency id="RabbitMQ.MessageBus" version="3.1.0" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="Binaries\Release\MessageBus.Core.Protobuf.dll" target="lib\net451\MessageBus.Core.Protobuf.dll" />
+    </files>
+</package>

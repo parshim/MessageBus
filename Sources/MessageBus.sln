@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.SignalR", "Core.Signal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.SignalR.IntegrationTests", "Core.SignalR.IntegrationTests\Core.SignalR.IntegrationTests.csproj", "{368519CD-1604-47E9-803D-F3456747CB6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Protobuf", "Core.Protobuf\Core.Protobuf.csproj", "{1DB77659-2A64-492B-8109-D52D7C7BE3D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,10 @@ Global
 		{368519CD-1604-47E9-803D-F3456747CB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{368519CD-1604-47E9-803D-F3456747CB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{368519CD-1604-47E9-803D-F3456747CB6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

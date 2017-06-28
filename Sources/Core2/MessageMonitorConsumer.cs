@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -8,8 +7,6 @@ namespace MessageBus.Core
     public class MessageMonitorConsumer : DefaultBasicConsumer
     {
         private readonly IMessageHelper _messageHelper;
-
-        private readonly Encoding _encoding = Encoding.UTF8;
 
         private readonly Action<RawBusMessage> _monitor;
 
@@ -26,9 +23,7 @@ namespace MessageBus.Core
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
 
-            string sBody = _encoding.GetString(body);
-
-            RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)sBody);
+            RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)body);
 
             try
             {

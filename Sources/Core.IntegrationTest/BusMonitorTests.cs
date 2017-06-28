@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using MessageBus.Core;
 using MessageBus.Core.API;
@@ -79,7 +80,8 @@ namespace Core.IntegrationTest
                     actual.Should().NotBeNull();
                     actual.Name.Should().Be("MyName");
                     actual.Namespace.Should().Be("");
-                    actual.Data.Should().Be($"\"{expected.Data}\"");
+
+                    Assert.AreEqual(actual.Data, Encoding.UTF8.GetBytes($"\"{expected.Data}\""));
                 }
             }
         }
@@ -127,7 +129,8 @@ namespace Core.IntegrationTest
                     actual.Count.Should().Be(1);
                     actual[0].Name.Should().Be("MyName");
                     actual[0].Namespace.Should().Be("");
-                    actual[0].Data.Should().Be($"\"{expected.Data}\"");
+
+                    Assert.AreEqual(actual[0].Data, Encoding.UTF8.GetBytes($"\"{expected.Data}\""));
                 }
             }
         }
