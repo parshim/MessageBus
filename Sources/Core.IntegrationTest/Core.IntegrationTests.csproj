@@ -115,6 +115,10 @@
       <Project>{3B9A69DB-A6AB-49D8-828D-3274124829B0}</Project>
       <Name>Core.API</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Core.Protobuf\Core.Protobuf.csproj">
+      <Project>{1DB77659-2A64-492B-8109-D52D7C7BE3D8}</Project>
+      <Name>Core.Protobuf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core2\Core2.csproj">
       <Project>{0b59193b-0883-4bd6-a66a-47c515eaf014}</Project>
       <Name>Core2</Name>
