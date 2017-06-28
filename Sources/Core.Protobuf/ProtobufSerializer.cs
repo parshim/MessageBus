@@ -21,14 +21,11 @@ namespace MessageBus.Core.Protobuf
 
         public object Deserialize(Type dataType, byte[] body)
         {
-            using (CodedInputStream stream = new CodedInputStream(body))
-            {
-                IMessage message = (IMessage)Activator.CreateInstance(dataType);
+            IMessage message = (IMessage) Activator.CreateInstance(dataType);
 
-                message.MergeFrom(stream);
+            message.MergeFrom(body);
 
-                return message;
-            }
+            return message;
         }
 
         public string ContentType { get; } = "application/protobuf";

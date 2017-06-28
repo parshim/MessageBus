@@ -50,6 +50,10 @@
       <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Google.Protobuf, Version=3.3.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.3.0\lib\net45\Google.Protobuf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -92,6 +96,8 @@
     <Compile Include="BlobTransferTest.cs" />
     <Compile Include="BusAnnotatedSubscriptionTests.cs" />
     <Compile Include="BusAsyncRpcCommunicationTest.cs" />
+    <Compile Include="Contract.cs" />
+    <Compile Include="ProtobufSerializerTests.cs" />
     <Compile Include="QueueNonDurableTests.cs" />
     <Compile Include="BusDurableTests.cs" />
     <Compile Include="BusFailedDeliveryTest.cs" />
@@ -126,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="contract.proto" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
