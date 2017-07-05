@@ -121,7 +121,7 @@ namespace MessageBus.Core.API
         /// <param name="configure"></param>
         /// <param name="filterHeaders"></param>
         /// <returns></returns>
-        ISubscription CreateMonitor(Action<RawBusMessage> monitor, Action<ISubscriberConfigurator> configure = null, IEnumerable<BusHeader> filterHeaders = null);
+        ISubscription CreateMonitor(Action<SerializedBusMessage> monitor, Action<ISubscriberConfigurator> configure = null, IEnumerable<BusHeader> filterHeaders = null);
 
     }
 }

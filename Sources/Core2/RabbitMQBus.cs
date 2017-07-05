@@ -188,7 +188,7 @@ namespace MessageBus.Core
             return new Subscriber(model, queue, consumer, helper, configurator);
         }
 
-        public ISubscription CreateMonitor(Action<RawBusMessage> monitor, Action<ISubscriberConfigurator> configure = null, IEnumerable<BusHeader> filterHeaders = null)
+        public ISubscription CreateMonitor(Action<SerializedBusMessage> monitor, Action<ISubscriberConfigurator> configure = null, IEnumerable<BusHeader> filterHeaders = null)
         {
             SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
 

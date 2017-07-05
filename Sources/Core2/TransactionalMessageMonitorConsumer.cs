@@ -8,11 +8,11 @@ namespace MessageBus.Core
     {
         private readonly IMessageHelper _messageHelper;
 
-        private readonly Action<RawBusMessage> _monitor;
+        private readonly Action<SerializedBusMessage> _monitor;
         
         private readonly IExceptionFilter _exceptionFilter;
 
-        public TransactionalMessageMonitorConsumer(IModel model, IMessageHelper messageHelper, Action<RawBusMessage> monitor, IExceptionFilter exceptionFilter):base(model)
+        public TransactionalMessageMonitorConsumer(IModel model, IMessageHelper messageHelper, Action<SerializedBusMessage> monitor, IExceptionFilter exceptionFilter):base(model)
         {
             _messageHelper = messageHelper;
             _monitor = monitor;
@@ -22,12 +22,12 @@ namespace MessageBus.Core
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
-            
-            RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)body);
+
+            SerializedBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, body);
 
             try
             {
-                _monitor(rawBusMessage);
+                _monitor(message);
 
                 Model.BasicAck(deliveryTag, false);
             }
@@ -39,7 +39,22 @@ namespace MessageBus.Core
             }
             catch (Exception ex)
             {
-                bool requeue = _exceptionFilter.Filter(ex, rawBusMessage, redelivered, deliveryTag);
+                RawBusMessage raw = new RawBusMessage
+                {
+                    Data = message.Data,
+                    Namespace = message.Namespace,
+                    Name = message.Name,
+                    BusId = message.BusId,
+                    CorrelationId = message.CorrelationId,
+                    Sent = message.Sent
+                };
+
+                foreach (var header in message.Headers)
+                {
+                    raw.Headers.Add(header);
+                }
+
+                bool requeue = _exceptionFilter.Filter(ex, raw, redelivered, deliveryTag);
 
                 Model.BasicNack(deliveryTag, false, requeue);
             }

@@ -26,7 +26,7 @@ namespace MessageBus.Core.API
         /// <param name="busMessage"></param>
         /// <param name="exception"></param>
         void MessageDispatchException(RawBusMessage busMessage, Exception exception);
-
+        
         /// <summary>
         /// Message filtered
         /// </summary>

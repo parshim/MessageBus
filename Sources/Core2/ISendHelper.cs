@@ -6,7 +6,9 @@ namespace MessageBus.Core
 {
     public interface ISendHelper
     {
-        void Send(SendParams sendParams);
+        void Send(SerializedBusMessage message, SendParams sendParams);
+
+        void Send(RawBusMessage message, ISerializer serializer, SendParams sendParams);
         
         Type GetDataType(DataContractKey dataContractKey);
     }
@@ -14,17 +16,13 @@ namespace MessageBus.Core
     public class SendParams
     {
         public IModel Model { get; set; }
-
-        public RawBusMessage BusMessage { get; set; }
-
+        
         public string RoutingKey { get; set; }
 
         public string Exchange { get; set; }
 
         public string CorrelationId { get; set; }
-
-        public ISerializer Serializer { get; set; }
-
+        
         public string BusId { get; set; }
 
         public bool MandatoryDelivery { get; set; }

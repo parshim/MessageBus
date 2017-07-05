@@ -8,11 +8,11 @@ namespace MessageBus.Core
     {
         private readonly IMessageHelper _messageHelper;
 
-        private readonly Action<RawBusMessage> _monitor;
+        private readonly Action<SerializedBusMessage> _monitor;
 
         private readonly IErrorSubscriber _errorSubscriber;
 
-        public MessageMonitorConsumer(IModel model, IMessageHelper messageHelper, Action<RawBusMessage> monitor, IErrorSubscriber errorSubscriber):base(model)
+        public MessageMonitorConsumer(IModel model, IMessageHelper messageHelper, Action<SerializedBusMessage> monitor, IErrorSubscriber errorSubscriber):base(model)
         {
             _messageHelper = messageHelper;
             _monitor = monitor;
@@ -23,15 +23,30 @@ namespace MessageBus.Core
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
 
-            RawBusMessage rawBusMessage = _messageHelper.ConstructMessage(dataContractKey, properties, (object)body);
+            SerializedBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, body);
 
             try
             {
-                _monitor(rawBusMessage);
+                _monitor(message);
             }
             catch(Exception ex)
             {
-                _errorSubscriber.MessageDispatchException(rawBusMessage, ex);
+                RawBusMessage raw = new RawBusMessage
+                {
+                    Data = message.Data,
+                    Namespace = message.Namespace,
+                    Name = message.Name,
+                    BusId = message.BusId,
+                    CorrelationId = message.CorrelationId,
+                    Sent = message.Sent
+                };
+
+                foreach (var header in message.Headers)
+                {
+                    raw.Headers.Add(header);
+                }
+
+                _errorSubscriber.MessageDispatchException(raw, ex);
             }
         }
     }

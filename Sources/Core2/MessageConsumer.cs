@@ -152,18 +152,18 @@ namespace MessageBus.Core
 
             if (!_neverReply && reply != null && properties.IsReplyToPresent())
             {
-                _sendHelper.Send(new SendParams
+                var sendParams = new SendParams
                 {
                     BusId = _busId,
-                    BusMessage = reply,
                     Model = Model,
                     CorrelationId = properties.IsCorrelationIdPresent() ? properties.CorrelationId : "",
                     Exchange = _replyExchange,
                     RoutingKey = properties.ReplyTo,
-                    Serializer = serializer,
                     MandatoryDelivery = false,
                     PersistentDelivery = false
-                });
+                };
+
+                _sendHelper.Send(reply, serializer, sendParams);
 
                 _trace.MessageSent(_busId, reply);
             }

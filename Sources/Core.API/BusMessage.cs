@@ -103,6 +103,32 @@ namespace MessageBus.Core.API
         public object Data { get; set; }
     }
 
+    /// <summary>
+    /// Raw data message
+    /// </summary>
+    public class SerializedBusMessage : BusMessage
+    {
+        /// <summary>
+        /// Data payload contact name
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Data payload contact namespace name
+        /// </summary>
+        public string Namespace { get; set; }
+
+        /// <summary>
+        /// Data payload
+        /// </summary>
+        public byte[] Data { get; set; }
+
+        /// <summary>
+        /// Content type
+        /// </summary>
+        public string ContentType { get; set; }
+    }
+
     public static class Extentions
     {
         public static RawBusMessage ToRawBusMessage<T>(this BusMessage<T> message)

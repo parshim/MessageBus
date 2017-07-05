@@ -1,4 +1,5 @@
-﻿using MessageBus.Core.API;
+﻿using System;
+using MessageBus.Core.API;
 
 using RabbitMQ.Client;
 
@@ -65,20 +66,33 @@ namespace MessageBus.Core
         {
             SendInternal(busMessage, persistant, priority);
         }
-        
+
+        public void Send(SerializedBusMessage busMessage)
+        {
+            SendInternal(busMessage, false, null);
+        }
+
+        public void Send(SerializedBusMessage busMessage, bool persistant)
+        {
+            SendInternal(busMessage, persistant, null);
+        }
+
+        public void Send(SerializedBusMessage busMessage, bool persistant, byte priority)
+        {
+            SendInternal(busMessage, persistant, priority);
+        }
+
         private void SendInternal(RawBusMessage busMessage, bool persistant, byte? priority)
         {
             foreach (var header in _configuration.Headers)
             {
                 busMessage.Headers.Add(header);
             }
-
-            _sendHelper.Send(new SendParams
+            
+            _sendHelper.Send(busMessage, _configuration.Serializer, new SendParams
             {
                 BusId = _busId,
                 Model = _model,
-                BusMessage = busMessage,
-                Serializer = _configuration.Serializer,
                 CorrelationId = "",
                 Exchange = _configuration.Exchange,
                 MandatoryDelivery = _configuration.MandatoryDelivery,
@@ -89,6 +103,44 @@ namespace MessageBus.Core
             });
 
             _configuration.Trace.MessageSent(_busId, busMessage);
+        }
+
+        private void SendInternal(SerializedBusMessage busMessage, bool persistant, byte? priority)
+        {
+            foreach (var header in _configuration.Headers)
+            {
+                busMessage.Headers.Add(header);
+            }
+            
+            _sendHelper.Send(busMessage, new SendParams
+            {
+                BusId = _busId,
+                Model = _model,
+                CorrelationId = "",
+                Exchange = _configuration.Exchange,
+                MandatoryDelivery = _configuration.MandatoryDelivery,
+                PersistentDelivery = persistant || _configuration.PersistentDelivery,
+                RoutingKey = _configuration.RoutingKey,
+                ReplyTo = _configuration.ReplyTo,
+                Priority = priority
+            });
+
+            RawBusMessage raw = new RawBusMessage
+            {
+                Data = busMessage.Data,
+                Namespace = busMessage.Namespace,
+                Name = busMessage.Name,
+                BusId = busMessage.BusId,
+                CorrelationId = busMessage.CorrelationId,
+                Sent = busMessage.Sent
+            };
+
+            foreach (var header in busMessage.Headers)
+            {
+                raw.Headers.Add(header);
+            }
+
+            _configuration.Trace.MessageSent(_busId, raw);
         }
     }
 }

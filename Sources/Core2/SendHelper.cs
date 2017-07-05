@@ -11,51 +11,32 @@ namespace MessageBus.Core
     {
         private readonly ConcurrentDictionary<Type, DataContractKey> _nameMappings = new ConcurrentDictionary<Type, DataContractKey>();
         
-        public void Send(SendParams sendParams)
+        private void Send(byte[] bytes, string contentType, string name, string ns, BusMessage busMessage,  SendParams sendParams)
         {
-            sendParams.BusMessage.Sent = DateTime.Now;
-            sendParams.BusMessage.BusId = sendParams.BusId;
+            busMessage.Sent = DateTime.Now;
+            busMessage.BusId = sendParams.BusId;
 
             BasicProperties basicProperties = new BasicProperties
             {
-                AppId = sendParams.BusMessage.BusId,
-                Timestamp = sendParams.BusMessage.Sent.ToAmqpTimestamp(),
-                ContentType = sendParams.Serializer.ContentType,
+                AppId = busMessage.BusId,
+                Timestamp = busMessage.Sent.ToAmqpTimestamp(),
+                ContentType = contentType,
                 Headers = new Dictionary<string, object>()
             };
 
-            byte[] bytes;
-
-            if (sendParams.BusMessage.Data != null)
+            if (!string.IsNullOrEmpty(name))
             {
-                if (sendParams.BusMessage.Name == null || sendParams.BusMessage.Namespace == null)
-                {
-                    Type type = sendParams.BusMessage.Data.GetType();
-                    DataContractKey contractKey = _nameMappings.GetOrAdd(type, t => t.GetDataContractKey());
+                basicProperties.Type = name;
 
-                    if (sendParams.BusMessage.Name == null)
-                    {
-                        sendParams.BusMessage.Name = contractKey.Name;
-                    }
-
-                    if (sendParams.BusMessage.Namespace == null)
-                    {
-                        sendParams.BusMessage.Namespace = contractKey.Ns;
-                    }
-                }
-
-                basicProperties.Type = sendParams.BusMessage.Name;
-                basicProperties.Headers.Add(MessagingConstants.HeaderNames.Name, sendParams.BusMessage.Name);
-                basicProperties.Headers.Add(MessagingConstants.HeaderNames.NameSpace, sendParams.BusMessage.Namespace);
-                
-                bytes = sendParams.Serializer.Serialize(sendParams.BusMessage);
+                basicProperties.Headers.Add(MessagingConstants.HeaderNames.Name, name);
             }
-            else
+
+            if (!string.IsNullOrEmpty(ns))
             {
-                bytes = new byte[0];
+                basicProperties.Headers.Add(MessagingConstants.HeaderNames.NameSpace, ns);
             }
-            
-            foreach (BusHeaderBase header in sendParams.BusMessage.Headers)
+
+            foreach (BusHeaderBase header in busMessage.Headers)
             {
                 basicProperties.Headers.Add(header.Name, header.GetValue());
             }
@@ -86,6 +67,40 @@ namespace MessageBus.Core
         public Type GetDataType(DataContractKey dataContractKey)
         {
             return _nameMappings.Where(pair => pair.Value.Equals(dataContractKey)).Select(pair => pair.Key).FirstOrDefault();
+        }
+
+        public void Send(SerializedBusMessage message, SendParams sendParams)
+        {
+            Send(message.Data, message.ContentType, message.Name, message.Namespace, message, sendParams);
+        }
+
+        public void Send(RawBusMessage message, ISerializer serializer, SendParams sendParams)
+        {
+            if (message.Data != null)
+            {
+                Type type = message.Data.GetType();
+                DataContractKey contractKey = _nameMappings.GetOrAdd(type, t => t.GetDataContractKey());
+
+                if (message.Name == null)
+                {
+                    message.Name = contractKey.Name;
+                }
+
+                if (message.Namespace == null)
+                {
+                    message.Namespace = contractKey.Ns;
+                }
+            }
+
+            var bytes = message.Data as byte[];
+
+            if (bytes == null)
+            {
+                bytes = message.Data != null ? serializer.Serialize(message) : new byte[0];
+            }
+            
+
+            Send(bytes, serializer.ContentType, message.Name, message.Namespace, message, sendParams);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Core.IntegrationTest
 
             using (IBus bus = new RabbitMQBus())
             {
-                Action<RawBusMessage> action = message =>
+                Action<SerializedBusMessage> action = message =>
                 {
                     ev.Set();
                 };
@@ -50,15 +50,16 @@ namespace Core.IntegrationTest
 
             using (IBus bus = new RabbitMQBus())
             {
-                RawBusMessage actual = null;
-                RawBusMessage expected = new RawBusMessage
+                SerializedBusMessage actual = null;
+                SerializedBusMessage expected = new SerializedBusMessage
                 {
                     Name = "MyName",
                     Namespace = "",
-                    Data = "Some raw data"
+                    Data = new byte[] {0, 2, 31, 11, 22},
+                    ContentType = "binary"
                 };
 
-                Action<RawBusMessage> action = message =>
+                Action<SerializedBusMessage> action = message =>
                 {
                     actual = message;
                     ev.Set();
@@ -81,7 +82,7 @@ namespace Core.IntegrationTest
                     actual.Name.Should().Be("MyName");
                     actual.Namespace.Should().Be("");
 
-                    Assert.AreEqual(actual.Data, Encoding.UTF8.GetBytes($"\"{expected.Data}\""));
+                    Assert.AreEqual(actual.Data, expected.Data);
                 }
             }
         }
@@ -93,23 +94,25 @@ namespace Core.IntegrationTest
 
             using (IBus bus = new RabbitMQBus())
             {
-                List<RawBusMessage> actual = new List<RawBusMessage>();
+                List<SerializedBusMessage> actual = new List<SerializedBusMessage>();
 
-                RawBusMessage toFilterOut = new RawBusMessage
+                SerializedBusMessage toFilterOut = new SerializedBusMessage
                 {
                     Name = "SomeOtherName",
                     Namespace = "",
-                    Data = "Some raw data"
+                    Data = new byte[] { 0, 2, 31, 11, 22 },
+                    ContentType = "binary"
                 };
 
-                RawBusMessage expected = new RawBusMessage
+                SerializedBusMessage expected = new SerializedBusMessage
                 {
                     Name = "MyName",
                     Namespace = "",
-                    Data = "Some raw data"
+                    Data = new byte[] { 1, 7, 11, 71 },
+                    ContentType = "binary"
                 };
 
-                Action<RawBusMessage> action = message =>
+                Action<SerializedBusMessage> action = message =>
                 {
                     actual.Add(message);
                 };
@@ -130,7 +133,7 @@ namespace Core.IntegrationTest
                     actual[0].Name.Should().Be("MyName");
                     actual[0].Namespace.Should().Be("");
 
-                    Assert.AreEqual(actual[0].Data, Encoding.UTF8.GetBytes($"\"{expected.Data}\""));
+                    Assert.AreEqual(actual[0].Data, expected.Data);
                 }
             }
         }

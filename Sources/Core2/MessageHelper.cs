@@ -7,6 +7,28 @@ namespace MessageBus.Core
 {
     public class MessageHelper : IMessageHelper
     {
+        public SerializedBusMessage ConstructMessage(DataContractKey dataContractKey, IBasicProperties properties, byte[] data)
+        {
+            SerializedBusMessage message = new SerializedBusMessage
+            {
+                Data = data,
+                BusId = properties.AppId,
+                Sent = properties.Timestamp.GetDateTime(),
+                Name = dataContractKey.Name,
+                Namespace = dataContractKey.Ns,
+                ContentType = properties.ContentType
+            };
+
+            if (properties.IsCorrelationIdPresent())
+            {
+                message.CorrelationId = properties.CorrelationId;
+            }
+
+            ConstructHeaders(message, properties);
+
+            return message;
+        }
+
         public RawBusMessage ConstructMessage(DataContractKey dataContractKey, IBasicProperties properties, object data)
         {
             RawBusMessage message = new RawBusMessage

@@ -76,5 +76,26 @@ namespace MessageBus.Core.API
         /// <param name="persistant"></param>
         /// <param name="priority">Message priority</param>
         void Send(RawBusMessage busMessage, bool persistant, byte priority);
+
+        /// <summary>
+        /// Publish raw bus message
+        /// </summary>
+        /// <param name="busMessage">Bus message instance</param>
+        void Send(SerializedBusMessage busMessage);
+
+        /// <summary>
+        /// Publish raw bus message
+        /// </summary>
+        /// <param name="busMessage">Bus message instance</param>
+        /// <param name="persistant"></param>
+        void Send(SerializedBusMessage busMessage, bool persistant);
+
+        /// <summary>
+        /// Publish raw bus message
+        /// </summary>
+        /// <param name="busMessage">Bus message instance</param>
+        /// <param name="persistant"></param>
+        /// <param name="priority">Message priority</param>
+        void Send(SerializedBusMessage busMessage, bool persistant, byte priority);
     }
 }

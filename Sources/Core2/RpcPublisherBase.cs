@@ -69,19 +69,19 @@ namespace MessageBus.Core
         {
             var rawBusMessage = CreateRawMessage(busMessage);
 
-            _sendHelper.Send(new SendParams
+            var sendParams = new SendParams
             {
                 BusId = _busId,
                 Model = _model,
-                BusMessage = rawBusMessage,
                 CorrelationId = id,
-                Serializer = _configuration.Serializer,
                 Exchange = _configuration.Exchange,
                 MandatoryDelivery = true,
                 PersistentDelivery = persistant || _configuration.PersistentDelivery,
                 RoutingKey = _configuration.RoutingKey,
                 ReplyTo = _replyTo
-            });
+            };
+
+            _sendHelper.Send(rawBusMessage, _configuration.Serializer, sendParams);
 
             _configuration.Trace.MessageSent(_busId, rawBusMessage);
         }

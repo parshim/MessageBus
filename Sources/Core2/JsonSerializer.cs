@@ -17,16 +17,11 @@ namespace MessageBus.Core
             _settings = settings;
         }
 
-        public string ContentType { get { return "application/json"; } }
-        
+        public string ContentType => "application/json";
+
         public byte[] Serialize(RawBusMessage busMessage)
         {
             object data = busMessage.Data;
-
-            if (data.GetType() == typeof(byte[]))
-            {
-                return data as byte[];
-            }
 
             string body = JsonConvert.SerializeObject(data, _settings);
 
