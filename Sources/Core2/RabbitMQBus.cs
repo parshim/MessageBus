@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace MessageBus.Core
 {
@@ -63,9 +64,19 @@ namespace MessageBus.Core
 
             _connection = factory.CreateConnection();
 
+            _connection.ConnectionBlocked += (sender, args) =>
+            {
+                busConfiguration.ConnectionBlocked(args.Reason);
+            };
+
+            _connection.ConnectionUnblocked += (sender, args) =>
+            {
+                busConfiguration.ConnectionUnblocked();
+            };
+
             _createSubscriberConfigurator = configure =>
             {
-                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ReplyExchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish, busConfiguration.Trace);
+                SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ReplyExchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish, busConfiguration.Trace, () => busConfiguration.Blocked);
 
                 if (configure != null)
                 {
@@ -77,7 +88,7 @@ namespace MessageBus.Core
 
             _createPublisherConfigurator = configure =>
             {
-                PublisherConfigurator configurator = new PublisherConfigurator(_exchange, busConfiguration.ErrorHandler, busConfiguration.Trace);
+                PublisherConfigurator configurator = new PublisherConfigurator(_exchange, busConfiguration.ErrorHandler, busConfiguration.Trace, () => busConfiguration.Blocked);
 
                 if (configure != null)
                 {
@@ -89,7 +100,7 @@ namespace MessageBus.Core
 
             _createRpcPublisherConfigurator = configure =>
             {
-                RpcPublisherConfigurator configurator = new RpcPublisherConfigurator(_exchange, busConfiguration.UseFastReply, busConfiguration.ReplyExchange, busConfiguration.ErrorHandler, busConfiguration.Trace);
+                RpcPublisherConfigurator configurator = new RpcPublisherConfigurator(_exchange, busConfiguration.UseFastReply, busConfiguration.ReplyExchange, busConfiguration.ErrorHandler, busConfiguration.Trace, () => busConfiguration.Blocked);
 
                 if (configure != null)
                 {
@@ -99,12 +110,12 @@ namespace MessageBus.Core
                 return configurator;
             };
         }
-
+        
         public string BusId { get; private set; }
         
         public void Dispose()
         {
-            _connection.Dispose();
+            _connection.Close(0);
         }
         
         public IPublisher CreatePublisher(Action<IPublisherConfigurator> configure = null)

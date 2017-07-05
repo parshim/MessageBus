@@ -4,16 +4,18 @@ using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
-    public class BusConfigurator : IBusConfigurator
+    public class BusConfigurator : IBusConfigurator, IBlockWatcher
     {
         private string _busId = Guid.NewGuid().ToString();
         private IPublishingErrorHandler _errorHandler;
         private ITrace _trace;
+        private IBlockWatcher _blockWatcher = new NullBlockWatcher();
         private IErrorSubscriber _errorSubscriber;
         private RabbitMQConnectionString _connectionString;
         private bool _receiveSelfPublish;
         private bool _useFastReply = true;
         private string _replyExchange = "";
+        private bool _blocked;
 
         public string BusId
         {
@@ -43,7 +45,7 @@ namespace MessageBus.Core
                 return _trace ?? new NullTrace();
             }
         }
-
+        
         public bool ReceiveSelfPublish
         {
             get
@@ -60,6 +62,11 @@ namespace MessageBus.Core
         public string ReplyExchange
         {
             get { return _replyExchange; }
+        }
+
+        public bool Blocked
+        {
+            get { return _blocked; }
         }
 
         public IBusConfigurator SetBusId(string busId)
@@ -128,6 +135,27 @@ namespace MessageBus.Core
             _replyExchange = replyExchange;
 
             return this;
+        }
+
+        public IBusConfigurator UseBlockWatcher(IBlockWatcher blockWatcher)
+        {
+            _blockWatcher = blockWatcher;
+
+            return this;
+        }
+
+        public void ConnectionBlocked(string reason)
+        {
+            _blocked = true;
+
+            _blockWatcher.ConnectionBlocked(reason);
+        }
+
+        public void ConnectionUnblocked()
+        {
+            _blocked = false;
+
+            _blockWatcher.ConnectionUnblocked();
         }
     }
 }

@@ -59,7 +59,10 @@ namespace MessageBus.Core
         {
             _model.BasicReturn -= ModelOnBasicReturn;
 
-            _model.Close();
+            if (!_configuration.Blocked)
+            {
+                _model.Close();
+            }
         }
     }
 }

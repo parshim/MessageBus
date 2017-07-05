@@ -142,5 +142,10 @@ namespace MessageBus.Core
 
             _configuration.Trace.MessageSent(_busId, raw);
         }
+
+        public bool Blocked
+        {
+            get { return _configuration.Blocked; }
+        }
     }
 }

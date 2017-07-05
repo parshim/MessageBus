@@ -47,6 +47,12 @@
         IBusConfigurator UseTrace(ITrace trace);
 
         /// <summary>
+        /// Specify connection block whatcher.
+        /// </summary>
+        /// <returns></returns>
+        IBusConfigurator UseBlockWatcher(IBlockWatcher blockWatcher);
+
+        /// <summary>
         /// If set, messages published within bus instance will be received and processed by subscriber.
         /// <remarks>By default self-published messages are ignored.</remarks>
         /// </summary>

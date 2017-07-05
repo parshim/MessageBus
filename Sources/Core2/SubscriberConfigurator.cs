@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ServiceModel.Channels;
 using System.Threading.Tasks;
 using MessageBus.Core.API;
@@ -26,6 +27,7 @@ namespace MessageBus.Core
         private bool _autoCreate = true;
         private bool _durable = true;
         private sbyte _maxPriority;
+        private readonly Func<bool> _blocked;
 
         private JsonSerializerSettings _settings = new JsonSerializerSettings
         {
@@ -34,13 +36,14 @@ namespace MessageBus.Core
 
         private readonly Dictionary<string, ISerializer> _serializers = new Dictionary<string, ISerializer>();
 
-        public SubscriberConfigurator(string exchange, string replyExchange, IErrorSubscriber errorSubscriber, bool receiveSelfPublish, ITrace trace)
+        public SubscriberConfigurator(string exchange, string replyExchange, IErrorSubscriber errorSubscriber, bool receiveSelfPublish, ITrace trace, Func<bool> blocked)
         {
             _exchange = exchange;
             _errorSubscriber = errorSubscriber;
             _receiveSelfPublish = receiveSelfPublish;
             _trace = trace;
             _replyExchange = replyExchange;
+            _blocked = blocked;
         }
 
         public string QueueName
@@ -149,6 +152,10 @@ namespace MessageBus.Core
             get { return _maxPriority; }
         }
 
+        public bool Blocked
+        {
+            get { return _blocked(); }
+        }
         public ISubscriberConfigurator UseBufferManager(BufferManager bufferManager)
         {
             _bufferManager = bufferManager;

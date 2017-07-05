@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Channels;
 using MessageBus.Core.API;
@@ -11,6 +12,7 @@ namespace MessageBus.Core
         private BufferManager _bufferManager;
         private IPublishingErrorHandler _errorHandler;
         private ITrace _trace;
+        private readonly Func<bool> _blocked;
         private ISerializer _serializer;
         private bool _mandatoryDelivery;
         private bool _persistentDelivery;
@@ -24,11 +26,12 @@ namespace MessageBus.Core
         private string _replyTo;
         private IEnumerable<BusHeader> _headers = Enumerable.Empty<BusHeader>();
         
-        public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler, ITrace trace)
+        public PublisherConfigurator(string exchange, IPublishingErrorHandler errorHandler, ITrace trace, Func<bool> blocked)
         {
             _exchange = exchange;
             _errorHandler = errorHandler;
             _trace = trace;
+            _blocked = blocked;
         }
 
         public BufferManager BufferManager
@@ -85,6 +88,11 @@ namespace MessageBus.Core
         public string ReplyTo
         {
             get { return _replyTo; }
+        }
+
+        public bool Blocked
+        {
+            get { return _blocked(); }
         }
 
         public IPublisherConfigurator UseBufferManager(BufferManager bufferManager)

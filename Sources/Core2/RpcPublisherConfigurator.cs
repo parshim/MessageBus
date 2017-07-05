@@ -1,4 +1,5 @@
-﻿using MessageBus.Core.API;
+﻿using System;
+using MessageBus.Core.API;
 
 namespace MessageBus.Core
 {
@@ -8,8 +9,8 @@ namespace MessageBus.Core
         private string _replyExchange;
         private string _consumerTag = "";
 
-        public RpcPublisherConfigurator(string exchange, bool useFastReply, string replyExchange, IPublishingErrorHandler errorHandler, ITrace trace)
-            : base(exchange, errorHandler, trace)
+        public RpcPublisherConfigurator(string exchange, bool useFastReply, string replyExchange, IPublishingErrorHandler errorHandler, ITrace trace, Func<bool> blocked)
+            : base(exchange, errorHandler, trace, blocked)
         {
             _useFastReply = useFastReply;
             _replyExchange = replyExchange;

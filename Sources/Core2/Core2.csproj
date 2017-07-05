@@ -61,6 +61,7 @@
     <Compile Include="ISendHelper.cs" />
     <Compile Include="MessageMonitor.cs" />
     <Compile Include="MessageMonitorConsumer.cs" />
+    <Compile Include="NullBlockWatcher.cs" />
     <Compile Include="NullExceptionFilter.cs" />
     <Compile Include="NullTrace.cs" />
     <Compile Include="PublisherBase.cs" />

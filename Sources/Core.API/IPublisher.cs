@@ -9,6 +9,11 @@ namespace MessageBus.Core.API
     public interface IPublisher : IDisposable
     {
         /// <summary>
+        /// Informes if publisher is blocked by node due to limit alarms
+        /// </summary>
+        bool Blocked { get; } 
+
+        /// <summary>
         /// Publish data message 
         /// </summary>
         /// <typeparam name="TData">Data type</typeparam>

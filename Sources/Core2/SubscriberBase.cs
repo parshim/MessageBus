@@ -22,10 +22,13 @@ namespace MessageBus.Core
             _consumer = consumer;
             _configurator = configurator;
         }
-
+        
         public void Dispose()
         {
-            _model.Close();
+            if (!_configurator.Blocked)
+            {
+                _model.Close();
+            }
         }
 
         public void Open()
