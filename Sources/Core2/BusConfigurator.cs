@@ -6,6 +6,7 @@ namespace MessageBus.Core
 {
     public class BusConfigurator : IBusConfigurator, IBlockWatcher
     {
+        private string _connectionProvidedName = string.Empty;
         private string _busId = Guid.NewGuid().ToString();
         private IPublishingErrorHandler _errorHandler;
         private ITrace _trace;
@@ -16,6 +17,11 @@ namespace MessageBus.Core
         private bool _useFastReply = true;
         private string _replyExchange = "";
         private bool _blocked;
+
+        public string ConnectionProvidedName
+        {
+            get { return _connectionProvidedName; }
+        }
 
         public string BusId
         {
@@ -67,6 +73,12 @@ namespace MessageBus.Core
         public bool Blocked
         {
             get { return _blocked; }
+        }
+
+        public IBusConfigurator SetConnectionProvidedName(string name)
+        {
+            _connectionProvidedName = name;
+            return this;
         }
 
         public IBusConfigurator SetBusId(string busId)

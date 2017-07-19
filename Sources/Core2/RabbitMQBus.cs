@@ -30,6 +30,7 @@ namespace MessageBus.Core
             }
 
             BusId = busConfiguration.BusId;
+            BusConnectionName = busConfiguration.ConnectionProvidedName;
 
             _exchange = "amq.headers";
 
@@ -62,7 +63,7 @@ namespace MessageBus.Core
                 VirtualHost = busConfiguration.ConnectionString.VirtualHost
             };
 
-            _connection = factory.CreateConnection();
+            _connection = factory.CreateConnection(busConfiguration.ConnectionProvidedName);
 
             _connection.ConnectionBlocked += (sender, args) =>
             {
@@ -112,6 +113,8 @@ namespace MessageBus.Core
         }
         
         public string BusId { get; private set; }
+
+        public string BusConnectionName { get; private set; }
         
         public void Dispose()
         {

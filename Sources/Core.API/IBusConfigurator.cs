@@ -5,6 +5,14 @@
     /// </summary>
     public interface IBusConfigurator
     {
+
+        /// <summary>
+        /// set a custom connection name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        IBusConfigurator SetConnectionProvidedName(string name);
+
         /// <summary>
         /// Set custom bus id
         /// </summary>

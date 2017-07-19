@@ -25,6 +25,12 @@ namespace MessageBus.Core.API
     /// </example>
     public interface IBus : IDisposable
     {
+
+        /// <summary>
+        /// Bus client name which uniquely identifies publishers and subscribers created within this instance
+        /// </summary>
+        string BusConnectionName { get; }
+
         /// <summary>
         /// Bus client name which uniquely identifies publishers and subscribers created within this instance
         /// </summary>
