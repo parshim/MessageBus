@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MessageBus.Core;
 using MessageBus.Core.API;
@@ -54,6 +55,36 @@ namespace Core.IntegrationTest
                 }
             }
         }
+
+        [Test]
+        public void PublisherShouldCloseConnectionsOnDispose()
+        {
+            using (var bus = new RabbitMQBus())
+            {
+                //while (true)
+                {
+                    Parallel.For(1, 20000, i =>
+                    {
+
+                        try
+                        {
+                            using (var publisher = bus.CreatePublisher())
+                            {
+                                publisher.Send(new Data());
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+
+                    });
+                    //Thread.Sleep(1000 * 1 * 30);
+                }
+            }
+                
+        }
+
 
         private static void Counter(ref int counter)
         {
