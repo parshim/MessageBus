@@ -56,7 +56,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [Test]
+        [Test, Ignore("Too long for CI")]
         public void PublisherShouldCloseConnectionsOnDispose()
         {
             using (var bus = new RabbitMQBus())
@@ -68,7 +68,7 @@ namespace Core.IntegrationTest
 
                         try
                         {
-                            using (var publisher = bus.CreatePublisher())
+                            using (var publisher = bus.CreateRpcPublisher())
                             {
                                 publisher.Send(new Data());
                             }
