@@ -55,11 +55,19 @@ namespace MessageBus.Core.API
         ISubscriberConfigurator UseDurableQueue(string queueName, bool createBindings, bool autoCreate);
 
         /// <summary>
-        /// Enable mutliple subscribers to enlist to the same queue instead of using exclusive queue even if the queue is non-durable
+        /// Enable multiple subscribers to enlist to the same queue instead of using exclusive queue even if the queue is non-durable
         /// </summary>
         /// <param name="queueName">Non durable queue name. Usage of a unique name is recommended</param>
         /// <returns></returns>
         ISubscriberConfigurator UseNonDurableNamedQueue(string queueName);
+
+        /// <summary>
+        /// Enable multiple subscribers to enlist to the same queue instead of using exclusive queue even if the queue is non-durable
+        /// </summary>
+        /// <param name="queueName">Non durable queue name. Usage of a unique name is recommended</param>
+        /// <param name="isExclusive">true if queue should only be accessed by the current connection</param>
+        /// <returns></returns>
+        ISubscriberConfigurator UseNonDurableNamedQueue(string queueName, bool isExclusive);
 
         /// <summary>
         /// Specify transactional delivery of the messages. If exception will be thrown on subscribed action message will be returned to the queue.
