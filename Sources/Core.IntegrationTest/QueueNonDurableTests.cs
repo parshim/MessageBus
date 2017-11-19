@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using FluentAssertions;
 using MessageBus.Core.API;
 using NUnit.Framework;
+using RabbitMQ.Client.Exceptions;
 
 namespace Core.IntegrationTest
 {
@@ -211,6 +212,65 @@ namespace Core.IntegrationTest
                 expected1.Should().BeNull();
                 expected2.Should().NotBeNull();
                 expected2.ShouldBeEquivalentTo(data);
+            }
+        }
+
+        [Test]
+        public void Queue_NonDurableQueue_TwoExclusiveQueueSubscribers_OneShouldThrowLockedQueueException()
+        {
+            IBus subscriberBus1 = null;
+            IBus subscriberBus2 = null;
+            ISubscriber subscriber1 = null, subscriber2 = null;
+            Action<NonImportantData> callbackNoOp = p => { return; };
+            try
+            {
+                subscriberBus1 = new MessageBus.Core.RabbitMQBus();
+                subscriber1 = subscriberBus1.CreateSubscriber(c => c.UseNonDurableNamedQueue(NonDurableTestQueueSuffix, true));
+                subscriber1.Subscribe(callbackNoOp);
+                subscriber1.Open();
+
+                subscriberBus2 = new MessageBus.Core.RabbitMQBus();
+                var ex = Assert.Throws<OperationInterruptedException>(() => {
+                    subscriber2 = subscriberBus2.CreateSubscriber(c => c.UseNonDurableNamedQueue(NonDurableTestQueueSuffix, true));
+                    subscriber2.Subscribe(callbackNoOp);
+                    subscriber2.Open();
+                });
+                Assert.That(ex.Message.Contains("cannot obtain exclusive access to locked queue"));
+            }
+            finally
+            {
+                subscriber2?.Dispose();
+                subscriber1?.Dispose();
+                subscriberBus1?.Dispose();
+                subscriberBus2?.Dispose();
+            }
+        }
+
+        [Test]
+        public void Queue_NonDurableQueue_TwoNonExclusiveQueueSubscribers_ShouldNotThrowLockedQueueException()
+        {
+            IBus subscriberBus1 = null;
+            IBus subscriberBus2 = null;
+            ISubscriber subscriber1 = null, subscriber2 = null;
+            Action<NonImportantData> callbackNoOp = p => { return; };
+            try
+            {
+                subscriberBus1 = new MessageBus.Core.RabbitMQBus();
+                subscriber1 = subscriberBus1.CreateSubscriber(c => c.UseNonDurableNamedQueue(NonDurableTestQueueSuffix, false));
+                subscriber1.Subscribe(callbackNoOp);
+                subscriber1.Open();
+
+                subscriberBus2 = new MessageBus.Core.RabbitMQBus();
+                subscriber2 = subscriberBus2.CreateSubscriber(c => c.UseNonDurableNamedQueue(NonDurableTestQueueSuffix, false));
+                subscriber2.Subscribe(callbackNoOp);
+                subscriber2.Open();
+            }
+            finally
+            {
+                subscriber2?.Dispose();
+                subscriber1?.Dispose();
+                subscriberBus1?.Dispose();
+                subscriberBus2?.Dispose();
             }
         }
 

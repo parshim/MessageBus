@@ -285,7 +285,7 @@ namespace MessageBus.Core
                     }
                     else
                     {
-                        model.QueueDeclare(configurator.QueueName, false, true, true, arguments);
+                        model.QueueDeclare(configurator.QueueName, false, configurator.IsExclusive, true, arguments);
                     }
                 }
 

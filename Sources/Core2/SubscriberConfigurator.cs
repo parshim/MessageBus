@@ -26,6 +26,7 @@ namespace MessageBus.Core
         private bool _createBindings = true;
         private bool _autoCreate = true;
         private bool _durable = true;
+        private bool _isExclusive = false;
         private sbyte _maxPriority;
         private readonly Func<bool> _blocked;
 
@@ -147,6 +148,11 @@ namespace MessageBus.Core
             get { return _autoCreate; }
         }
 
+        public bool IsExclusive
+        {
+            get { return _isExclusive; }
+        }
+
         public sbyte MaxPriority
         {
             get { return _maxPriority; }
@@ -216,6 +222,20 @@ namespace MessageBus.Core
 
         public ISubscriberConfigurator UseNonDurableNamedQueue(string queueName)
         {
+            _isExclusive = true;
+
+            _durable = false;
+
+            _autoCreate = true;
+
+            _queueName = queueName;
+
+            return this;
+        }
+        public ISubscriberConfigurator UseNonDurableNamedQueue(string queueName, bool isExclusive)
+        {
+            _isExclusive = isExclusive;
+
             _durable = false;
 
             _autoCreate = true;
