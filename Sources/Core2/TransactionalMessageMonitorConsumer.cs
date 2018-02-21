@@ -1,10 +1,11 @@
 using System;
+using System.Threading.Tasks;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
 namespace MessageBus.Core
 {
-    public class TransactionalMessageMonitorConsumer : DefaultBasicConsumer
+    public class TransactionalMessageMonitorConsumer : AsyncDefaultBasicConsumer
     {
         private readonly IMessageHelper _messageHelper;
 
@@ -19,7 +20,7 @@ namespace MessageBus.Core
             _exceptionFilter = exceptionFilter;
         }
 
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        public override Task HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
 
@@ -58,6 +59,8 @@ namespace MessageBus.Core
 
                 Model.BasicNack(deliveryTag, false, requeue);
             }
+
+            return Task.FromResult(0);
         }
     }
 }

@@ -10,8 +10,8 @@ namespace MessageBus.Core
     {
         private readonly IExceptionFilter _exceptionFilter;
 
-        public TransactionalMessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, IExceptionFilter exceptionFilter, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply, string replyExchange, ITrace trace)
-            : base(busId, model, messageHelper, sendHelper, serializers, errorSubscriber, scheduler, receiveSelfPublish, neverReply, replyExchange, trace)
+        public TransactionalMessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, IExceptionFilter exceptionFilter, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, bool receiveSelfPublish, bool neverReply, string replyExchange, ITrace trace)
+            : base(busId, model, messageHelper, sendHelper, serializers, errorSubscriber, receiveSelfPublish, neverReply, replyExchange, trace)
         {
             _exceptionFilter = exceptionFilter;
         }

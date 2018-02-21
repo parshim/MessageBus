@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
 
@@ -59,7 +60,7 @@ namespace MessageBus.Core
         }
     }
 
-    public class RpcConsumer : DefaultBasicConsumer, IRpcConsumer
+    public class RpcConsumer : AsyncDefaultBasicConsumer, IRpcConsumer
     {
         private readonly ConcurrentDictionary<string, CallbackInfo> _callbacksDictionary = new ConcurrentDictionary<string, CallbackInfo>();
 
@@ -120,11 +121,11 @@ namespace MessageBus.Core
             }
         }
 
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        public override Task HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
         {
             if (!properties.IsCorrelationIdPresent())
             {
-                return;
+                return Task.FromResult(0);
             }
 
             CallbackInfo info;
@@ -145,7 +146,7 @@ namespace MessageBus.Core
                 {
                     info.SetResponse(null, new RpcCallException(RpcFailureReason.HandlerError, exceptionHeader.ToString()));
 
-                    return;
+                    return Task.FromResult(0);
                 }
 
                 DataContractKey dataContractKey;
@@ -157,8 +158,8 @@ namespace MessageBus.Core
                     if (rejectHeader != null)
                     {
                         info.SetResponse(null, new RpcCallException(RpcFailureReason.Reject));
-
-                        return;
+                        
+                        return Task.FromResult(0);
                     }
 
                     // Void reply or sender not interested in reply data, but only interested to be notified that work is done
@@ -175,7 +176,7 @@ namespace MessageBus.Core
                             new RpcCallException(RpcFailureReason.SerializationError,
                                 string.Format("Unsupported content type {0}", properties.ContentType)));
 
-                        return;
+                        return Task.FromResult(0);
                     }
 
                     try
@@ -195,7 +196,7 @@ namespace MessageBus.Core
                     {
                         info.SetResponse(null, new RpcCallException(RpcFailureReason.SerializationError, ex));
 
-                        return;
+                        return Task.FromResult(0);
                     }
                 }
 
@@ -204,7 +205,7 @@ namespace MessageBus.Core
                 {
                     info.SetResponse(null, new RpcCallException(RpcFailureReason.Reject, data));
 
-                    return;
+                    return Task.FromResult(0);
                 }
 
                 RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
@@ -215,11 +216,15 @@ namespace MessageBus.Core
 
                 info.RegisteredHandle.Unregister(info.WaitHandle);
             }
+
+            return Task.FromResult(0);
         }
 
-        public override void HandleModelShutdown(object model, ShutdownEventArgs reason)
+        public override Task HandleModelShutdown(object model, ShutdownEventArgs reason)
         {
             _callbacksDictionary.Clear();
+
+            return Task.FromResult(0);
         }
     }
 }

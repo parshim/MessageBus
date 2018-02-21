@@ -47,13 +47,13 @@ namespace MessageBus.Core
             {
                 if (ex != null)
                 {
-                    tcs.TrySetException(ex);
+                    tcs.SetException(ex);
                 }
                 else
                 {
                     TReplyData replyMessage = createReply(r);
 
-                    tcs.TrySetResult(replyMessage);
+                    tcs.SetResult(replyMessage);
                 }
             });
 
