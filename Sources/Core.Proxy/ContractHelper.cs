@@ -26,7 +26,12 @@ namespace MessageBus.Core.Proxy
 
             if (attribute == null || string.IsNullOrEmpty(attribute.Name))
             {
-                name = type.Name;
+                // Support generic types
+                name = type.ToString();
+                if (name.IndexOf(type.Namespace ?? string.Empty, 0, StringComparison.Ordinal) == 0)
+                {
+                    name = name.Substring(type.Namespace?.Length ?? 0);
+                }
             }
             else
             {
