@@ -69,12 +69,19 @@ namespace MessageBus.Core
 
             DataContractAttribute attribute = type.GetCustomAttribute<DataContractAttribute>();
 
-            if (attribute != null)
+            // Support generic types
+            var name = type.ToString();
+            if (name.IndexOf(type.Namespace ?? string.Empty, 0, StringComparison.Ordinal) == 0)
             {
-                return new DataContractKey(attribute.Name ?? type.Name, attribute.Namespace ?? type.Namespace);
+                name = name.Substring((type.Namespace?.Length ?? -1) + 1);
             }
 
-            return new DataContractKey(type.Name, type.Namespace);
+            if (attribute != null)
+            {
+                return new DataContractKey(attribute.Name ?? name, attribute.Namespace ?? type.Namespace);
+            }
+
+            return new DataContractKey(name, type.Namespace);
         }
 
         public static DateTime GetDateTime(this AmqpTimestamp timestamp)

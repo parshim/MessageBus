@@ -46,7 +46,7 @@ namespace Core.IntegrationTest
                     _text.Should().Be("NO_ROUTE");
 
                     _message.BusId.Should().Be(bus.BusId);
-                    _message.Name.Should().Be("UndeliverablePerson");
+                    _message.Name.Should().Be("BusFailedDeliveryTest+UndeliverablePerson");
                     _message.Sent.Should().BeCloseTo(DateTime.Now, 2000);
                     _message.Data.Should().BeOfType<UndeliverablePerson>();
 
