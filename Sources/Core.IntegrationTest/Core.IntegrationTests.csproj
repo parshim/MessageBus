@@ -97,6 +97,7 @@
     <Compile Include="BusAnnotatedSubscriptionTests.cs" />
     <Compile Include="BusAsyncRpcCommunicationTest.cs" />
     <Compile Include="Contract.cs" />
+    <Compile Include="GenericMessageTypeTests.cs" />
     <Compile Include="ProtobufSerializerTests.cs" />
     <Compile Include="QueueNonDurableTests.cs" />
     <Compile Include="BusDurableTests.cs" />
