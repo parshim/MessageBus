@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace MessageBus.Core
 {
@@ -59,8 +60,7 @@ namespace MessageBus.Core
                 TopologyRecoveryEnabled = true,
                 UserName = username,
                 Password = password,
-                VirtualHost = busConfiguration.ConnectionString.VirtualHost,
-                DispatchConsumersAsync = true
+                VirtualHost = busConfiguration.ConnectionString.VirtualHost
             };
 
             _connection = factory.CreateConnection(busConfiguration.ConnectionProvidedName);
@@ -212,7 +212,7 @@ namespace MessageBus.Core
 
             model.QueueBind(queue, configurator.Exchange, configurator.RoutingKey, filterHeaders ?? Enumerable.Empty<BusHeader>());
 
-            AsyncDefaultBasicConsumer consumer;
+            DefaultBasicConsumer consumer;
 
             if (configurator.TransactionalDelivery)
             {
@@ -317,10 +317,10 @@ namespace MessageBus.Core
         {
             if (configurator.TransactionalDelivery)
             {
-                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.ExceptionFilter, configurator.Serializers, configurator.ErrorSubscriber, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange, configurator.Trace);
+                return new TransactionalMessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.ExceptionFilter, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange, configurator.Trace);
             }
 
-            return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange, configurator.Trace);
+            return new MessageConsumer(BusId, model, _messageHelper, _sendHelper, configurator.Serializers, configurator.ErrorSubscriber, configurator.TaskScheduler, configurator.ReceiveSelfPublish, configurator.NeverReply, configurator.ReplyExchange, configurator.Trace);
         }
     }
 }

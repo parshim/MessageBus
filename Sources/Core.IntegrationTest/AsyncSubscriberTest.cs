@@ -41,7 +41,10 @@ namespace Core.IntegrationTest
 
         private async Task Subscribe(ImportiantData data)
         {
-            throw new Exception();
+            await Task.Run(() =>
+            {
+                throw new Exception();
+            });
         }
 
         public void UnhandledException(Exception exception)

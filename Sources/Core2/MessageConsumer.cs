@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading;
 using System.Threading.Tasks;
 
 using MessageBus.Core.API;
@@ -10,7 +10,7 @@ using RabbitMQ.Client;
 
 namespace MessageBus.Core
 {
-    public class MessageConsumer : AsyncDefaultBasicConsumer, IMessageConsumer
+    public class MessageConsumer : DefaultBasicConsumer, IMessageConsumer
     {
         private readonly ConcurrentDictionary<Type, SubscriptionInfo> _subscriptions = new ConcurrentDictionary<Type, SubscriptionInfo>();
 
@@ -18,14 +18,16 @@ namespace MessageBus.Core
         private readonly bool _receiveSelfPublish;
         private readonly bool _neverReply;
         private readonly string _replyExchange;
-        
+
+        private readonly TaskFactory _taskFactory;
+
         private readonly IMessageHelper _messageHelper;
         private readonly ISendHelper _sendHelper;
         private readonly Dictionary<string, ISerializer> _serializers;
         private readonly IErrorSubscriber _errorSubscriber;
         private readonly ITrace _trace;
 
-        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, bool receiveSelfPublish, bool neverReply, string replyExchange, ITrace trace)
+        public MessageConsumer(string busId, IModel model, IMessageHelper messageHelper, ISendHelper sendHelper, Dictionary<string, ISerializer> serializers, IErrorSubscriber errorSubscriber, TaskScheduler scheduler, bool receiveSelfPublish, bool neverReply, string replyExchange, ITrace trace)
             : base(model)
         {
             _busId = busId;
@@ -37,20 +39,22 @@ namespace MessageBus.Core
             _sendHelper = sendHelper;
             _replyExchange = replyExchange;
             _trace = trace;
-        }
 
-        public override async Task HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
-        {
-            try
-            {
-                await ConsumeMessage(redelivered, deliveryTag, properties, body);
-            }
-            catch (Exception ex)
-            {
-                _errorSubscriber.UnhandledException(ex);
-            }
+            _taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
         }
         
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        {
+            Func<Task<bool>> func = () => ConsumeMessage(redelivered, deliveryTag, properties, body).ContinueWith(t =>
+            {
+                _errorSubscriber.UnhandledException(t.Exception);
+
+                return false;
+            }, TaskContinuationOptions.OnlyOnFaulted);
+
+            _taskFactory.StartNew(func).Unwrap();
+        }
+
         protected virtual async Task<bool> ConsumeMessage(bool redelivered, ulong deliveryTag, IBasicProperties properties, byte[] body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
