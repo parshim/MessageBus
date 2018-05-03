@@ -1,4 +1,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/tkxxfhrvplrqtivf?svg=true)](https://ci.appveyor.com/project/parshim/messagebus)
+
+![AppVeyor tests](https://img.shields.io/appveyor/tests/parshim/messagebus.svg)
 [![NuGet](https://img.shields.io/nuget/dt/RabbitMQ.MessageBus.svg)](http://www.nuget.org/packages/RabbitMQ.MessageBus/)
 
 MessageBus
