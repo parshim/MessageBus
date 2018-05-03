@@ -1,5 +1,5 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/tkxxfhrvplrqtivf?svg=true)](https://ci.appveyor.com/project/parshim/messagebus)
-[![NuGet](https://img.shields.io/nuget/v/RabbitMQ.MessageBus.svg)](http://www.nuget.org/packages/RabbitMQ.MessageBus/)
+[![NuGet](https://img.shields.io/nuget/dt/RabbitMQ.MessageBus.svg)](http://www.nuget.org/packages/RabbitMQ.MessageBus/)
 
 MessageBus
 ==========
