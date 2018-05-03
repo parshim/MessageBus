@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>RabbitMQ.MessageBus</id>
-        <version>3.2.1</version>
+        <version>$version$</version>
         <authors>Michael Parshin</authors>
         <owners>Michael Parshin</owners>
         <projectUrl>https://github.com/parshim/MessageBus</projectUrl>
@@ -20,7 +20,5 @@
     <files>
         <file src="Binaries\Release\MessageBus.Core.API.dll" target="lib\net451\MessageBus.Core.API.dll" />
         <file src="Binaries\Release\MessageBus.Core.dll" target="lib\net451\MessageBus.Core.dll" />
-        <file src="Binaries\Release\MessageBus.Core.API.pdb" target="lib\net451\MessageBus.Core.API.pdb" />
-        <file src="Binaries\Release\MessageBus.Core.pdb" target="lib\net451\MessageBus.Core.pdb" />
     </files>
 </package>
