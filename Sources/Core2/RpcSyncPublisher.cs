@@ -32,7 +32,7 @@ namespace MessageBus.Core
         {
             string id = NewMiniGuid();
 
-            _consumer.RegisterCallback(id, typeof (TReplyData), timeOut, (replyRawMessage, exception) =>
+            _consumer.RegisterCallback(id, typeof (TReplyData), (replyRawMessage, exception) =>
             {
                 if (exception == null && replyRawMessage != null)
                 {
@@ -64,15 +64,25 @@ namespace MessageBus.Core
             RawBusMessage replyMessage = null;
             Exception exception = null;
 
-            WaitHandle handle = _consumer.RegisterCallback(id, replyType, timeOut, (r, ex) =>
+            WaitHandle handle = _consumer.RegisterCallback(id, replyType, (r, ex) =>
             {
                 replyMessage = r;
                 exception = ex;
             });
 
-            SendMessage(busMessage, id, persistant);
+            try
+            {
+                SendMessage(busMessage, id, persistant);
 
-            handle.WaitOne();
+                if (!handle.WaitOne(timeOut))
+                {
+                    exception = new RpcCallException(RpcFailureReason.TimeOut);
+                }
+            }
+            finally
+            {
+                _consumer.RemoveCallback(id);
+            }
             
             if (exception != null)
             {

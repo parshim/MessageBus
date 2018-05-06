@@ -14,7 +14,6 @@ namespace MessageBus.Core
 
         private readonly Type _replyType;
         private readonly ManualResetEvent _ev;
-        private readonly RegisteredWaitHandle _handle;
 
         private RawBusMessage _message;
         private Exception _exception;
@@ -25,12 +24,11 @@ namespace MessageBus.Core
             _replyType = replyType;
         }
 
-        public CallbackInfo(Action<RawBusMessage, Exception> callback, Type replyType, ManualResetEvent ev, RegisteredWaitHandle handle)
+        public CallbackInfo(Action<RawBusMessage, Exception> callback, Type replyType, ManualResetEvent ev)
         {
             _callback = callback;
             _replyType = replyType;
             _ev = ev;
-            _handle = handle;
         }
 
         public void SetResponse(RawBusMessage message, Exception exception)
@@ -46,11 +44,6 @@ namespace MessageBus.Core
         public Type ReplyType
         {
             get { return _replyType; }
-        }
-
-        public RegisteredWaitHandle RegisteredHandle
-        {
-            get { return _handle; }
         }
 
         public WaitHandle WaitHandle
@@ -77,37 +70,26 @@ namespace MessageBus.Core
             _messageHelper = messageHelper;
         }
 
-        public WaitHandle RegisterCallback(string correlationId, Type replyType, TimeSpan timeOut, Action<RawBusMessage, Exception> callback)
+        public WaitHandle RegisterCallback(string correlationId, Type replyType, Action<RawBusMessage, Exception> callback)
         {
-            CallbackInfo callbackInfo = _callbacksDictionary.GetOrAdd(correlationId, id => CreateCallback(id, replyType, timeOut, callback));
+            CallbackInfo callbackInfo = _callbacksDictionary.GetOrAdd(correlationId, id => CreateCallback(replyType, callback));
 
             return callbackInfo.WaitHandle;
         }
 
-        private CallbackInfo CreateCallback(string id, Type replyType, TimeSpan timeOut, Action<RawBusMessage, Exception> callback)
+        public void RemoveCallback(string correlationId)
+        {
+            CallbackInfo val;
+            _callbacksDictionary.TryRemove(correlationId, out val);
+        }
+
+        private CallbackInfo CreateCallback(Type replyType, Action<RawBusMessage, Exception> callback)
         {
             ManualResetEvent ev = new ManualResetEvent(false);
-
-            RegisteredWaitHandle handle = ThreadPool.RegisterWaitForSingleObject(ev, CallbackTimeout, id, timeOut, true);
             
-            return new CallbackInfo(callback, replyType, ev, handle);
+            return new CallbackInfo(callback, replyType, ev);
         }
-
-        private void CallbackTimeout(object state, bool timedout)
-        {
-            string correlationId = (string) state;
-
-            CallbackInfo info;
-
-            if (_callbacksDictionary.TryRemove(correlationId, out info))
-            {
-                if (timedout)
-                {
-                    info.SetResponse(null, new RpcCallException(RpcFailureReason.TimeOut));
-                }
-            }
-        }
-
+        
         public void HandleBasicReturn(string correlationId, int replyCode, string replyText)
         {
             CallbackInfo info;
@@ -115,8 +97,6 @@ namespace MessageBus.Core
             if (_callbacksDictionary.TryRemove(correlationId, out info))
             {
                 info.SetResponse(null, new RpcCallException(RpcFailureReason.NotRouted, string.Format("Message not routed. Error code: {0}, reply: {1}", replyCode, replyText)));
-
-                info.RegisteredHandle.Unregister(info.WaitHandle);
             }
         }
 
@@ -212,8 +192,6 @@ namespace MessageBus.Core
                 _trace.MessageArrived(_busId, message, ConsumerTag);
 
                 info.SetResponse(message, null);
-
-                info.RegisteredHandle.Unregister(info.WaitHandle);
             }
         }
 

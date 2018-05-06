@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
@@ -41,25 +42,35 @@ namespace MessageBus.Core
         {
             string id = NewMiniGuid();
 
-            var tcs = new TaskCompletionSource<TReplyData>();
+            TReplyData replyMessage = default(TReplyData);
+            Exception exception = null;
 
-            _consumer.RegisterCallback(id, typeof(TReplyData), timeOut, (r, ex) =>
+            WaitHandle handle = _consumer.RegisterCallback(id, typeof(TReplyData), (r, ex) =>
             {
-                if (ex != null)
-                {
-                    tcs.TrySetException(ex);
-                }
-                else
-                {
-                    TReplyData replyMessage = createReply(r);
-
-                    tcs.TrySetResult(replyMessage);
-                }
+                replyMessage = createReply(r);
+                exception = ex;
             });
 
-            SendMessage(message, id, persistant);
+            try
+            {
+                SendMessage(message, id, persistant);
 
-            return tcs.Task;
+                if (!handle.WaitOne(timeOut))
+                {
+                    exception = new RpcCallException(RpcFailureReason.TimeOut);
+                }
+            }
+            finally
+            {
+                _consumer.RemoveCallback(id);
+            }
+
+            if (exception != null)
+            {
+                throw exception;
+            }
+
+            return Task.FromResult(replyMessage);
         }
 
     }
