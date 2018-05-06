@@ -26,6 +26,27 @@ namespace MessageBus.Core
             _model.BasicReturn += ModelOnBasicReturn;
         }
 
+        ~PublisherBase()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool finializing)
+        {
+            if (finializing && _configuration.Blocked) return;
+
+            _model.Abort();
+        }
+
+        public void Dispose()
+        {
+            _model.BasicReturn -= ModelOnBasicReturn;
+
+            Dispose(false);
+
+            GC.SuppressFinalize(this);
+        }
+
         private void ModelOnBasicReturn(object sender, BasicReturnEventArgs args)
         {
             DataContractKey dataContractKey = args.BasicProperties.GetDataContractKey();
@@ -54,15 +75,5 @@ namespace MessageBus.Core
         }
 
         protected abstract void OnMessageReturn(int replyCode, string replyText, RawBusMessage message);
-
-        public virtual void Dispose()
-        {
-            _model.BasicReturn -= ModelOnBasicReturn;
-
-            if (!_configuration.Blocked)
-            {
-                _model.Close();
-            }
-        }
     }
 }

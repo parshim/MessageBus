@@ -50,14 +50,14 @@ namespace MessageBus.Core
             }
         }
 
-        public override void Dispose()
+        protected override void Dispose(bool finalizing)
         {
             if (!string.IsNullOrEmpty(_consumerTag))
             {
                 _model.BasicCancel(_consumerTag);
             }
 
-            base.Dispose();
+            base.Dispose(finalizing);
         }
 
         protected override void OnMessageReturn(int replyCode, string replyText, RawBusMessage message)

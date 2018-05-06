@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
@@ -22,13 +23,24 @@ namespace MessageBus.Core
             _consumer = consumer;
             _configurator = configurator;
         }
-        
+
+        ~SubscriberBase()
+        {
+            Dispose(true);
+        }
+
+        private void Dispose(bool finializing)
+        {
+            if (finializing && _configurator.Blocked) return;
+
+            _model.Abort();
+        }
+
         public void Dispose()
         {
-            if (!_configurator.Blocked)
-            {
-                _model.Close();
-            }
+            Dispose(false);
+            
+            GC.SuppressFinalize(this);
         }
 
         public void Open()

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace MessageBus.Core
 {
@@ -18,16 +18,15 @@ namespace MessageBus.Core
         private readonly Func<Action<IPublisherConfigurator>, PublisherConfigurator> _createPublisherConfigurator;
         private readonly Func<Action<IRpcPublisherConfigurator>, RpcPublisherConfigurator> _createRpcPublisherConfigurator;
 
+        private readonly ManualResetEvent _recovery = new ManualResetEvent(true);
+
         private readonly string _exchange;
 
         public RabbitMQBus(Action<IBusConfigurator> busConfigurator = null)
         {
             BusConfigurator busConfiguration = new BusConfigurator();
 
-            if (busConfigurator != null)
-            {
-                busConfigurator(busConfiguration);
-            }
+            busConfigurator?.Invoke(busConfiguration);
 
             BusId = busConfiguration.BusId;
             BusConnectionName = busConfiguration.ConnectionProvidedName;
@@ -75,14 +74,21 @@ namespace MessageBus.Core
                 busConfiguration.ConnectionUnblocked();
             };
 
+            _connection.ConnectionShutdown += (sender, args) =>
+            {
+                _recovery.Reset();
+            };
+
+            _connection.RecoverySucceeded += (sender, args) =>
+            {
+                _recovery.Set();
+            };
+
             _createSubscriberConfigurator = configure =>
             {
                 SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ReplyExchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish, busConfiguration.Trace, () => busConfiguration.Blocked);
 
-                if (configure != null)
-                {
-                    configure(configurator);
-                }
+                configure?.Invoke(configurator);
 
                 return configurator;
             };
@@ -91,10 +97,7 @@ namespace MessageBus.Core
             {
                 PublisherConfigurator configurator = new PublisherConfigurator(_exchange, busConfiguration.ErrorHandler, busConfiguration.Trace, () => busConfiguration.Blocked);
 
-                if (configure != null)
-                {
-                    configure(configurator);
-                }
+                configure?.Invoke(configurator);
 
                 return configurator;
             };
@@ -103,18 +106,15 @@ namespace MessageBus.Core
             {
                 RpcPublisherConfigurator configurator = new RpcPublisherConfigurator(_exchange, busConfiguration.UseFastReply, busConfiguration.ReplyExchange, busConfiguration.ErrorHandler, busConfiguration.Trace, () => busConfiguration.Blocked);
 
-                if (configure != null)
-                {
-                    configure(configurator);
-                }
+                configure?.Invoke(configurator);
 
                 return configurator;
             };
         }
         
-        public string BusId { get; private set; }
+        public string BusId { get; }
 
-        public string BusConnectionName { get; private set; }
+        public string BusConnectionName { get; }
         
         public void Dispose()
         {
@@ -226,6 +226,11 @@ namespace MessageBus.Core
             return new MessageMonitor(model, queue, consumer, configurator);
         }
 
+        public bool WaitRecovery(TimeSpan timeOut)
+        {
+            return _recovery.WaitOne(timeOut);
+        }
+
         public IAsyncSubscriber CreateAsyncSubscriber(Action<ISubscriberConfigurator> configure = null)
         {
             SubscriberConfigurator configurator = _createSubscriberConfigurator(configure);
@@ -265,9 +270,8 @@ namespace MessageBus.Core
 
         private static string CreateQueue(IModel model, SubscriberConfigurator configurator)
         {
-            QueueDeclareOk queueDeclare;
-
             var arguments = new Dictionary<string, object>();
+
             if (configurator.MaxPriority > 0)
             {
                 arguments.Add("x-max-priority", configurator.MaxPriority);
@@ -292,7 +296,7 @@ namespace MessageBus.Core
                 return configurator.QueueName;
             }
 
-            queueDeclare = model.QueueDeclare("", false, true, true, arguments);
+            var queueDeclare = model.QueueDeclare("", false, true, true, arguments);
 
             return queueDeclare.QueueName;
         }

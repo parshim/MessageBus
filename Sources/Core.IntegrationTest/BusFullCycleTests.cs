@@ -40,6 +40,8 @@ namespace Core.IntegrationTest
                     subscriberA.Open();
                     subscriberB.Open();
 
+                    var reconect = entityA.WaitRecovery(TimeSpan.FromMinutes(1));
+
                     using (IPublisher publisher = entityB.CreatePublisher())
                     {
                         publisher.Send(messageA);

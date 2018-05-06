@@ -129,5 +129,11 @@ namespace MessageBus.Core.API
         /// <returns></returns>
         ISubscription CreateMonitor(Action<SerializedBusMessage> monitor, Action<ISubscriberConfigurator> configure = null, IEnumerable<BusHeader> filterHeaders = null);
 
+        /// <summary>
+        /// Wait for connection recovery
+        /// </summary>
+        /// <param name="timeOut"></param>
+        /// <returns></returns>
+        bool WaitRecovery(TimeSpan timeOut);
     }
 }
