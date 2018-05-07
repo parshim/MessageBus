@@ -13,12 +13,12 @@ namespace MessageBus.Core
         {
         }
 
-        public Task Send<TData>(TData data, CancellationToken cancellationToken, bool persistant)
+        public Task Send<TData>(TData data, bool persistant, CancellationToken cancellationToken)
         {
-            return Send(new BusMessage<TData> { Data = data }, cancellationToken, persistant);
+            return Send(new BusMessage<TData> { Data = data }, persistant, cancellationToken);
         }
 
-        public Task<TReplyData> Send<TData, TReplyData>(TData data, CancellationToken cancellationToken, bool persistant)
+        public Task<TReplyData> Send<TData, TReplyData>(TData data, bool persistant, CancellationToken cancellationToken)
         {
             return SendAndCreateTask(new BusMessage<TData> { Data = data }, cancellationToken, m =>
             {
@@ -28,12 +28,12 @@ namespace MessageBus.Core
             }, persistant);
         }
 
-        public Task Send<TData>(BusMessage<TData> message, CancellationToken cancellationToken, bool persistant)
+        public Task Send<TData>(BusMessage<TData> message, bool persistant, CancellationToken cancellationToken)
         {
             return SendAndCreateTask<TData, object>(message, cancellationToken, m => null, persistant);
         }
 
-        public Task<BusMessage<TReplyData>> Send<TData, TReplyData>(BusMessage<TData> message, CancellationToken cancellationToken, bool persistant)
+        public Task<BusMessage<TReplyData>> Send<TData, TReplyData>(BusMessage<TData> message, bool persistant, CancellationToken cancellationToken)
         {
             return SendAndCreateTask(message, cancellationToken, CreateBusMessage<TReplyData>, persistant);
         }

@@ -34,7 +34,7 @@ namespace Core.IntegrationTest
                             ResponseMessage response = await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
-                            }, ctx.Token);
+                            }, cancellationToken: ctx.Token);
 
                             response.ShouldBeEquivalentTo(new ResponseMessage
                             {
@@ -71,7 +71,7 @@ namespace Core.IntegrationTest
                                 rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                                 {
                                     Data = "Hello, world!"
-                                }, ctx.Token).ContinueWith(t =>
+                                }, cancellationToken: ctx.Token).ContinueWith(t =>
                                 {
                                     response = t.Result;
 
@@ -123,7 +123,7 @@ namespace Core.IntegrationTest
 
                         using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                         {
-                            var task = rpcPublisher.Send(expected, ctx.Token);
+                            var task = rpcPublisher.Send(expected, cancellationToken: ctx.Token);
 
                             task.Wait(TimeSpan.FromSeconds(30));
 
@@ -161,7 +161,7 @@ namespace Core.IntegrationTest
 
                         using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                         {
-                            var task = rpcPublisher.Send(expected, ctx.Token);
+                            var task = rpcPublisher.Send(expected, cancellationToken: ctx.Token);
 
                             task.Wait(TimeSpan.FromSeconds(30));
 
@@ -195,7 +195,7 @@ namespace Core.IntegrationTest
                             var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
-                            }, ctx.Token);
+                            }, cancellationToken: ctx.Token);
                             
                             try
                             {
@@ -234,7 +234,7 @@ namespace Core.IntegrationTest
                             var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
-                            }, ctx.Token);
+                            }, cancellationToken: ctx.Token);
 
                             try
                             {
@@ -272,13 +272,13 @@ namespace Core.IntegrationTest
                                 var result = await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                                 {
                                     Data = "Hello, world!"
-                                }, ctx.Token);
+                                }, cancellationToken: ctx.Token);
 
                                 Assert.Fail("No exception");
                             }
-                            catch (TaskCanceledException ex)
+                            catch (TaskCanceledException)
                             {
-                                ex.CancellationToken.Should().Be(ctx.Token);
+                                ctx.IsCancellationRequested.Should().BeTrue();
                             }
                         }
                     }
@@ -298,7 +298,7 @@ namespace Core.IntegrationTest
                         var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                         {
                             Data = "Hello, world!"
-                        }, ctx.Token);
+                        }, cancellationToken: ctx.Token);
 
                         try
                         {
@@ -338,12 +338,12 @@ namespace Core.IntegrationTest
                             Task t1 = rpcPublisher1.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "1"
-                            }, ctx.Token).ContinueWith(task => c1Responses.Add(task.Result));
+                            }, cancellationToken: ctx.Token).ContinueWith(task => c1Responses.Add(task.Result));
 
                             Task t2 = rpcPublisher2.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "2"
-                            }, ctx.Token).ContinueWith(task => c2Responses.Add(task.Result));
+                            }, cancellationToken: ctx.Token).ContinueWith(task => c2Responses.Add(task.Result));
                             
                             Task.WaitAll(t1, t2);
                         }
