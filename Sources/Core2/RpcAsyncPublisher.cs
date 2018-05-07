@@ -13,14 +13,14 @@ namespace MessageBus.Core
         {
         }
 
-        public Task Send<TData>(TData data, TimeSpan timeOut, bool persistant)
+        public Task Send<TData>(TData data, CancellationToken cancellationToken, bool persistant)
         {
-            return Send(new BusMessage<TData> { Data = data }, timeOut, persistant);
+            return Send(new BusMessage<TData> { Data = data }, cancellationToken, persistant);
         }
 
-        public Task<TReplyData> Send<TData, TReplyData>(TData data, TimeSpan timeOut, bool persistant)
+        public Task<TReplyData> Send<TData, TReplyData>(TData data, CancellationToken cancellationToken, bool persistant)
         {
-            return SendAndCreateTask(new BusMessage<TData> { Data = data }, timeOut, m =>
+            return SendAndCreateTask(new BusMessage<TData> { Data = data }, cancellationToken, m =>
             {
                 BusMessage<TReplyData> replyMessage = CreateBusMessage<TReplyData>(m);
 
@@ -28,49 +28,47 @@ namespace MessageBus.Core
             }, persistant);
         }
 
-        public Task Send<TData>(BusMessage<TData> message, TimeSpan timeOut, bool persistant)
+        public Task Send<TData>(BusMessage<TData> message, CancellationToken cancellationToken, bool persistant)
         {
-            return SendAndCreateTask<TData, object>(message, timeOut, m => null, persistant);
+            return SendAndCreateTask<TData, object>(message, cancellationToken, m => null, persistant);
         }
 
-        public Task<BusMessage<TReplyData>> Send<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut, bool persistant)
+        public Task<BusMessage<TReplyData>> Send<TData, TReplyData>(BusMessage<TData> message, CancellationToken cancellationToken, bool persistant)
         {
-            return SendAndCreateTask(message, timeOut, CreateBusMessage<TReplyData>, persistant);
+            return SendAndCreateTask(message, cancellationToken, CreateBusMessage<TReplyData>, persistant);
         }
 
-        private Task<TReplyData> SendAndCreateTask<TData, TReplyData>(BusMessage<TData> message, TimeSpan timeOut, Func<RawBusMessage, TReplyData> createReply, bool persistant)
+        private Task<TReplyData> SendAndCreateTask<TData, TReplyData>(BusMessage<TData> message, CancellationToken cancellationToken, Func<RawBusMessage, TReplyData> createReply, bool persistant)
         {
             string id = NewMiniGuid();
 
-            TReplyData replyMessage = default(TReplyData);
-            Exception exception = null;
+            TaskCompletionSource<TReplyData> taskCompletionSource = new TaskCompletionSource<TReplyData>();
 
-            WaitHandle handle = _consumer.RegisterCallback(id, typeof(TReplyData), (r, ex) =>
+            var registration = cancellationToken.Register(() =>
             {
-                replyMessage = createReply(r);
-                exception = ex;
+                if (taskCompletionSource.TrySetCanceled())
+                {
+                    _consumer.RemoveCallback(id);
+                }
             });
 
-            try
+            _consumer.RegisterCallback(id, typeof(TReplyData), (r, ex) =>
             {
-                SendMessage(message, id, persistant);
-
-                if (!handle.WaitOne(timeOut))
+                if (ex != null)
                 {
-                    exception = new RpcCallException(RpcFailureReason.TimeOut);
+                    taskCompletionSource.TrySetException(ex);
                 }
-            }
-            finally
-            {
-                _consumer.RemoveCallback(id);
-            }
+                else
+                {
+                    var replyMessage = createReply(r);
 
-            if (exception != null)
-            {
-                throw exception;
-            }
+                    taskCompletionSource.TrySetResult(replyMessage);
+                }
 
-            return Task.FromResult(replyMessage);
+                registration.Dispose();
+            });
+            
+            return taskCompletionSource.Task;
         }
 
     }

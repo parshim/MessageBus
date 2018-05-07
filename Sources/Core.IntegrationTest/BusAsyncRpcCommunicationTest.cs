@@ -29,15 +29,18 @@ namespace Core.IntegrationTest
 
                     using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
-                        ResponseMessage response = await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                         {
-                            Data = "Hello, world!"
-                        }, TimeSpan.FromSeconds(10));
+                            ResponseMessage response = await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            {
+                                Data = "Hello, world!"
+                            }, ctx.Token);
 
-                        response.ShouldBeEquivalentTo(new ResponseMessage
-                        {
-                            Code = 13
-                        });
+                            response.ShouldBeEquivalentTo(new ResponseMessage
+                            {
+                                Code = 13
+                            });
+                        }
                     }
                 }
             }
@@ -63,27 +66,30 @@ namespace Core.IntegrationTest
 
                         using (ManualResetEvent ev = new ManualResetEvent(false))
                         {
-                            rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                             {
-                                Data = "Hello, world!"
-                            }, TimeSpan.FromSeconds(10)).ContinueWith(t =>
-                            {
-                                response = t.Result;
+                                rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                                {
+                                    Data = "Hello, world!"
+                                }, ctx.Token).ContinueWith(t =>
+                                {
+                                    response = t.Result;
 
-                                ev.Set();
-                            });
+                                    ev.Set();
+                                });
 
-                            bool waitOne = ev.WaitOne(TimeSpan.FromSeconds(20));
+                                bool waitOne = ev.WaitOne(TimeSpan.FromSeconds(20));
 
-                            if (!waitOne)
-                            {
-                                Assert.Fail("No response received");
+                                if (!waitOne)
+                                {
+                                    Assert.Fail("No response received");
+                                }
+
+                                response.ShouldBeEquivalentTo(new ResponseMessage
+                                {
+                                    Code = 13
+                                });
                             }
-
-                            response.ShouldBeEquivalentTo(new ResponseMessage
-                            {
-                                Code = 13
-                            });
                         }
                     }
                 }
@@ -115,11 +121,16 @@ namespace Core.IntegrationTest
                             Data = "Hello, world!"
                         };
 
-                        var task = rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+                        using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                        {
+                            var task = rpcPublisher.Send(expected, ctx.Token);
 
-                        task.Wait(TimeSpan.FromSeconds(30));
+                            task.Wait(TimeSpan.FromSeconds(30));
 
-                        actual.ShouldBeEquivalentTo(expected);
+                            task.IsCompleted.Should().BeTrue();
+
+                            actual.ShouldBeEquivalentTo(expected);
+                        }
                     }
                 }
             }
@@ -148,11 +159,16 @@ namespace Core.IntegrationTest
                             Data = "Hello, world!"
                         };
 
-                        var task = rpcPublisher.Send(expected, TimeSpan.FromSeconds(10));
+                        using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                        {
+                            var task = rpcPublisher.Send(expected, ctx.Token);
 
-                        task.Wait(TimeSpan.FromSeconds(30));
+                            task.Wait(TimeSpan.FromSeconds(30));
 
-                        actual.ShouldBeEquivalentTo(expected);
+                            actual.ShouldBeEquivalentTo(expected);
+
+                            task.IsCompleted.Should().BeTrue();
+                        }
                     }
                 }
             }
@@ -174,20 +190,23 @@ namespace Core.IntegrationTest
 
                     using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
-                        try
+                        using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                         {
                             var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
-                            }, TimeSpan.FromSeconds(10));
+                            }, ctx.Token);
+                            
+                            try
+                            {
+                                var result = task.Result;
 
-                            task.Wait(TimeSpan.FromSeconds(30));
-
-                            Assert.Fail("No exception");
-                        }
-                        catch (AggregateException ex) when (ex.InnerException is RpcCallException)
-                        {
-                            (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.HandlerError);
+                                Assert.Fail("No exception");
+                            }
+                            catch (AggregateException ex) when (ex.InnerException is RpcCallException)
+                            {
+                                (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.HandlerError);
+                            }
                         }
                     }
                 }
@@ -210,20 +229,23 @@ namespace Core.IntegrationTest
 
                     using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
-                        try
+                        using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                         {
                             var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                             {
                                 Data = "Hello, world!"
-                            }, TimeSpan.FromSeconds(10));
-                            
-                            task.Wait(TimeSpan.FromSeconds(30));
+                            }, ctx.Token);
 
-                            Assert.Fail("No exception");
-                        }
-                        catch (AggregateException ex) when (ex.InnerException is RpcCallException)
-                        {
-                            (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.Reject);
+                            try
+                            {
+                                task.Wait(TimeSpan.FromSeconds(30));
+
+                                Assert.Fail("No exception");
+                            }
+                            catch (AggregateException ex) when (ex.InnerException is RpcCallException)
+                            {
+                                (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.Reject);
+                            }
                         }
                     }
                 }
@@ -243,18 +265,21 @@ namespace Core.IntegrationTest
 
                     using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                     {
-                        try
+                        using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                         {
-                            await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            try
                             {
-                                Data = "Hello, world!"
-                            }, TimeSpan.FromSeconds(10));
+                                var result = await rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                                {
+                                    Data = "Hello, world!"
+                                }, ctx.Token);
 
-                            Assert.Fail("No exception");
-                        }
-                        catch (RpcCallException ex)
-                        {
-                            ex.Reason.Should().Be(RpcFailureReason.TimeOut);
+                                Assert.Fail("No exception");
+                            }
+                            catch (TaskCanceledException ex)
+                            {
+                                ex.CancellationToken.ShouldBeEquivalentTo(ctx.Token);
+                            }
                         }
                     }
                 }
@@ -268,20 +293,23 @@ namespace Core.IntegrationTest
             {
                 using (IRpcAsyncPublisher rpcPublisher = bus.CreateAsyncRpcPublisher())
                 {
-                    try
+                    using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                     {
                         var task = rpcPublisher.Send<RequestMessage, ResponseMessage>(new RequestMessage
                         {
                             Data = "Hello, world!"
-                        }, TimeSpan.FromSeconds(10));
+                        }, ctx.Token);
 
-                        task.Wait(TimeSpan.FromSeconds(30));
+                        try
+                        {
+                            task.Wait(TimeSpan.FromSeconds(30));
 
-                        Assert.Fail("No exception");
-                    }
-                    catch (AggregateException  ex) when (ex.InnerException is RpcCallException)
-                    {
-                        (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.NotRouted);
+                            Assert.Fail("No exception");
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is RpcCallException)
+                        {
+                            (ex.InnerException as RpcCallException).Reason.Should().Be(RpcFailureReason.NotRouted);
+                        }
                     }
                 }
             }
@@ -305,18 +333,20 @@ namespace Core.IntegrationTest
                     {
                         List<ResponseMessage> c1Responses = new List<ResponseMessage>(), c2Responses = new List<ResponseMessage>();
 
-                        Task t1 = rpcPublisher1.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                        using (var ctx = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                         {
-                            Data = "1"
-                        }, TimeSpan.FromSeconds(10)).ContinueWith(task => c1Responses.Add(task.Result));
+                            Task t1 = rpcPublisher1.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            {
+                                Data = "1"
+                            }, ctx.Token).ContinueWith(task => c1Responses.Add(task.Result));
 
-                        Task t2 = rpcPublisher2.Send<RequestMessage, ResponseMessage>(new RequestMessage
-                        {
-                            Data = "2"
-                        }, TimeSpan.FromSeconds(10)).ContinueWith(task => c2Responses.Add(task.Result));
-                        
-
-                        Task.WaitAll(t1, t2);
+                            Task t2 = rpcPublisher2.Send<RequestMessage, ResponseMessage>(new RequestMessage
+                            {
+                                Data = "2"
+                            }, ctx.Token).ContinueWith(task => c2Responses.Add(task.Result));
+                            
+                            Task.WaitAll(t1, t2);
+                        }
                         
                         c1Responses.All(message => message.Code == 1).Should().BeTrue();
                         c2Responses.All(message => message.Code == 2).Should().BeTrue();
