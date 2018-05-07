@@ -278,7 +278,7 @@ namespace Core.IntegrationTest
                             }
                             catch (TaskCanceledException ex)
                             {
-                                ex.CancellationToken.ShouldBeEquivalentTo(ctx.Token);
+                                ex.CancellationToken.Should().Be(ctx.Token);
                             }
                         }
                     }
