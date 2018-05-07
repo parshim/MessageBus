@@ -67,7 +67,9 @@ namespace MessageBus.Core
 
                 registration.Dispose();
             });
-            
+
+            SendMessage(message, id, persistant);
+
             return taskCompletionSource.Task;
         }
 
