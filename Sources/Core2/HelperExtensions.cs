@@ -15,8 +15,15 @@ namespace MessageBus.Core
         {
             IDictionary<string, object> arguments = new Dictionary<string, object>();
 
-            arguments.Add(MessagingConstants.HeaderNames.Name, filterInfo.ContractKey.Name);
-            arguments.Add(MessagingConstants.HeaderNames.NameSpace, filterInfo.ContractKey.Ns);
+            if (!string.IsNullOrEmpty(filterInfo.ContractKey.Name))
+            { 
+                arguments.Add(MessagingConstants.HeaderNames.Name, filterInfo.ContractKey.Name);
+            }
+
+            if (!string.IsNullOrEmpty(filterInfo.ContractKey.Ns))
+            {
+                arguments.Add(MessagingConstants.HeaderNames.NameSpace, filterInfo.ContractKey.Ns);
+            }
 
             foreach (BusHeader header in filterInfo.FilterHeaders)
             {
