@@ -5,13 +5,19 @@
     /// </summary>
     public interface IBusConfigurator
     {
-
         /// <summary>
         /// set a custom connection name
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         IBusConfigurator SetConnectionProvidedName(string name);
+
+        /// <summary>
+        /// set a number of retries to establish connection to rabbit node
+        /// </summary>
+        /// <param name="retries"></param>
+        /// <returns></returns>
+        IBusConfigurator SetConnectionRetries(int retries);
 
         /// <summary>
         /// Set custom bus id

@@ -19,7 +19,7 @@ namespace Core.IntegrationTest
 
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            using (IBus bus = new MessageBus.Core.RabbitMQBus())
+            using (IBus bus = new MessageBus.Core.RabbitMQBus(c => c.SetConnectionRetries(50)))
             {
                 using (ISubscriber subscriber = bus.CreateSubscriber(c => c.SetReceiveSelfPublish()))
                 {

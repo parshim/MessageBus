@@ -7,6 +7,7 @@ namespace MessageBus.Core
     public class BusConfigurator : IBusConfigurator, IBlockWatcher
     {
         private string _connectionProvidedName = string.Empty;
+        private int _connectionRetries = 1;
         private string _busId = Guid.NewGuid().ToString();
         private IPublishingErrorHandler _errorHandler;
         private ITrace _trace;
@@ -21,6 +22,11 @@ namespace MessageBus.Core
         public string ConnectionProvidedName
         {
             get { return _connectionProvidedName; }
+        }
+
+        public int ConnectionRetries
+        {
+            get { return _connectionRetries; }
         }
 
         public string BusId
@@ -78,6 +84,12 @@ namespace MessageBus.Core
         public IBusConfigurator SetConnectionProvidedName(string name)
         {
             _connectionProvidedName = name;
+            return this;
+        }
+
+        public IBusConfigurator SetConnectionRetries(int retries)
+        {
+            _connectionRetries = retries;
             return this;
         }
 

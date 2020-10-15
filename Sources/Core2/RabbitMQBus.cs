@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using MessageBus.Core.API;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 
 namespace MessageBus.Core
 {
@@ -59,11 +61,31 @@ namespace MessageBus.Core
                 TopologyRecoveryEnabled = true,
                 UserName = username,
                 Password = password,
-                VirtualHost = busConfiguration.ConnectionString.VirtualHost
+                VirtualHost = busConfiguration.ConnectionString.VirtualHost,
+                RequestedConnectionTimeout = 60000
             };
 
-            _connection = factory.CreateConnection(busConfiguration.ConnectionProvidedName);
+            Exception ex = null;
 
+            for (int i = 0; i < busConfiguration.ConnectionRetries; i++)
+            {
+                try
+                {
+                    _connection = factory.CreateConnection(busConfiguration.ConnectionProvidedName);
+
+                    ex = null;
+
+                    break;
+                }
+                catch (BrokerUnreachableException e)
+                {
+                    ex = e;
+                }
+            }
+
+            if (ex != null)
+                throw ex;
+            
             _connection.ConnectionBlocked += (sender, args) =>
             {
                 busConfiguration.ConnectionBlocked(args.Reason);
