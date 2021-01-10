@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binding", "Binding", "{D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}"
 EndProject
@@ -48,6 +48,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.SignalR.IntegrationTests", "Core.SignalR.IntegrationTests\Core.SignalR.IntegrationTests.csproj", "{368519CD-1604-47E9-803D-F3456747CB6B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Protobuf", "Core.Protobuf\Core.Protobuf.csproj", "{1DB77659-2A64-492B-8109-D52D7C7BE3D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Standard", "Core.STandard\Core.Standard.csproj", "{E29BB2E0-B458-49FE-850C-5CECE6E67076}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +115,10 @@ Global
 		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,8 +132,8 @@ Global
 		{DDF82B33-45E1-455C-B7B4-273DA10844D4} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {6A053174-8630-4190-A823-9D16D3E92A9D}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MessageBus.vsmdi

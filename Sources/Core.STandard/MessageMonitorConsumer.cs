@@ -1,0 +1,53 @@
+using System;
+using MessageBus.Core.API;
+using RabbitMQ.Client;
+
+namespace MessageBus.Core
+{
+    public class MessageMonitorConsumer : DefaultBasicConsumer
+    {
+        private readonly IMessageHelper _messageHelper;
+
+        private readonly Action<SerializedBusMessage> _monitor;
+
+        private readonly IErrorSubscriber _errorSubscriber;
+
+        public MessageMonitorConsumer(IModel model, IMessageHelper messageHelper, Action<SerializedBusMessage> monitor, IErrorSubscriber errorSubscriber):base(model)
+        {
+            _messageHelper = messageHelper;
+            _monitor = monitor;
+            _errorSubscriber = errorSubscriber;
+        }
+
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, ReadOnlyMemory<byte> body)
+        {
+            DataContractKey dataContractKey = properties.GetDataContractKey();
+
+            SerializedBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, body.ToArray());
+
+            try
+            {
+                _monitor(message);
+            }
+            catch(Exception ex)
+            {
+                RawBusMessage raw = new RawBusMessage
+                {
+                    Data = message.Data,
+                    Namespace = message.Namespace,
+                    Name = message.Name,
+                    BusId = message.BusId,
+                    CorrelationId = message.CorrelationId,
+                    Sent = message.Sent
+                };
+
+                foreach (var header in message.Headers)
+                {
+                    raw.Headers.Add(header);
+                }
+
+                _errorSubscriber.MessageDispatchException(raw, ex);
+            }
+        }
+    }
+}
