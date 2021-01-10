@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>C:\Users\parsh\source\repos\parshim\MessageBus\Binaries\Release\</OutputPath>
+    <OutputPath>..\..\Binaries\Release\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Users\parsh\source\repos\parshim\MessageBus\Binaries\Debug\</OutputPath>
+    <OutputPath>..\..\Binaries\Debug\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
