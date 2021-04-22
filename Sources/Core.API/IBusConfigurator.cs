@@ -34,6 +34,13 @@
         IBusConfigurator UseConnectionString(string connectionString);
 
         /// <summary>
+        /// Specify broker alternate connection string
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
+        IBusConfigurator UseAlternateConnectionString(string connectionString);
+
+        /// <summary>
         /// Specify broker connection string
         /// </summary>
         /// <param name="name">Connection string name from App.config</param>

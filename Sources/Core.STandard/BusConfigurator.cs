@@ -13,6 +13,7 @@ namespace MessageBus.Core
         private IBlockWatcher _blockWatcher = new NullBlockWatcher();
         private IErrorSubscriber _errorSubscriber;
         private RabbitMQConnectionString _connectionString;
+        private RabbitMQConnectionString _alternateConnectionString;
         private bool _receiveSelfPublish;
         private bool _useFastReply = true;
         private string _replyExchange = "";
@@ -104,9 +105,21 @@ namespace MessageBus.Core
             get { return _connectionString ?? new RabbitMQConnectionString(); }
         }
 
+        public RabbitMQConnectionString AlternateConnectionString
+        {
+            get { return _alternateConnectionString ?? new RabbitMQConnectionString(); }
+        }
+
         public IBusConfigurator UseConnectionString(string connectionString)
         {
             _connectionString = new RabbitMQConnectionString(new Uri(connectionString));
+
+            return this;
+        }
+
+        public IBusConfigurator UseAlternateConnectionString(string connectionString)
+        {
+            _alternateConnectionString = new RabbitMQConnectionString(new Uri(connectionString));
 
             return this;
         }

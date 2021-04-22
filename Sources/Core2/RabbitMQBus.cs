@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
 using MessageBus.Core.API;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
@@ -11,7 +11,7 @@ namespace MessageBus.Core
 {
     public class RabbitMQBus : IBus
     {
-        private readonly IConnection _connection;
+        private IConnection _connection;
 
         private readonly IMessageHelper _messageHelper = new MessageHelper();
         private readonly ISendHelper _sendHelper = new SendHelper();
@@ -22,7 +22,7 @@ namespace MessageBus.Core
 
         private readonly ManualResetEvent _recovery = new ManualResetEvent(true);
 
-        private readonly string _exchange;
+        private string _exchange;
 
         public RabbitMQBus(Action<IBusConfigurator> busConfigurator = null)
         {
@@ -34,53 +34,16 @@ namespace MessageBus.Core
             BusConnectionName = busConfiguration.ConnectionProvidedName;
 
             _exchange = "amq.headers";
-
-            string username = "guest";
-            string password = "guest";
-
-            if (!string.IsNullOrEmpty(busConfiguration.ConnectionString.Endpoint))
-            {
-                _exchange = busConfiguration.ConnectionString.Endpoint;
-            }
-
-            if (!string.IsNullOrEmpty(busConfiguration.ConnectionString.Username))
-            {
-                username = busConfiguration.ConnectionString.Username;
-            }
-
-            if (!string.IsNullOrEmpty(busConfiguration.ConnectionString.Password))
-            {
-                password = busConfiguration.ConnectionString.Password;
-            }
             
-            ConnectionFactory factory = new ConnectionFactory
+            var factory = ConnectionFactory(busConfiguration.ConnectionString);
+
+            var ex = Connect(busConfiguration, factory);
+
+            if (ex != null)
             {
-                HostName = busConfiguration.ConnectionString.Host,
-                Port = busConfiguration.ConnectionString.Port,
-                AutomaticRecoveryEnabled = true,
-                TopologyRecoveryEnabled = true,
-                UserName = username,
-                Password = password,
-                VirtualHost = busConfiguration.ConnectionString.VirtualHost,
-                RequestedConnectionTimeout = 60000
-            };
+                factory = ConnectionFactory(busConfiguration.AlternateConnectionString);
 
-            Exception ex = null;
-
-            for (int i = 0; i < busConfiguration.ConnectionRetries; i++)
-            {
-                try
-                {
-                    _connection = factory.CreateConnection(busConfiguration.ConnectionProvidedName);
-
-                    ex = null;
-
-                    break;
-                }
-                catch (BrokerUnreachableException e)
-                {
-                    ex = e;
-                }
+                ex = Connect(busConfiguration, factory);
             }
 
             if (ex != null)
@@ -133,7 +96,65 @@ namespace MessageBus.Core
                 return configurator;
             };
         }
-        
+
+        private Exception Connect(BusConfigurator busConfiguration, ConnectionFactory factory)
+        {
+            Exception ex = null;
+
+            for (int i = 0; i < busConfiguration.ConnectionRetries; i++)
+            {
+                try
+                {
+                    _connection = factory.CreateConnection(busConfiguration.ConnectionProvidedName);
+
+                    ex = null;
+
+                    break;
+                }
+                catch (BrokerUnreachableException e)
+                {
+                    ex = e;
+                }
+            }
+
+            return ex;
+        }
+
+        private ConnectionFactory ConnectionFactory(RabbitMQConnectionString connectionString)
+        {
+            string username = "guest";
+            string password = "guest";
+
+            if (!string.IsNullOrEmpty(connectionString.Endpoint))
+            {
+                _exchange = connectionString.Endpoint;
+            }
+
+            if (!string.IsNullOrEmpty(connectionString.Username))
+            {
+                username = connectionString.Username;
+            }
+
+            if (!string.IsNullOrEmpty(connectionString.Password))
+            {
+                password = connectionString.Password;
+            }
+
+            var factory = new ConnectionFactory
+            {
+                HostName = connectionString.Host,
+                Port = connectionString.Port,
+                AutomaticRecoveryEnabled = true,
+                TopologyRecoveryEnabled = true,
+                UserName = username,
+                Password = password,
+                VirtualHost = connectionString.VirtualHost,
+                RequestedConnectionTimeout = 60000
+            };
+
+            return factory;
+        }
+
         public string BusId { get; }
 
         public string BusConnectionName { get; }
