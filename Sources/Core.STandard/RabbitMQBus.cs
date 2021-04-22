@@ -42,7 +42,7 @@ namespace MessageBus.Core
                 ex = Connect(busConfiguration, factory);
             }
             
-            if (ex != null)
+            if (ex != null) 
                 throw ex;
             
             _connection.ConnectionBlocked += (sender, args) =>
