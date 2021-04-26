@@ -35,6 +35,11 @@ namespace MessageBus.Core.API
         /// Bus client name which uniquely identifies publishers and subscribers created within this instance
         /// </summary>
         string BusId { get; }
+        
+        /// <summary>
+        /// Check if connected to the broker
+        /// </summary>
+        bool IsConnected { get; }
 
         /// <summary>
         /// Creates publisher session. Publishers cannot be shared between threads.

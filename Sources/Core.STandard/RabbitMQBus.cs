@@ -143,6 +143,8 @@ namespace MessageBus.Core
 
         public string BusId { get; }
 
+        public bool IsConnected => _connection?.IsOpen == true;
+
         public string BusConnectionName { get; }
         
         public void Dispose()
