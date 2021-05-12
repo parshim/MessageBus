@@ -24,6 +24,7 @@
     <files>
         <file src="Binaries\Release\MessageBus.Core.API.dll" target="lib\net451\MessageBus.Core.API.dll" />
         <file src="Binaries\Release\MessageBus.Core.dll" target="lib\net451\MessageBus.Core.dll" />
+		<file src="Binaries\Release\netstandard2.1\MessageBus.Core.dll" target="lib\net48\MessageBus.Core.dll" />
 		<file src="Binaries\Release\netstandard2.1\MessageBus.Core.dll" target="lib\netstandard2.1\MessageBus.Core.dll" />
     </files>
 </package>
