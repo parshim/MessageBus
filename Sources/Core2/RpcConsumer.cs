@@ -100,7 +100,7 @@ namespace MessageBus.Core
             }
         }
 
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, ReadOnlyMemory<byte> body)
         {
             if (!properties.IsCorrelationIdPresent())
             {
@@ -168,7 +168,7 @@ namespace MessageBus.Core
                         }
                         else
                         {
-                            data = serializer.Deserialize(info.ReplyType, body);
+                            data = serializer.Deserialize(info.ReplyType, body.ToArray());
                         }
                     }
                     catch (Exception ex)
@@ -189,7 +189,7 @@ namespace MessageBus.Core
 
                 RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, data);
 
-                _trace.MessageArrived(_busId, message, ConsumerTag);
+                _trace.MessageArrived(_busId, message, ConsumerTags.FirstOrDefault());
 
                 info.SetResponse(message, null);
             }

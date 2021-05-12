@@ -64,11 +64,6 @@ namespace MessageBus.Core
                 _recovery.Reset();
             };
 
-            _connection.RecoverySucceeded += (sender, args) =>
-            {
-                _recovery.Set();
-            };
-
             _createSubscriberConfigurator = configure =>
             {
                 SubscriberConfigurator configurator = new SubscriberConfigurator(_exchange, busConfiguration.ReplyExchange, busConfiguration.ErrorSubscriber, busConfiguration.ReceiveSelfPublish, busConfiguration.Trace, () => busConfiguration.Blocked);
@@ -149,7 +144,7 @@ namespace MessageBus.Core
                 UserName = username,
                 Password = password,
                 VirtualHost = connectionString.VirtualHost,
-                RequestedConnectionTimeout = 60000
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(60000)
             };
 
             return factory;
@@ -163,7 +158,7 @@ namespace MessageBus.Core
 
         public void Dispose()
         {
-            _connection.Close(0);
+            _connection.Close(TimeSpan.Zero);
         }
         
         public IPublisher CreatePublisher(Action<IPublisherConfigurator> configure = null)

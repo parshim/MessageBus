@@ -43,9 +43,9 @@ namespace MessageBus.Core
             _taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
         }
         
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, ReadOnlyMemory<byte> body)
         {
-            Func<Task<bool>> func = () => ConsumeMessage(redelivered, deliveryTag, properties, body).ContinueWith(t =>
+            Func<Task<bool>> func = () => ConsumeMessage(redelivered, deliveryTag, properties, body.ToArray()).ContinueWith(t =>
             {
                 _errorSubscriber.UnhandledException(t.Exception);
 
@@ -121,7 +121,7 @@ namespace MessageBus.Core
                 return false;
             }
 
-            _trace.MessageArrived(_busId, message, ConsumerTag);
+            _trace.MessageArrived(_busId, message, ConsumerTags.FirstOrDefault());
 
             RawBusMessage reply;
 

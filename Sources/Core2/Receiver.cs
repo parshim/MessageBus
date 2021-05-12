@@ -124,7 +124,7 @@ namespace MessageBus.Core
                 }
                 else
                 {
-                    data = _serializers[basicProperties.ContentType].Deserialize(subscription.DataType, result.Body);
+                    data = _serializers[basicProperties.ContentType].Deserialize(subscription.DataType, result.Body.ToArray());
                 }
             }
             catch (Exception ex)

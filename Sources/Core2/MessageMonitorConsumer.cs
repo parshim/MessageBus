@@ -19,11 +19,11 @@ namespace MessageBus.Core
             _errorSubscriber = errorSubscriber;
         }
 
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, ReadOnlyMemory<byte> body)
         {
             DataContractKey dataContractKey = properties.GetDataContractKey();
 
-            SerializedBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, body);
+            SerializedBusMessage message = _messageHelper.ConstructMessage(dataContractKey, properties, body.ToArray());
 
             try
             {

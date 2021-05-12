@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using MessageBus.Core.API;
-using RabbitMQ.Client.Framing;
 
 namespace MessageBus.Core
 {
@@ -16,13 +15,12 @@ namespace MessageBus.Core
             busMessage.Sent = DateTime.Now;
             busMessage.BusId = sendParams.BusId;
 
-            BasicProperties basicProperties = new BasicProperties
-            {
-                AppId = busMessage.BusId,
-                Timestamp = busMessage.Sent.ToAmqpTimestamp(),
-                ContentType = contentType,
-                Headers = new Dictionary<string, object>()
-            };
+            var basicProperties = sendParams.Model.CreateBasicProperties();
+
+            basicProperties.AppId = busMessage.BusId;
+            basicProperties.Timestamp = busMessage.Sent.ToAmqpTimestamp();
+            basicProperties.ContentType = contentType;
+            basicProperties.Headers = new Dictionary<string, object>();
 
             if (!string.IsNullOrEmpty(name))
             {

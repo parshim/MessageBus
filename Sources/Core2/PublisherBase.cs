@@ -66,7 +66,7 @@ namespace MessageBus.Core
             }
             else
             {
-                data = _configuration.Serializer.Deserialize(dataType, args.Body);
+                data = _configuration.Serializer.Deserialize(dataType, args.Body.ToArray());
             }
 
             RawBusMessage message = _messageHelper.ConstructMessage(dataContractKey, args.BasicProperties, data);
