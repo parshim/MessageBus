@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<BaseOutputPath>..\..\Binaries\</BaseOutputPath>
+		<AssemblyName>MessageBus.Core.API.dll</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>

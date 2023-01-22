@@ -4,6 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<BaseOutputPath>..\..\Binaries\</BaseOutputPath>
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<AssemblyName>MessageBus.Core.dll</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
