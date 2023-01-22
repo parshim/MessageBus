@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
+		<BaseOutputPath>..\..\Binaries\Release\</BaseOutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
