@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ServiceModel.Channels;
 using System.Threading.Tasks;
 using MessageBus.Core.API;
 using Newtonsoft.Json;
@@ -10,7 +9,6 @@ namespace MessageBus.Core
     public class SubscriberConfigurator : ISubscriberConfigurator
     {
         private TaskScheduler _taskScheduler;
-        private BufferManager _bufferManager;
         private IErrorSubscriber _errorSubscriber;
         private ITrace _trace;
         private IExceptionFilter _exceptionFilter = new NullExceptionFilter();
@@ -76,12 +74,7 @@ namespace MessageBus.Core
         {
             get { return _exceptionFilter; }
         }
-
-        public BufferManager BufferManager
-        {
-            get { return _bufferManager; }
-        }
-
+        
         public IErrorSubscriber ErrorSubscriber
         {
             get { return _errorSubscriber; }
@@ -101,13 +94,11 @@ namespace MessageBus.Core
             get
             {
                 ISerializer jsonSerializer = new JsonSerializer(_settings);
-                ISerializer soapSerializer = new SoapSerializer();
                 ISerializer xmlSerializer = new XmlSerializer();
 
                 return new Dictionary<string, ISerializer>(_serializers)
                 {
                     {jsonSerializer.ContentType, jsonSerializer},
-                    {soapSerializer.ContentType, soapSerializer},
                     {xmlSerializer.ContentType, xmlSerializer}
                 };
             }
@@ -161,12 +152,6 @@ namespace MessageBus.Core
         public bool Blocked
         {
             get { return _blocked(); }
-        }
-        public ISubscriberConfigurator UseBufferManager(BufferManager bufferManager)
-        {
-            _bufferManager = bufferManager;
-
-            return this;
         }
 
         public ISubscriberConfigurator UseErrorSubscriber(IErrorSubscriber errorSubscriber)

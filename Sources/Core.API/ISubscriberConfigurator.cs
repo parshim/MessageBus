@@ -1,5 +1,4 @@
-﻿using System.ServiceModel.Channels;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace MessageBus.Core.API
@@ -9,13 +8,6 @@ namespace MessageBus.Core.API
     /// </summary>
     public interface ISubscriberConfigurator
     {
-        /// <summary>
-        /// Specify buffer manager to be used for message transfer.
-        /// </summary>
-        /// <param name="bufferManager"></param>
-        /// <returns></returns>
-        ISubscriberConfigurator UseBufferManager(BufferManager bufferManager);
-
         /// <summary>
         /// Specify error subscriber interface to redirect subscriber errors to.
         /// </summary>

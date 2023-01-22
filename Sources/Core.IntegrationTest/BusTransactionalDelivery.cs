@@ -14,7 +14,7 @@ namespace Core.IntegrationTest
         private const string QueueName = "TestFailProcess";
         private const string DeadLetterQueueName = "TestDeadLetter";
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Initialize()
         {
             using (var bus = new RabbitMQBus())
@@ -35,7 +35,7 @@ namespace Core.IntegrationTest
             }
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void Clean()
         {
             using (var bus = new RabbitMQBus())

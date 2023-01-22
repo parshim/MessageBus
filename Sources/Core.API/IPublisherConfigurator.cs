@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ServiceModel.Channels;
 using Newtonsoft.Json;
 
 namespace MessageBus.Core.API
@@ -9,13 +8,6 @@ namespace MessageBus.Core.API
     /// </summary>
     public interface IPublisherConfigurator
     {
-        /// <summary>
-        /// Specify buffer manager to be used for message transfer.
-        /// </summary>
-        /// <param name="bufferManager"></param>
-        /// <returns></returns>
-        IPublisherConfigurator UseBufferManager(BufferManager bufferManager);
-
         /// <summary>
         /// Specify callback for messages which failed to be delivered.
         /// </summary>
@@ -40,12 +32,7 @@ namespace MessageBus.Core.API
         /// Specify that message should be persistent on queue.
         /// </summary>
         IPublisherConfigurator SetPersistentDelivery();
-
-        /// <summary>
-        /// Specifies that published messages should be serialized as Soap envelopes.
-        /// </summary>
-        IPublisherConfigurator UseSoapSerializer();
-        
+                
         /// <summary>
         /// Specifies that published messages should be serialized as xml.
         /// </summary>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binding", "Binding", "{D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}"
 EndProject
@@ -24,12 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.IntegrationTests", "Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{80E98378-020D-441C-98C0-5BFF508ADB47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZeroMQ", "Binding\ZeroMQ\ZeroMQ.csproj", "{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZeroMQ.IntegrationTests", "Binding\ZeroMQ.IntegrationTests\ZeroMQ.IntegrationTests.csproj", "{DDF82B33-45E1-455C-B7B4-273DA10844D4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.ZeroMQ", "Core.ZeroMQ\Core.ZeroMQ.csproj", "{17967D45-C969-44A4-8C33-4588ED94F549}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core2", "Core2\Core2.csproj", "{0B59193B-0883-4BD6-A66A-47C515EAF014}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Proxy", "Core.Proxy\Core.Proxy.csproj", "{49C94D69-D65F-4A65-B529-C308470B7A5B}"
@@ -41,8 +35,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.SignalR.IntegrationTests", "Core.SignalR.IntegrationTests\Core.SignalR.IntegrationTests.csproj", "{368519CD-1604-47E9-803D-F3456747CB6B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Protobuf", "Core.Protobuf\Core.Protobuf.csproj", "{1DB77659-2A64-492B-8109-D52D7C7BE3D8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Standard", "Core.STandard\Core.Standard.csproj", "{E29BB2E0-B458-49FE-850C-5CECE6E67076}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,16 +66,6 @@ Global
 		{80E98378-020D-441C-98C0-5BFF508ADB47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80E98378-020D-441C-98C0-5BFF508ADB47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80E98378-020D-441C-98C0-5BFF508ADB47}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17967D45-C969-44A4-8C33-4588ED94F549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17967D45-C969-44A4-8C33-4588ED94F549}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B59193B-0883-4BD6-A66A-47C515EAF014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0B59193B-0883-4BD6-A66A-47C515EAF014}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B59193B-0883-4BD6-A66A-47C515EAF014}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -108,10 +90,6 @@ Global
 		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DB77659-2A64-492B-8109-D52D7C7BE3D8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E29BB2E0-B458-49FE-850C-5CECE6E67076}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,12 +99,10 @@ Global
 		{0E7FE783-22CA-4752-9D4F-0961767764C9} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
 		{A4A58F6E-9836-4ED8-9B6A-B17A5077E86A} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
 		{816915E1-F1AB-4A58-A5A3-CB7F65A3D994} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
-		{F36D80EF-232F-4D5D-8490-2A03DC7A4C2F} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
-		{DDF82B33-45E1-455C-B7B4-273DA10844D4} = {D06C3A7A-7D2A-4710-AB4B-1EEA88C293CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {6A053174-8630-4190-A823-9D16D3E92A9D}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MessageBus.vsmdi

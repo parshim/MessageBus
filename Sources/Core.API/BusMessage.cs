@@ -52,17 +52,17 @@ namespace MessageBus.Core.API
         /// <summary>
         /// Message unique identifier
         /// </summary>
-        public string CorrelationId { get; internal set; } 
+        public string CorrelationId { get; set; } 
 
         /// <summary>
         /// Message originator Bus Id
         /// </summary>
-        public string BusId { get; internal set; }
+        public string BusId { get; set; }
 
         /// <summary>
         /// Date and time when message were sent
         /// </summary>
-        public DateTime Sent { get; internal set; }
+        public DateTime Sent { get; set; }
 
         /// <summary>
         /// List of headers associated with the message

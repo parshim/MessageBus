@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel.Channels;
 using MessageBus.Core.API;
 using Newtonsoft.Json;
 
@@ -9,7 +8,6 @@ namespace MessageBus.Core
 {
     public class PublisherConfigurator : IPublisherConfigurator
     {
-        private BufferManager _bufferManager;
         private IPublishingErrorHandler _errorHandler;
         private ITrace _trace;
         private readonly Func<bool> _blocked;
@@ -32,11 +30,6 @@ namespace MessageBus.Core
             _errorHandler = errorHandler;
             _trace = trace;
             _blocked = blocked;
-        }
-
-        public BufferManager BufferManager
-        {
-            get { return _bufferManager; }
         }
 
         public IPublishingErrorHandler ErrorHandler
@@ -95,13 +88,6 @@ namespace MessageBus.Core
             get { return _blocked(); }
         }
 
-        public IPublisherConfigurator UseBufferManager(BufferManager bufferManager)
-        {
-            _bufferManager = bufferManager;
-
-            return this;
-        }
-
         public IPublisherConfigurator UseErrorHandler(IPublishingErrorHandler errorHandler)
         {
             _errorHandler = errorHandler;
@@ -127,13 +113,6 @@ namespace MessageBus.Core
         {
             _persistentDelivery = true;
 
-            return this;
-        }
-
-        public IPublisherConfigurator UseSoapSerializer()
-        {
-            _serializer = new SoapSerializer();
-            
             return this;
         }
 

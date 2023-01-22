@@ -39,14 +39,7 @@
         /// <param name="connectionString"></param>
         /// <returns></returns>
         IBusConfigurator UseAlternateConnectionString(string connectionString);
-
-        /// <summary>
-        /// Specify broker connection string
-        /// </summary>
-        /// <param name="name">Connection string name from App.config</param>
-        /// <returns></returns>
-        IBusConfigurator UseConfiguredConnectionString(string name);
-        
+                
         /// <summary>
         /// Specify error subscriber interface to redirect subscriber errors to.
         /// </summary>
