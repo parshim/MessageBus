@@ -2,7 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<BaseOutputPath>..\..\Binaries\Release\</BaseOutputPath>
+		<BaseOutputPath>..\..\Binaries\</BaseOutputPath>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
