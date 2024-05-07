@@ -36,9 +36,9 @@ namespace MessageBus.Core
 
         public bool SubscribeHierarchy(Type baseType, ICallHandler handler, IEnumerable<BusHeader> filter)
         {
-            var types = from type in baseType.Assembly.GetTypes()
+            var types = (from type in baseType.Assembly.GetTypes()
                 where type != baseType && baseType.IsAssignableFrom(type)
-                select type;
+                select type).ToList();
 
             bool atLeastOne = false;
 
